@@ -16,9 +16,20 @@ sudo mv tw /usr/local/bin/
 ```
 export TOWER_ACCESS_TOKEN=<your access token>
 ```
-4. (Optionally) Configure the workspace ID as a environment variable using `TOWER_WORKSPACE_ID`. Can also be set in the config YAML provided to the script.
+4. (Optionally) Configure the workspace ID as a environment variable using `TOWER_WORKSPACE_ID`. This can also be set in the config YAML provided to the script using `workspace: <your workspace>`.
 
-Most packages used in these scripts are available in base, with the exception of potentially `pyyaml`. If not installed, you can run:
+5. These scripts don't use any specific non-default packages but you can set up a minimal conda environment in Linux as such:
+```
+wget -O miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+
+bash miniconda.sh -p <prefix_to_a_specific_path> 
+
+source .bash_profile
+
+conda env create -f environment.yaml
+```
+
+Most packages used in these scripts are available in base, with the exception of potentially `pyyaml`. If not installed, you can also just run:
 ```
 pip install pyyaml
 ```
