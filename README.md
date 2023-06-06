@@ -18,6 +18,11 @@ export TOWER_ACCESS_TOKEN=<your access token>
 ```
 4. (Optionally) Configure the workspace ID as a environment variable using `TOWER_WORKSPACE_ID`. Can also be set in the config YAML provided to the script.
 
+Most packages used in these scripts are available in base, with the exception of potentially `pyyaml`. If not installed, you can run:
+```
+pip install pyyaml
+```
+
 ## Usage
 
 ### Config for running pipelines in `benchmark_tests.yaml`
@@ -29,6 +34,8 @@ In this config, specify what
  - (Optional) Profile for your pipeline (i.e. `profile test` or `profile test_full`)
  - (Optional) Pipeline parameters in the `parameters` block: You can specify pipeline-specific parameters here. They will be supplied to the Tower CLI as the `--params-file` option. For example, you can specify the `outdir` for your pipeline results here.
  - (Optionla) Specify Nextflow configuration options in `config`: These will be supplied to the Tower CLI as the `--config` option.
+
+All pipelines specified in this config will be launched simultaneously. 
 
 There are default examples of the config file provided in this repo that can be edited or just used out of the box.
 
