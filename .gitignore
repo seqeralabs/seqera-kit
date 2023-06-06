@@ -1,0 +1,4 @@
+scripts/py/test*
+scripts/py/scidev/*/*.json
+scripts/py/__pycache__/*
+scripts/py/benchmarking_scripts/__pycache__/*
