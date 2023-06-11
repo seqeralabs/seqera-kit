@@ -1,39 +1,9 @@
-import subprocess
 import os
 import json
 from pathlib import Path
-import yaml
-import shlex
 from datetime import date
 import tempfile
-
-
-def tw_run(cmd, *args, **kwargs):
-    """
-    Run a tw command with supplied commands
-    """
-    command = ["tw"]
-    if kwargs.get("to_json"):
-        command.extend(["-o", "json"])
-    command.extend(cmd)
-    command.extend(args)
-
-    if kwargs.get("config") is not None:
-        config_path = kwargs["config"]
-        command.append(f"--config={config_path}")
-
-    if "params_file" in kwargs:
-        params_path = kwargs["params_file"]
-        command.append(f"--params-file={params_path}")
-
-    full_cmd = " ".join(shlex.quote(arg) for arg in command)
-
-    # Run the command and return the stdout
-    process = subprocess.Popen(full_cmd, stdout=subprocess.PIPE, shell=True)
-    stdout, _ = process.communicate()
-    stdout = stdout.decode("utf-8").strip()
-
-    return stdout
+import yaml
 
 
 def tw_env_var(tw_variable):
@@ -44,8 +14,7 @@ def tw_env_var(tw_variable):
         raise EnvironmentError(
             f"Tower environment variable '{tw_variable}' is not set."
         )
-    else:
-        return os.environ[tw_variable]
+    return os.environ[tw_variable]
 
 
 def validate_credentials(credentials, workspace):
@@ -133,8 +102,8 @@ def is_valid_json(file_path):
     Check if a file is valid JSON
     """
     try:
-        with open(file_path, "r") as f:
-            json.load(f)
+        with open(file_path, "r") as file:
+            json.load(file)
         return True
     except json.JSONDecodeError:
         return False
@@ -145,8 +114,8 @@ def is_valid_yaml(file_path):
     Check if a file is valid YAML
     """
     try:
-        with open(file_path, "r") as f:
-            yaml.safe_load(f)
+        with open(file_path, "r") as file:
+            yaml.safe_load(file)
         return True
     except yaml.YAMLError:
         return False

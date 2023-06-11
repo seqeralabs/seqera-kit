@@ -1,11 +1,10 @@
 """
 Python wrapper for tw pipelines command
 """
-from .utils import tw_run
-from pathlib import Path
+from .base import Tower
 
 
-class Workspace:
+class Workspace(Tower):
     """
     Python wrapper for tw pipelines command
     """

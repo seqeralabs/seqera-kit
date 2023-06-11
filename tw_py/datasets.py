@@ -1,39 +1,17 @@
 """
-Python wrapper for tw datasets command
+Subclass of Tower class for datasets
 """
-from .utils import tw_run
+from .base import Tower
 
 
-class Datasets:
+class Datasets(Tower):
     """
     Python wrapper for tw datasets command
     """
 
-    cmd = "datasets"
-
-    def __init__(self, dataset_name):
-        self.name = dataset_name
-
-    def _tw_run(self, command):
-        return tw_run(command)
-
-    def list(self):
-        """
-        List datasets in a workspace
-        """
-        return self._tw_run([self.cmd, "list"])
-
-    def view(self):
-        """
-        View a dataset
-        """
-        return self._tw_run([self.cmd, "view", "--name", self.name])
-
-    def delete(self):
-        """
-        Delete a dataset
-        """
-        self._tw_run([self.cmd, "delete", "--name", self.name])
+    @property
+    def cmd(self):
+        return "datasets"
 
     def add(self, description, header_opt, dataset_path):
         """
