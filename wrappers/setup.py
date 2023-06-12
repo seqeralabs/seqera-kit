@@ -2,7 +2,6 @@
 Python wrapper for tw pipelines command
 """
 from .utils import tw_run
-from pathlib import Path
 
 
 class Workspace:

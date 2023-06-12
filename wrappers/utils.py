@@ -40,7 +40,7 @@ def tw_env_var(tw_variable):
     """
     Check if a tw environment variable exists
     """
-    if not tw_variable in os.environ:
+    if tw_variable not in os.environ:
         raise EnvironmentError(
             f"Tower environment variable '{tw_variable}' is not set."
         )
