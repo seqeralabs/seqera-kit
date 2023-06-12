@@ -1,50 +1,18 @@
 """
-Python wrapper for tw compute-envs command
+Subclass of Tower class for compute environments
 """
-
-from .utils import tw_run
 from pathlib import Path
+from .base import Tower
 
 
-class ComputeEnvs:
+class ComputeEnvs(Tower):
     """
     Python wrapper for tw compute-envs command
     """
 
-    cmd = "compute-envs"
-
-    def __init__(self, workspace_name):
-        self.workspace = workspace_name
-
-    def _tw_run(self, command, *args, **kwargs):
-        return tw_run(command, *args, **kwargs)
-
-    def list(self, *args, **kwargs):
-        """
-        List compute environments
-        """
-        return self._tw_run(
-            [self.cmd, "list", "--workspace", self.workspace],
-            *args,
-            **kwargs,
-        )
-
-    def view(self, name, *args, **kwargs):
-        """
-        View a compute environment
-        """
-        return self._tw_run(
-            [self.cmd, "view", "--name", name, "--workspace", self.workspace],
-            to_json=True,
-            *args,
-            **kwargs,
-        )
-
-    def delete(self, name, *args):
-        """
-        Delete a compute environment
-        """
-        self._tw_run([self.cmd, "delete", "--name", name], *args)
+    @property
+    def cmd(self):
+        return "compute-envs"
 
     def export_ce(self, name, *args, **kwargs):
         """
@@ -67,7 +35,7 @@ class ComputeEnvs:
                 self.workspace,
                 "--name",
                 name,
-                outfile,
+                str(outfile),  # Ensure the Path object is converted to a string
             ],
             to_json=True,
             *args,
