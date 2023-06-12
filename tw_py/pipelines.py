@@ -14,15 +14,15 @@ class Pipelines(Tower):
     def cmd(self):
         return "pipelines"
 
-    def add(self, name, config, repository, *args, **kwargs):
+    def add(self, repository, name, config=None, *args, **kwargs):
         """
         Add a pipeline to the workspace
         Overrides the base class add method
         """
         command = [
             self.cmd,
-            repository,
             "add",
+            repository,
             "--name",
             name,
             "--workspace",

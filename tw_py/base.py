@@ -14,6 +14,16 @@ class Tower(ABC):
         pass
 
     def __init__(self, workspace_name):
+        env_var_name = (
+            "TOWER_WORKSPACE_ID"  # replace with the name of your environment variable
+        )
+        self.workspace = (
+            tw_env_var(env_var_name) if workspace_name is None else workspace_name
+        )
+        if self.workspace is None:
+            raise ValueError(
+                "Neither an environment variable for workspace name nor an argument was provided."
+            )
         self.workspace = workspace_name
 
     def _tw_run(self, cmd, *args, **kwargs):
