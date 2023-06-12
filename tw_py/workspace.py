@@ -24,7 +24,7 @@ class Workspace(Tower):
         Leave a workspace with the given workspace id or name.
         """
         if workspace_id:
-            command = [self.cmd, "leave", workspace_id]
+            command = [self.cmd, "leave", "--id", workspace_id]
         elif name:
             command = [self.cmd, "leave", "--name", name]
         self._tw_run(command, *args, **kwargs)
