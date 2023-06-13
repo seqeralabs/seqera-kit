@@ -1,18 +1,14 @@
 """
-Subclass of Tower class for compute environments
+Subclass of Tower class for overriding compute environments subcommand methods.
 """
 from pathlib import Path
-from .base import Tower
+from .tower import Tower
 
 
 class ComputeEnvs(Tower):
     """
-    Python wrapper for tw compute-envs command
+    Python wrapper for tw compute-envs export command.
     """
-
-    @property
-    def cmd(self):
-        return "compute-envs"
 
     def export_ce(self, name, *args, **kwargs):
         """
@@ -27,40 +23,16 @@ class ComputeEnvs(Tower):
         # define the output file path
         outfile = workspace_dir / f"{name}.json"
 
-        return self._tw_run(
-            [
-                self.cmd,
-                "export",
-                "--workspace",
-                self.workspace,
-                "--name",
-                name,
-                str(outfile),  # Ensure the Path object is converted to a string
-            ],
-            to_json=True,
-            *args,
-            **kwargs,
-        )
-
-    def import_ce(self, name, config, credentials, *args, **kwargs):
-        """
-        Import a compute environment
-        """
+        # Build the command
         command = [
-            self.cmd,
-            "import",
-            "--name",
-            name,
-            config,
-            "--credentials",
-            credentials,
+            "compute-envs",
+            "export",
             "--workspace",
             self.workspace,
+            "--name",
+            name,
+            str(outfile),
         ]
-        self._tw_run(command, *args, **kwargs)
 
-    def set_default(self, name, *args):
-        """
-        Set a compute environment as default
-        """
-        self._tw_run([self.cmd, "primary", "set", "--name", name], *args)
+        # Pass the built command to the base class method in Tower
+        return self._tw_run(command, *args, **kwargs, to_json=True)
