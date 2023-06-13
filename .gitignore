@@ -1,4 +1,14 @@
+# Testing configs, jsons
 scripts/py/test*
 scripts/py/scidev/*/*.json
-scripts/py/__pycache__/*
-scripts/py/benchmarking_scripts/__pycache__/*
+
+# Python
+# byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Commitizen
+node_modules/
+package-lock.json
+package.json
