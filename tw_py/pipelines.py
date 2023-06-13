@@ -1,77 +1,38 @@
 """
-Subclass of Tower class for pipelines
+Subclass of Tower class for overriding pipelines subcommand methods.
 """
 from pathlib import Path
-from .base import Tower
+from .tower import Tower
 
 
 class Pipelines(Tower):
     """
-    Python wrapper for tw pipelines command
+    Python wrapper for tw pipelines export command.
     """
-
-    @property
-    def cmd(self):
-        return "pipelines"
-
-    def add(self, name, config, repository, *args, **kwargs):
-        """
-        Add a pipeline to the workspace
-        Overrides the base class add method
-        """
-        command = [
-            self.cmd,
-            repository,
-            "add",
-            "--name",
-            name,
-            "--workspace",
-            self.workspace,
-        ]
-        if config is not None:
-            command.extend(["--params-file", config])
-        self._tw_run(command, *args, **kwargs)
-
-    def import_pipeline(self, name, config, *args, **kwargs):
-        """
-        Import a pipeline
-        """
-        self._tw_run(
-            [self.cmd, "import", "--name", name, config, "--workspace", self.workspace],
-            *args,
-            **kwargs,
-        )
 
     def export_pipeline(self, name, *args, **kwargs):
         """
         Export a pipeline
         """
+        # create a Path object for the workspace directory
         workspace_dir = Path(self.workspace)
+
+        # create the directory if it doesn't exist
         workspace_dir.mkdir(parents=True, exist_ok=True)
-        outfile = workspace_dir / f"{name}.json"
 
-        return self._tw_run(
-            [
-                self.cmd,
-                "export",
-                "--workspace",
-                self.workspace,
-                "--name",
-                name,
-                outfile,
-            ],
-            *args,
-            **kwargs,
-        )
+        # define the output file path
+        outfile = str(workspace_dir / f"{name}.json")
 
-    def launch(self, name, *args, **kwargs):
-        """
-        Launch a pipeline
-        """
+        # Build the command
         command = [
-            "launch",
-            name,
+            "pipelines",
+            "export",
             "--workspace",
             self.workspace,
+            "--name",
+            name,
+            outfile,
         ]
+
+        # Pass the built command to the base class method in Tower
         return self._tw_run(command, *args, **kwargs)
