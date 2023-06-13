@@ -5,13 +5,13 @@ Wrapper script to automate pipeline running for a set of nf-core/pipelines
 provided in a config.yaml
 """
 import argparse
-from wrappers.pipelines import Pipelines as PipelineWrapper
-import wrappers.utils as utils
 from pathlib import Path
 import sys
 import logging
-import yaml
 import time
+import yaml
+from tw_py import Tower
+from tw_py import utils
 
 logger = logging.getLogger(__name__)
 
@@ -36,22 +36,29 @@ def parse_args():
 
 
 def handle_launch(
-    tw_wrapper: PipelineWrapper,
+    tw_wrapper: Tower,
     pipeline_url: str,
     profile: str,
     name: str = None,
     revision: str = None,
     compute_env: str = None,
+    workspace: str = None,
     params_file: str = None,
     config_file: str = None,
 ):
     try:
-        tw_wrapper.launch(
-            utils.get_pipeline_repo(pipeline_url),
+        # Prepare the list of additional command line options
+        cmd_options = [
             f"--name={name}",
             f"--revision={revision}",
             f"--profile={profile}",
             f"--compute-env={compute_env}",
+            f"--workspace={workspace}",
+        ]
+
+        tw_wrapper.launch(
+            utils.get_pipeline_repo(pipeline_url),
+            *cmd_options,  # Expand the list as positional arguments
             params_file=params_file,
             config=config_file,
         )
@@ -96,8 +103,8 @@ def main():
     workspace = config.get("workspace") or utils.tw_env_var("TOWER_WORKSPACE_ID")
     compute_env = config.get("compute-env")
 
-    # Create an instance of the PipelineWrapper class
-    tw_wrapper = PipelineWrapper(workspace)
+    # Create an instance of the Tower wrapper class
+    tw = Tower(workspace)
 
     # Parse the YAML file
     pipeline_data = utils.parse_yaml_file(args.config)
@@ -110,12 +117,13 @@ def main():
         pipeline_params = utils.get_pipeline_params(pipeline_data, pipeline["name"])
 
         handle_launch(
-            tw_wrapper,
+            tw,
             pipeline["url"],
             pipeline["profiles"],
             pipeline["name"],
             pipeline.get("revision"),
             compute_env,
+            workspace,
             params_file=pipeline_params,
             config_file=pipeline["config"] if pipeline.get("config") else None,
         )
