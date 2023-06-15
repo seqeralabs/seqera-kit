@@ -25,16 +25,20 @@ class Tower:
             return self.tw_instance._tw_run(command, **kwargs)
 
     # Constructs a new Tower instance with a specified workspace
-    def __init__(self, workspace_name):
-        env_var_name = "TOWER_WORKSPACE_ID"
-        self.workspace = (
-            tw_env_var(env_var_name) if workspace_name is None else workspace_name
-        )
-        if self.workspace is None:
-            raise ValueError(
-                "Neither an environment variable for workspace name nor an argument was provided."
-            )
-        self.workspace = workspace_name
+    def __init__(self):
+        pass
+        # TODO: don't need to specify workspace when
+        # initializing Tower class
+
+        # env_var_name = "TOWER_WORKSPACE_ID"
+        # self.workspace = (
+        #     tw_env_var(env_var_name) if workspace_name is None else workspace_name
+        # )
+        # if self.workspace is None:
+        #     raise ValueError(
+        #         "Neither an environment variable for workspace name nor an argument was provided."
+        #     )
+        # self.workspace = workspace_name
 
     # Executes a 'tw' command in a subprocess and returns the output.
     def _tw_run(self, cmd, *args, **kwargs):
@@ -55,8 +59,11 @@ class Tower:
             params_path = kwargs["params_file"]
             command.append(f"--params-file={params_path}")
 
-        full_cmd = " ".join(shlex.quote(arg) for arg in command)
-        print(full_cmd)
+        full_cmd = " ".join(
+            arg if arg.startswith("$") else shlex.quote(arg) for arg in command
+        )
+        print(f"DEBUG: Running command would be: {full_cmd}")
+
         # Run the command and return the stdout
         process = subprocess.Popen(full_cmd, stdout=subprocess.PIPE, shell=True)
         stdout, _ = process.communicate()
