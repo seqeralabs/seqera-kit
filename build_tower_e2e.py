@@ -1,5 +1,7 @@
 """
 This script is used to build a Tower instance from a YAML configuration file.
+Requires a YAML file that defines the resources to be created in Tower and
+the required options for each resource based on the Tower CLI.
 """
 from tw_py import tower
 import argparse
@@ -10,8 +12,6 @@ import yaml
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
-
-# from urllib.parse import urlparse
 
 
 def log_and_continue(e):
@@ -30,27 +30,23 @@ def parse_args():
         choices=("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"),
         help="The desired log level (default: WARNING).",
     )
-    # TODO: launch option? launch pipelines after adding
-    # parser.add_argument("--launch", action="store_true", help="Launch the pipelines specified in config file")
     return parser.parse_args()
 
 
-class BlockManager:
+class BlockParser:
     """
-    Manages blocks of commands defined in a configuration file.
-
-    Attributes:
-    tw: A Tower instance.
-    list_for_add_method: A list of blocks that need to be handled by the 'add' method.
+    Manages blocks of commands defined in a configuration file and calls appropriate
+    functions for each block for custom handling of command-line arguments to _tw_run().
     """
 
     def __init__(self, tw, list_for_add_method):
         """
-        Initializes a BlockManager instance.
+        Initializes a BlockParser instance.
 
         Args:
-        tw: A Tower instance.
-        list_for_add_method: A list of blocks that need to be handled by the 'add' method.
+        tw: A Tower class instance.
+        list_for_add_method: A list of blocks that need to be
+        handled by the 'add' method.
         """
         self.tw = tw
         self.list_for_add_method = list_for_add_method
@@ -64,12 +60,19 @@ class BlockManager:
             "pipelines": helper.handle_pipelines,
             "launch": helper.handle_launch,
         }
+        # Check if overwrite is set to True
+        overwrite = args.get("overwrite", False)
+        if overwrite:
+            logging.info(f"\nOverwrite is set to 'True' for {block}\n")
+            # Call handle_overwrite if True
+            helper.handle_overwrite(self.tw, block, args["cmd_args"])
+
         if block in self.list_for_add_method:
-            helper.handle_add_block(self.tw, block, args)
+            helper.handle_add_block(self.tw, block, args["cmd_args"])
         elif block in block_handler_map:
-            block_handler_map[block](self.tw, args)
+            block_handler_map[block](self.tw, args["cmd_args"])
         else:
-            logger.error(f"Unrecognized block in YAML: {block}")
+            logger.error(f"Unrecognized resource block in YAML: {block}")
 
 
 def main():
@@ -81,10 +84,10 @@ def main():
         return
 
     tw = tower.Tower()
-    block_manager = BlockManager(
+    block_manager = BlockParser(
         tw,
         [
-            "organizations",
+            "organizations",  # all use method.add
             "workspaces",
             "credentials",
             "secrets",
@@ -95,21 +98,14 @@ def main():
     with open(options.config, "r") as f:
         data = yaml.safe_load(f)
 
-    # Returns a dictionary that maps block names to lists of command line
-    # arguments. Each list of arguments is itself a list of arguments
-    # for a single command.
+    # Returns a dict that maps block names to lists of command line arguments.
     cmd_args_dict = helper.parse_all_yaml(options.config, list(data.keys()))
 
-    # iterates over each item in cmd_args_dict. For each block,
-    # calls block_manager.handle_block to handle the block of commands
     for block, args_list in cmd_args_dict.items():
         for args in args_list:
-            # TODO: remove the debugger eventually
-            logger.debug(f"For block '{block}', the arguments are: {args}")
-            time.sleep(3)
-
             # Run the methods for each block
             block_manager.handle_block(block, args)
+            time.sleep(3)
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ from pathlib import Path
 from datetime import date
 import tempfile
 import yaml
+from urllib.parse import urlparse
 
 
 def tw_env_var(tw_variable):
@@ -15,22 +16,6 @@ def tw_env_var(tw_variable):
             f"Tower environment variable '{tw_variable}' is not set."
         )
     return os.environ[tw_variable]
-
-
-def validate_credentials(credentials, workspace):
-    """
-    Validate credentials for a workspace using the name of the credentials
-    """
-    credentials_avail = tw_run(
-        ["credentials", "list", "--workspace", workspace], to_json=True
-    )
-    credentials_avail = json.loads(credentials_avail)
-
-    # Check if provided credentials exist in the workspace
-    if credentials not in [item["name"] for item in credentials_avail["credentials"]]:
-        raise ValueError(
-            f"Credentials '{credentials}' not found in workspace '{workspace}'"
-        )
 
 
 def get_json_files(json_files):
@@ -51,7 +36,7 @@ def get_json_files(json_files):
     return json_str, basenames
 
 
-def find_key_value_in_dict(data, target_key, target_value):
+def find_key_value_in_dict(data, target_key, target_value, return_key):
     """
     Generic method to find a key-value pair in a nested dictionary and within
     lists of dictionaries.
@@ -61,20 +46,28 @@ def find_key_value_in_dict(data, target_key, target_value):
     if isinstance(data, dict):
         for key, value in data.items():
             if key == target_key and value == target_value:
-                return True
-            if isinstance(value, dict) and find_key_value_in_dict(
-                value, target_key, target_value
-            ):
-                return True
+                # If we find our target key-value pair,
+                # return the value of the specified return key
+                return data.get(return_key)
+            if isinstance(value, dict):
+                result = find_key_value_in_dict(
+                    value, target_key, target_value, return_key
+                )
+                if result:
+                    return result
             if isinstance(value, list):
                 for item in value:
-                    if find_key_value_in_dict(item, target_key, target_value):
-                        return True
+                    result = find_key_value_in_dict(
+                        item, target_key, target_value, return_key
+                    )
+                    if result:
+                        return result
     elif isinstance(data, list):
         for item in data:
-            if find_key_value_in_dict(item, target_key, target_value):
-                return True
-    return False
+            result = find_key_value_in_dict(item, target_key, target_value, return_key)
+            if result:
+                return result
+    return None
 
 
 def validate_id(json_data, name):
@@ -164,6 +157,9 @@ def get_pipeline_params(pipeline_data, pipeline_name):
 
 
 def parse_yaml_file(file_path):
+    """
+    Parse a yaml file and return a dict of info required for launching of pipelines
+    """
     with open(file_path, "r") as file:
         data = yaml.safe_load(file)
 
@@ -193,3 +189,25 @@ def get_pipeline_repo(pipeline_repo):
         return "https://github.com/" + pipeline_repo
     else:
         return pipeline_repo
+
+
+def is_url(s):
+    """
+    Check if a string is a valid URL
+    """
+    try:
+        result = urlparse(s)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
+
+
+def create_temp_yaml(params_dict):
+    """
+    Create a generic temporary yaml file given a dictionary
+    """
+    with tempfile.NamedTemporaryFile(
+        mode="w", delete=False, suffix=".yaml"
+    ) as temp_file:
+        yaml.dump(params_dict, temp_file)
+        return temp_file.name
