@@ -23,14 +23,15 @@ def log_and_continue(e):
 def parse_args():
     # TODO: description and usage
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", type=Path, help="Config file with pipelines to run")
     parser.add_argument(
         "-l",
         "--log_level",
         default="INFO",
         choices=("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"),
-        help="The desired log level (default: WARNING).",
+        help="The desired log level (default: INFO).",
+        type=str.upper,
     )
+    parser.add_argument("yaml", type=Path, help="Config file with pipelines to run")
     return parser.parse_args()
 
 

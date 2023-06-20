@@ -35,7 +35,7 @@ Currently, this software is not packaged on pip or conda so installation require
 
 ### 2. Conda environment
 
-Using the `environment.yaml` in this repository, you can create a conda environment (assuming you have miniconda installed) using the following:
+Using the `environment.yaml` in this repository, you can create a conda environment (assuming you have conda installed) using the following:
 
 ```
 conda env create -f environment.yaml

@@ -1,5 +1,5 @@
 """
-This file contains helper functions for the tower_e2e.py script.
+This file contains helper functions for the library.
 Including handling methods for each block in the YAML file, and parsing 
 methods for each block in the YAML file.
 """
