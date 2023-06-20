@@ -65,13 +65,13 @@ For development or installation of a local copy, you can use pip. After cloning 
 pip install .
 ```
 
-You can also run locally using the following command (where $REPO is the path to the local repository):
+You can also prevent the files being copied to your PYTHONPATH and edit them in place using the following command:
 
 ```
-PYTHONPATH=$REPO python $REPO/tw_py/cli.py
+pip install -e .
 ```
 
-You may wish to activate the [conda environment specified above](#2-conda-environment) for easy management of the Python.
+You may wish to activate the [conda environment specified above](#2-conda-environment) for easy management of the dependencies.
 
 ### 4. Set your `TOWER_ACCESS_TOKEN`
 

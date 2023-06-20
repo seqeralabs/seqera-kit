@@ -6,3 +6,5 @@ dependencies:
   - conda-forge::python=3.10.9
   - conda-forge::pyyaml=6.0
   - conda-forge::gitpython=3.1.31
+  - pip:
+      - "-e ."
