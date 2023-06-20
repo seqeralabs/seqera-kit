@@ -3,13 +3,14 @@ This script is used to build a Tower instance from a YAML configuration file.
 Requires a YAML file that defines the resources to be created in Tower and
 the required options for each resource based on the Tower CLI.
 """
-from tw_py import tower
 import argparse
 import logging
 import time
-import tower_e2e_helper as helper
 import yaml
+
 from pathlib import Path
+from tw_py import tower
+import tw_py.helper as helper  # don't like this
 
 logger = logging.getLogger(__name__)
 

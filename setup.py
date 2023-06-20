@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+
+from setuptools import find_packages, setup
+
+version = "0.0.1"
+
+with open("README.md") as f:
+    readme = f.read()
+
+setup(
+    name="twpy",
+    version=version,
+    description="""Automation of resource creation to be able 
+    to setup and run pipelines on Nextflow Tower.""",
+    long_description=readme,
+    long_description_content_type="text/markdown",
+    keywords=["nextflow", "bioinformatics", "workflow", "pipeline", "nextflow-tower"],
+    author="Esha Joshi",
+    author_email="esha.joshi@seqera.io",
+    url="https://github.com/ejseqera/tw-py",
+    license="MIT",
+    entry_points={"console_scripts": ["twpy=tw_py.cli:main"]},
+    python_requires=">=3.8, <4",  # untested
+    install_requires=[],
+    packages=find_packages(exclude=("docs")),
+    include_package_data=True,
+    zip_safe=False,
+)
