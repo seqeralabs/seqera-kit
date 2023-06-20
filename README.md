@@ -2,11 +2,11 @@
 
 This repository contains scripts that allow for 'automation' of resource creation to be able to setup and run pipelines on Nextflow Tower. This includes creation of things like organizations, teams, compute-environments, datasets, pipelines, and more.
 
-The `build_tower_e2e.py` script specifically can be used to automate end-to-end creation of resources/entities that would be required to run pipelines.
+The `twpy` command can be used to automate end-to-end creation of resources/entities that would be required to run pipelines.
 
-Additionally, the script specifies which resources to create using a config file. This config file can be used to maintain provenance of how resources are created, what options are used for each resource, and allows you to re-create resources with minimal configuration.
+After specifying which resources to create using a YAML config file, you can apply the resources using `twpy`. This config file can be used to maintain provenance of how resources are created, what options are used for each resource, and allows you to re-create resources with minimal configuration.
 
-In this script, you can:
+In this software, you can:
 
 - Set up organizations
 - Add participants and members
@@ -18,13 +18,20 @@ In this script, you can:
 
 ## Setup
 
-Clone this repository to your local environment.
-
-This repository provides two methods to build the minimum dependencies required to run this script in the form of:
+Currently, this software is not packaged on pip or conda so installation requires you clone this repository to a local directory. We recommend preparing your environment using [conda](#2-conda-environment), but using [docker](#3-docker) and [pip](#4-install-locally) is also available.
 
 ### 1. Dependencies
 
-twpy requires the Nextflow Tower CLI installed, but has no additional Python dependencies.
+`twpy` requires the Nextflow Tower CLI installed, but has no additional Python dependencies that are not available in the base Python installation. The used packages are:
+
+- argparse
+- gitpython
+- json
+- logging
+- pathlib
+- pyyaml
+- sys
+- time
 
 ### 2. Conda environment
 
@@ -44,6 +51,8 @@ chmod +x ./tw
 sudo mv tw /usr/local/bin/
 ```
 
+After creating you may want to install a local version (see [below](#4-install-locally)
+
 ### 3. Docker
 
 You may alternatively use the provided `Dockerfile` in this repository which provides both the Tower CLI and Python dependencies required to run this script.
@@ -61,6 +70,8 @@ You can also run locally using the following command (where $REPO is the path to
 ```
 PYTHONPATH=$REPO python $REPO/tw_py/cli.py
 ```
+
+You may wish to activate the [conda environment specified above](#2-conda-environment) for easy management of the Python.
 
 ### 4. Set your `TOWER_ACCESS_TOKEN`
 
