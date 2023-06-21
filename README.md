@@ -4,7 +4,7 @@ This repository contains scripts that automate resource creation on Nextflow Tow
 
 The `build_tower_e2e.py` script can be used to automate end-to-end creation of resources/entities that would be required to run pipelines. 
 
-Additionally, the script specifies which resources to create using a config file. This config file can be used to maintain provenance of how resources are created, what options are used for each resource, and allows you to re-create resources with minimal configuration.
+The script specifies which resources to create using a YAML config file. This config file can be used to maintain provenance of how resources are created, what options are used for each resource, and allows you to re-create resources with minimal configuration.
 
 In this script, you can:
 - Set up organizations
