@@ -2,7 +2,7 @@
 
 This repository contains scripts that automate resource creation on Nextflow Tower. This includes creation of organizations, teams, compute-environments, datasets, pipelines, and more.
 
-The `build_tower_e2e.py` script specifically can be used to automate end-to-end creation of resources/entities that would be required to run pipelines. 
+The `build_tower_e2e.py` script can be used to automate end-to-end creation of resources/entities that would be required to run pipelines. 
 
 Additionally, the script specifies which resources to create using a config file. This config file can be used to maintain provenance of how resources are created, what options are used for each resource, and allows you to re-create resources with minimal configuration.
 
