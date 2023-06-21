@@ -15,11 +15,6 @@ import tw_py.helper as helper  # don't like this
 logger = logging.getLogger(__name__)
 
 
-def log_and_continue(e):
-    logger.error(e)
-    return
-
-
 def parse_args():
     # TODO: description and usage
     parser = argparse.ArgumentParser()
@@ -81,10 +76,6 @@ def main():
     options = parse_args()
     logging.basicConfig(level=options.log_level)
 
-    if not options.config:
-        logger.error("Config file is required")
-        return
-
     tw = tower.Tower()
     block_manager = BlockParser(
         tw,
@@ -97,11 +88,11 @@ def main():
             "datasets",
         ],
     )
-    with open(options.config, "r") as f:
+    with open(options.yaml, "r") as f:
         data = yaml.safe_load(f)
 
     # Returns a dict that maps block names to lists of command line arguments.
-    cmd_args_dict = helper.parse_all_yaml(options.config, list(data.keys()))
+    cmd_args_dict = helper.parse_all_yaml(options.yaml, list(data.keys()))
 
     for block, args_list in cmd_args_dict.items():
         for args in args_list:
