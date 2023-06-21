@@ -3,33 +3,30 @@ This script is used to build a Tower instance from a YAML configuration file.
 Requires a YAML file that defines the resources to be created in Tower and
 the required options for each resource based on the Tower CLI.
 """
-from tw_py import tower
 import argparse
 import logging
 import time
-import tower_e2e_helper as helper
 import yaml
+
 from pathlib import Path
+from tw_py import tower
+import tw_py.helper as helper  # don't like this
 
 logger = logging.getLogger(__name__)
-
-
-def log_and_continue(e):
-    logger.error(e)
-    return
 
 
 def parse_args():
     # TODO: description and usage
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", type=Path, help="Config file with pipelines to run")
     parser.add_argument(
         "-l",
         "--log_level",
         default="INFO",
         choices=("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"),
-        help="The desired log level (default: WARNING).",
+        help="The desired log level (default: INFO).",
+        type=str.upper,
     )
+    parser.add_argument("yaml", type=Path, help="Config file with pipelines to run")
     return parser.parse_args()
 
 
@@ -79,10 +76,6 @@ def main():
     options = parse_args()
     logging.basicConfig(level=options.log_level)
 
-    if not options.config:
-        logger.error("Config file is required")
-        return
-
     tw = tower.Tower()
     block_manager = BlockParser(
         tw,
@@ -95,11 +88,11 @@ def main():
             "datasets",
         ],
     )
-    with open(options.config, "r") as f:
+    with open(options.yaml, "r") as f:
         data = yaml.safe_load(f)
 
     # Returns a dict that maps block names to lists of command line arguments.
-    cmd_args_dict = helper.parse_all_yaml(options.config, list(data.keys()))
+    cmd_args_dict = helper.parse_all_yaml(options.yaml, list(data.keys()))
 
     for block, args_list in cmd_args_dict.items():
         for args in args_list:
