@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 
 
 def parse_args():
-    # TODO: description and usage
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-l",
@@ -26,7 +25,9 @@ def parse_args():
         help="The desired log level (default: INFO).",
         type=str.upper,
     )
-    parser.add_argument("yaml", type=Path, help="Config file with pipelines to run")
+    parser.add_argument(
+        "yaml", type=Path, help="Config file with Tower resources to create"
+    )
     return parser.parse_args()
 
 
