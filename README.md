@@ -1,6 +1,6 @@
 # Python Implementation of Nextflow Tower Automation
 
-This repository contains scripts that allow for 'automation' of resource creation to be able to setup and run pipelines on Nextflow Tower. This includes creation of things like organizations, teams, compute-environments, datasets, pipelines, and more.
+This repository contains scripts that automate resource creation on Nextflow Tower. This includes creation of organizations, teams, compute-environments, datasets, pipelines, and more.
 
 The `twpy` command can be used to automate end-to-end creation of resources/entities that would be required to run pipelines.
 
@@ -192,7 +192,7 @@ credentials:
     workspace: # required
     access-key: $AWS_ACCESS_KEY_ID
     secret-key: $AWS_SECRET_ACCESS_KEY
-    assume-role-arn: 'arn:aws:iam::123456789:role/TowerDevelopmentRole'
+    assume-role-arn: '$AWS_ROLE'
     overwrite: True # optional
 ```
 
