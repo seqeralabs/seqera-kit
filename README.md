@@ -192,7 +192,7 @@ credentials:
     workspace: # required
     access-key: $AWS_ACCESS_KEY_ID
     secret-key: $AWS_SECRET_ACCESS_KEY
-    assume-role-arn: 'arn:aws:iam::123456789:role/TowerDevelopmentRole'
+    assume-role-arn: '$AWS_ROLE'
     overwrite: True # optional
 ```
 
