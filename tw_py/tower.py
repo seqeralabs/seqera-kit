@@ -1,5 +1,8 @@
 import subprocess
 import shlex
+import logging
+
+logging.basicConfig(level=logging.DEBUG)  # add this line at the top of your script
 
 
 class Tower:
@@ -49,9 +52,7 @@ class Tower:
         full_cmd = " ".join(
             arg if arg.startswith("$") else shlex.quote(arg) for arg in command
         )
-        print(
-            f"DEBUG: Running command would be: {full_cmd}"
-        )  # TODO remove at some point
+        logging.debug(f"Running command: {full_cmd}")
 
         # Run the command and return the stdout
         process = subprocess.Popen(full_cmd, stdout=subprocess.PIPE, shell=True)
