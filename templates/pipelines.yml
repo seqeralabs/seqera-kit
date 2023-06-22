@@ -1,0 +1,33 @@
+## To see the full list of options available run: "tw pipelines add"
+## The options required to create pipelines can be specified:
+##   1. Explicitly in this file
+##   2. Via a JSON file exported from Tower with the "tw pipelines export" command
+Pipelines can either be specified to be added from source (i.e. a Github repo) or using infrastructure-as-code with a file path to JSON with pipeline configuration settings.
+
+For example, from a Github repo:
+
+```
+pipelines:
+  - name: 'nf-core-rnaseq' # required
+    url: 'https://github.com/nf-core/rnaseq' # required
+    workspace: # required
+    description: # optional
+    compute-env: # required
+    work-dir: # required
+    profile: # optional
+    revision: '3.12.0' # required
+    params: # optional
+      outdir: 's3://my-bucket/nf-core-rnaseq/results'
+    config: './pipelines/nextflow.config' # optional
+    pre-run: './pipelines/pre_run.txt' # optional
+    overwrite: True # optional
+```
+
+Or, for example, from a JSON file:
+
+```
+   - name: 'nf-sentieon' # required
+     workspace: # required
+     compute-env: # required
+     file-path: './pipelines/nf_sentieon_pipeline.json'
+```

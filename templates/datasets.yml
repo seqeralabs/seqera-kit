@@ -1,0 +1,8 @@
+## To see the full list of options available run: "tw datasets add"
+datasets:
+  - name: 'my_dataset'                        # required
+    description: 'My test dataset'            # optional
+    header: true                              # optional
+    workspace: 'my_organization/my_workspace' # required
+    file-path: './datasets/my_dataset.csv'    # required
+    overwrite: True                           # optional

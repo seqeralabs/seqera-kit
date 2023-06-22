@@ -1,0 +1,13 @@
+## To see the full list of options available run: "tw launch"
+Pipelines can be launched using an existing workspace pipeline name from the Launchpad, or from source as described above.
+
+For example, launching a pipeline you added in the previous step:
+
+```
+launch:
+  - name: 'rnaseq-test-cli'
+    pipeline: 'nf-core-rnaseq'
+    workspace: # required
+    params: # optional
+      outdir: 's3://my-bucket/nf-core-rnaseq/results'
+```
