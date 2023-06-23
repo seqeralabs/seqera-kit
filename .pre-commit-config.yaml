@@ -1,23 +1,26 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
-## general purpose linting and formatting
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.1.0
-  hooks:
-  - id: trailing-whitespace
-  - id: end-of-file-fixer
-  - id: check-yaml
-  - id: check-added-large-files
-## Python specific linting and formatting
-repos:
-    - repo: https://github.com/astral-sh/ruff-pre-commit
-      # Ruff version.
-      rev: v0.0.272
-      hooks:
-        - id: ruff        
-          args: [--fix, --exit-non-zero-on-fix]
-    - repo: https://github.com/psf/black
-      rev: 22.3.0
-      hooks:
-        - id: black
+  ## general purpose linting and formatting
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+  ## Python specific linting and formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: 'v2.7.1'
+    hooks:
+      - id: prettier
+  - repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+      - id: black
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.0.272
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
