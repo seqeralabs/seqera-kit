@@ -1,0 +1,9 @@
+name: tw_pywrap
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - conda-forge::python=3.10.9
+  - conda-forge::pyyaml=6.0
+  - bioconda::tower-cli=0.8.0
