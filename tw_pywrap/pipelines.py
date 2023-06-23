@@ -2,7 +2,7 @@
 Subclass of Tower class for overriding pipelines subcommand methods.
 """
 from pathlib import Path
-from .tower import Tower
+from tw_py.tower import Tower
 
 
 class Pipelines(Tower):

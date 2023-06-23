@@ -1,5 +1,6 @@
 name: tw_pywrap
 channels:
+  - bioconda
   - conda-forge
   - bioconda
   - defaults
