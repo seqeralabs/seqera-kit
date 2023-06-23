@@ -14,7 +14,7 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
 
 ### 1. Dependencies
 
-`tw-pywrap` only requires 3 dependencies which should be relatively easy to install manually if required:
+`tw-pywrap` requires the following dependencies:
 
   1. [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli#1-installation)
 
@@ -22,7 +22,7 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
     
   3. [PyYAML](https://pypi.org/project/PyYAML/)
 
-Alternatively, you can install these dependencies via Conda by downloading and using the [Conda environment file](environment.yml) that has been supplied in this repository:
+Alternatively, you can install the dependencies via Conda by downloading and using the [Conda environment file](environment.yml) that has been supplied in this repository:
 
 ```console
 conda env create -f environment.yml
@@ -49,15 +49,11 @@ pip install --upgrade --force-reinstall git+https://github.com/seqeralabs/tw-pyw
 
 Create a Tower access token using the [Nextflow Tower](https://tower.nf/) web interface via the **Your Tokens** page in your profile.
 
-Providing `tw-pywrap` access to Nextflow Tower with your access token can be achieved by:
+`tw-pywrap` reads this token from the environment variable `TOWER_ACCESS_TOKEN`. Please export it into your terminal as shown below:
 
-1. Exporting it directly into your terminal:
-
-    ```bash
-    export TOWER_ACCESS_TOKEN=<your access token>
-    ```
-
-2. Adding the above `export` command to a file such as `.bashrc` to be automatically added into your environment.
+```bash
+export TOWER_ACCESS_TOKEN=<your access token>
+```
 
 ## Quick start
 

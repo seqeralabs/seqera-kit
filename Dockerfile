@@ -11,8 +11,7 @@ COPY . /home/$MAMBA_USER
 WORKDIR /home/$MAMBA_USER
 
 RUN \
-    micromamba install -y -n base -c bioconda -c conda-forge -c defaults \
-    python=3.10.9 pyyaml=6.0 tower-cli=0.8.0 \
+    micromamba install -y -n base -f environment.yml \
     && micromamba clean --all --yes
 
 ENV PATH="$PATH:/opt/conda/bin"

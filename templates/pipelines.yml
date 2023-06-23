@@ -7,7 +7,7 @@ pipelines:
     workspace: 'my_organization/my_workspace'     # required
     description: 'My test pipeline'               # optional
     compute-env: 'my_aws_compute_environment'     # required
-    work-dir: 's3://my_bucket'                    # required
+    work-dir: 's3://my_bucket'                    # optional
     profile: 'test'                               # optional
     revision: 'main'                              # required
     params:                                       # optional
