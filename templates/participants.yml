@@ -1,0 +1,10 @@
+## To see the full list of options available run: "tw participants add"
+participants:
+  - name: 'my_team'                           # required
+    type: 'TEAM'                              # required
+    workspace: 'my_organization/my_workspace' # required
+    role: 'ADMIN'                             # required
+  - name: 'my_team_member@gmail.com'          # required
+    type: 'MEMBER'                            # required
+    workspace: 'my_organization/my_workspace' # required
+    role: 'LAUNCH'                            # required

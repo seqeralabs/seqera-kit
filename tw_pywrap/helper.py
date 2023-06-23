@@ -4,8 +4,8 @@ Including handling methods for each block in the YAML file, and parsing
 methods for each block in the YAML file.
 """
 import yaml
-from tw_py import tower
-from tw_py import utils
+from tw_pywrap import tower
+from tw_pywrap import utils
 import json
 
 # TODO: rename these functions to be more descriptive

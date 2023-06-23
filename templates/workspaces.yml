@@ -1,0 +1,8 @@
+## To see the full list of options available run: "tw workspaces add"
+workspaces:
+  - name: 'my_workspace'              # required
+    full-name: 'my_workspace'         # required
+    organization: 'my_organization'   # required
+    description: 'My test workspace'  # optional
+    visibility: 'PRIVATE'             # optional
+    overwrite: True                   # optional

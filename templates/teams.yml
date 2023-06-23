@@ -1,0 +1,8 @@
+## To see the full list of options available run: "tw teams add"
+teams:
+  - name: 'my_team'                 # required
+    organization: 'my_organization' # required
+    description: 'My test team'     # optional
+    members:                        # optional
+      - 'my_team_member@gmail.com'
+    overwrite: True                 # optional
