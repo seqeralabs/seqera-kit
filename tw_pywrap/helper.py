@@ -247,7 +247,7 @@ def handle_launch(tw, args):
 # Handle overwrite functionality
 
 
-def get_delete_identifier(block, yaml_key, key_value, target_key, tw_args):
+def get_delete_identifier(block, yaml_key, key_value, target_key, tw_args=None):
     """
     Special handler for resources that need to be deleted by another identifier.
     TODO: Remove when `--overwrite` is supported by the CLI
@@ -256,14 +256,15 @@ def get_delete_identifier(block, yaml_key, key_value, target_key, tw_args):
     tw = tower.Tower()
     base_method = getattr(tw, "-o json")
 
-    # Get json data for block using list method
-    block_data = base_method(block, "list", "-o", tw_args)
+    if block == "teams":
+        block_data = base_method(block, "list", "-o", tw_args)
+    else:
+        block_data = base_method(block, "list")
 
     # Get the identifier key for the block
     real_identifier = utils.find_key_value_in_dict(
         json.loads(block_data), yaml_key, key_value, target_key
     )
-
     # Return the correct identifier to use delete method on
     return real_identifier
 
@@ -329,10 +330,10 @@ def handle_overwrite(tw, block, args):
             "keys": ["name", "organization"],
             "method_args": lambda tw_args: (
                 "delete",
-                "--name",
-                "{}/{}".format(tw_args["organization"], tw_args["name"]),
+                "--id",
+                str(tw_args["name"]),
             ),
-            "name_key": "workspaceName",
+            "name_key": "workspaceId",
         },
     }
 
@@ -356,6 +357,7 @@ def handle_overwrite(tw, block, args):
         # Return JSON data to check if resource exists
         json_method = getattr(tw, "-o json")
 
+        # TODO: refactor this
         if block == "teams":
             tw_args = get_values_from_cmd_args(args[0], keys_to_get)
             json_data = json_method(block, "list", "-o", tw_args["organization"])
@@ -364,6 +366,13 @@ def handle_overwrite(tw, block, args):
             json_data = json_method(block, "list", "-w", tw_args["workspace"])
             if tw_args["type"] == "TEAM":
                 operation["name_key"] = "teamName"
+        elif block == "workspaces":
+            tw_args = get_values_from_cmd_args(args, keys_to_get)
+            json_data = json_method(block, "list")
+            workspaceId = find_workspace_id(
+                json_data, tw_args["organization"], tw_args["name"]
+            )
+            tw_args["name"] = workspaceId  # override workspace name with workspaceId
         else:
             tw_args = get_values_from_cmd_args(args, keys_to_get)
             json_data = json_method(block, "list")
@@ -390,3 +399,18 @@ def get_values_from_cmd_args(cmd_args, keys):
                 values[key] = arg
             key = None
     return values
+
+
+# There can be multiple workspaces in an org with the same name
+# This retrieves the workspace id for a given workspace name and org
+def find_workspace_id(json_data, organization, workspace_name):
+    json_data = json.loads(json_data)
+    if "workspaces" in json_data:
+        workspaces = json_data["workspaces"]
+        for workspace in workspaces:
+            if (
+                workspace.get("orgName") == organization
+                and workspace.get("workspaceName") == workspace_name
+            ):
+                return workspace.get("workspaceId")
+    return None
