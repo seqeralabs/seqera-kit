@@ -62,31 +62,19 @@ Providing `tw-pywrap` access to Tower with your access token can be achieved by:
 
 ## Quick start
 
-<!-- To run this script, you must set up a yaml file that will define the resources/entities you would like to create or modify on Tower, as well as define the required options for those entities. These options are defined as key-value pairs in your yaml file.
+To run this script, you must provide a yaml file that will define the resources you would like to create on Tower, and define the required options for those resources.
 
-For example, to create an organization, you can define the first block of your yaml with the resource you want to create, followed by the options required to pass to the CLI to create the resource, in your yaml:
+For example, to get started, you can use the following yaml configuration to launch the Nextflow [hello-world pipeline](https://github.com/nextflow-io/hello):
 
+In `config.yaml`:
 ```
-organizations:
-  - name: 'my_organization'
-    full-name: 'company_A_organization'
-    description: 'Organization created E2E with tw CLI scripting'
-    location: 'Global'
-    website: 'https://company.com/'
-    overwrite: False
+launch:
+  - name: 'hello-world-cli-test'                      # workflow name
+    pipeline: 'https://github.com/nextflow-io/hello'  # pipeline URL
+    workspace: 'my_workspace'                         # your workspace name
+    compute-env: 'my_compute_env'                     # your compute environment
 ```
-
-The key-value pairs defined in each block of your yaml file will mirror the options you would provide to the CLI. In this case, on the CLI, we would create this organization by running:
-
-```
-tw organizations add --name my_organization \
-    --full-name 'company_A_organization' \
-    --description 'Organization created E2E with tw CLI scripting' \
-    --location 'Global' \
-    --website 'https://company.com/' \
-```
-
-Optionally, you can specify `overwrite: True` for each block which will allow you to overwrite the resource if it already exists in Tower.
+You will need to replace `compute-env` with a valid compute environment to run your pipeline in, and replace `workspace` with a workspace on Tower that you have access to and are able to launch pipelines within.
 
 Additional options can be specified but the script will fail to create or update your resource unless the minimum options are specified.
 
@@ -126,4 +114,4 @@ Template YAML files can be found in the [`templates/`](templates) directory:
 
 ## Credits
 
-`tw-wrapy` was written by [Esha Joshi](https://github.com/ejseqera), [Adam Talbot](https://github.com/adamrtalbot) and [Harshil Patel](https://github.com/drpatelh) from the Scientific Development Team at [Seqera Labs](https://seqera.io/).
+`tw-pywrap` was written by [Esha Joshi](https://github.com/ejseqera), [Adam Talbot](https://github.com/adamrtalbot) and [Harshil Patel](https://github.com/drpatelh) from the Scientific Development Team at [Seqera Labs](https://seqera.io/).
