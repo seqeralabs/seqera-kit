@@ -4,9 +4,7 @@ participants:
     type: 'TEAM'                              # required
     workspace: 'my_organization/my_workspace' # required
     role: 'ADMIN'                             # required
-    overwrite: True                           # optional
   - name: 'my_team_member@gmail.com'          # required
     type: 'MEMBER'                            # required
     workspace: 'my_organization/my_workspace' # required
     role: 'LAUNCH'                            # required
-    overwrite: True                           # optional
