@@ -47,8 +47,12 @@ def find_key_value_in_dict(data, target_key, target_value, return_key):
         for key, value in data.items():
             if key == target_key and value == target_value:
                 # If we find our target key-value pair,
-                # return the value of the specified return key
-                return data.get(return_key)
+                # return the value of the specified return key if it is not None
+                if return_key is not None:
+                    return data.get(return_key)
+                else:
+                    # or any other value to indicate the existence of the key-value pair
+                    return True
             if isinstance(value, dict):
                 result = find_key_value_in_dict(
                     value, target_key, target_value, return_key
@@ -80,14 +84,14 @@ def validate_id(json_data, name):
         raise ValueError(f"Could not find '{name}' in Tower. Something went wrong.")
 
 
-def check_if_exists(json_data, name):
+def check_if_exists(json_data, namekey, namevalue):
     """
     Wrapper around find_key_value_in_dict() to validate that a resource was
-    created successfully in Tower by looking for the name.
+    created successfully in Tower by looking for the name and value.
     """
     data = json.loads(json_data)
-    if find_key_value_in_dict(data, "name", name):
-        raise ValueError(f"Resource '{name}' already exists in Tower.")
+    if find_key_value_in_dict(data, namekey, namevalue, return_key=None):
+        return True
 
 
 def is_valid_json(file_path):
