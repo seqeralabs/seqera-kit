@@ -52,7 +52,7 @@ class Tower:
         full_cmd = " ".join(
             arg if arg.startswith("$") else shlex.quote(arg) for arg in command
         )
-        logging.debug(f"Running command: {full_cmd}")
+        logging.debug(f" Running command: {full_cmd}\n")
 
         # Run the command and return the stdout
         process = subprocess.Popen(full_cmd, stdout=subprocess.PIPE, shell=True)
