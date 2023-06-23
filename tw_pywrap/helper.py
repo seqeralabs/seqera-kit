@@ -332,7 +332,10 @@ def handle_overwrite(tw, block, args):
     if block in block_operations:
         operation = block_operations[block]
         keys_to_get = operation["keys"]
-        tw_args = get_values_from_cmd_args(args, keys_to_get)
+        if block == "teams":
+            tw_args = get_values_from_cmd_args(args[0], keys_to_get)
+        else:
+            tw_args = get_values_from_cmd_args(args, keys_to_get)
         method_args = operation["method_args"](tw_args)
 
         method = getattr(tw, block)

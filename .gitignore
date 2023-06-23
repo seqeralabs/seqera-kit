@@ -1,13 +1,13 @@
 # Testing configs, jsons
 scripts/py/test*
-scripts/py/scidev/*/*.json
 
 # Python
 # byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-build/*
+build/lib/*
+*.egg-info/*
 
 # Commitizen
 node_modules/
