@@ -269,10 +269,9 @@ def handle_overwrite(tw, block, args):
     Handler for overwrite functionality which will delete the resource
     before adding it again.
     # TODO: Remove when `--overwrite` is supported by the CLI
+    # TODO: Refactor this desperately
     """
     # Define blocks for simple overwrite with --name and --workspace
-    # TODO: Have not defined method for deleting participants, if you're
-    # overwriting teams than by default you're overwriting participants?
     generic_deletion = [
         "credentials",
         "secrets",
@@ -286,6 +285,7 @@ def handle_overwrite(tw, block, args):
         "organizations": {
             "keys": ["name"],
             "method_args": lambda tw_args: ("delete", "--name", tw_args["name"]),
+            "name_key": "orgName",
         },
         # Requires teamId to delete, not name
         "teams": {
@@ -305,6 +305,20 @@ def handle_overwrite(tw, block, args):
                 "--organization",
                 tw_args["organization"],
             ),
+            "name_key": "name",
+        },
+        "participants": {
+            "keys": ["name", "type", "workspace"],
+            "method_args": lambda tw_args: (
+                "delete",
+                "--name",
+                tw_args["name"],
+                "--type",
+                tw_args["type"],
+                "--workspace",
+                tw_args["workspace"],
+            ),
+            "name_key": "email",
         },
         # Requires workspace formatted a certain way for valid workspace name
         "workspaces": {
@@ -314,6 +328,7 @@ def handle_overwrite(tw, block, args):
                 "--name",
                 "{}/{}".format(tw_args["organization"], tw_args["name"]),
             ),
+            "name_key": "workspaceName",
         },
     }
 
@@ -327,19 +342,35 @@ def handle_overwrite(tw, block, args):
                 "--workspace",
                 tw_args["workspace"],
             ),
+            "name_key": "name",
         }
 
     if block in block_operations:
         operation = block_operations[block]
         keys_to_get = operation["keys"]
+
+        # Return JSON data to check if resource exists
+        json_method = getattr(tw, "-o json")
+
         if block == "teams":
             tw_args = get_values_from_cmd_args(args[0], keys_to_get)
+            json_data = json_method(block, "list", "-o", tw_args["organization"])
+        elif block == "participants":
+            tw_args = get_values_from_cmd_args(args, keys_to_get)
+            json_data = json_method(block, "list", "-w", tw_args["workspace"])
+            if tw_args["type"] == "TEAM":
+                operation["name_key"] = "teamName"
         else:
             tw_args = get_values_from_cmd_args(args, keys_to_get)
-        method_args = operation["method_args"](tw_args)
+            json_data = json_method(block, "list")
 
-        method = getattr(tw, block)
-        method(*method_args)
+        # Check if the resource exists, if true, delete it, else return
+        if utils.check_if_exists(json_data, operation["name_key"], tw_args["name"]):
+            method_args = operation["method_args"](tw_args)
+            method = getattr(tw, block)
+            method(*method_args)
+        else:
+            return
 
 
 # Other utility functions
