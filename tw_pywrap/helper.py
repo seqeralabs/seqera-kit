@@ -183,6 +183,9 @@ def parse_launch_block(item):
     for key, value in item.items():
         if key == "pipeline" or key == "url":
             repo_args.extend([str(value)])
+        elif key == "params":
+            temp_file_name = utils.create_temp_yaml(value)
+            cmd_args.extend(["--params-file", temp_file_name])
         else:
             cmd_args.extend([f"--{key}", str(value)])
     cmd_args = repo_args + cmd_args

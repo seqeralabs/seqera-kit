@@ -135,6 +135,7 @@ def get_pipeline_params(pipeline_data, pipeline_name):
 
     # Define a new class to register a new YAML representer to put single
     # quotes around the string values
+    # TODO: can probably remove this
     class quoted_str(str):
         pass
 
@@ -210,6 +211,18 @@ def create_temp_yaml(params_dict):
     """
     Create a generic temporary yaml file given a dictionary
     """
+
+    class quoted_str(str):
+        pass
+
+    def quoted_str_representer(dumper, data):
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="'")
+
+    yaml.add_representer(quoted_str, quoted_str_representer)
+    for k, v in params_dict.items():
+        if k == "outdir" and isinstance(v, str):
+            params_dict[k] = quoted_str(v)
+
     with tempfile.NamedTemporaryFile(
         mode="w", delete=False, suffix=".yaml"
     ) as temp_file:
