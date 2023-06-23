@@ -1,293 +1,136 @@
-# Python Implementation of Nextflow Tower Automation
+# tw-pywrap
 
-This repository contains scripts that automate resource creation on Nextflow Tower. This includes creation of organizations, teams, compute-environments, datasets, pipelines, and more.
+`tw-pywrap` is a Python wrapper for the [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli). It can be leveraged to automate the creation of all of the entities in Nextflow Tower via a simple configuration file in YAML format:
 
-The `twpy` command can be used to automate end-to-end creation of resources/entities that would be required to run pipelines.
+The key features are:
 
-After specifying which resources to create using a YAML config file, you can apply the resources using `twpy`. This config file can be used to maintain provenance of how resources are created, what options are used for each resource, and allows you to re-create resources with minimal configuration.
+- **Simple configuration**: All of the command-line options available when using the Nextflow Tower CLI can be defined in simple YAML format.
+- **Infrastructure as Code**: Enable users to manage and provision their infrastructure specifications.
+- **Automation**: End-to-end creation of entities within Nextflow Tower, all the way from adding an Organization to launching pipeline(s) within that Organization.
 
-In this software, you can:
+## Prerequisites
 
-- Set up organizations
-- Add participants and members
-- Add credentials and setup compute-environments
-- Add datasets
-- Add Tower Actions
-- Add pipelines to the launchpad via source (i.e Github Repo, and through infrastructure-as-code stored in JSON files)
-- Launch pipelines using your newly configured Tower instance
-
-## Setup
-
-Currently, this software is not packaged on pip or conda so installation requires you clone this repository to a local directory. We recommend preparing your environment using [conda](#2-conda-environment), but using [docker](#3-docker) and [pip](#4-install-locally) is also available.
+You will need to have an account on Nextflow Tower (see [Plans and pricing](https://cloud.tower.nf/pricing/)).
 
 ### 1. Dependencies
 
-`twpy` requires the Nextflow Tower CLI installed, but has no additional Python dependencies that are not available in the base Python installation. The used packages are:
+`tw-pywrap` requires the following dependencies:
 
-- argparse
-- gitpython
-- json
-- logging
-- pathlib
-- pyyaml
-- sys
-- time
+  1. [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli#1-installation)
 
-### 2. Conda environment
+  2. [Python (`>=3.8`)](https://www.python.org/downloads/)
+    
+  3. [PyYAML](https://pypi.org/project/PyYAML/)
 
-Using the `environment.yaml` in this repository, you can create a conda environment (assuming you have conda installed) using the following:
+Alternatively, you can install the dependencies via Conda by downloading and using the [Conda environment file](environment.yml) that has been supplied in this repository:
 
-```
-conda env create -f environment.yaml
-conda activate tw_pywrapper
+```console
+conda env create -f environment.yml
+conda activate tw_pywrap
 ```
 
-You will also need to have the Tower CLI installed:
+### 2. Installation
+
+The scripts in this repository will eventually be packaged via `pip`, but for now you can install the latest development version using the command below:
 
 ```
-wget -L https://github.com/seqeralabs/tower-cli/releases/download/v0.7.3/tw-0.8.0-linux-x86_64
-mv tw-* tw
-chmod +x ./tw
-sudo mv tw /usr/local/bin/
+pip install git+https://github.com/seqeralabs/tw-pywrap.git@main
 ```
 
-After creating you may want to install a local version (see [below](#4-install-locally)
-
-### 3. Docker
-
-You may alternatively use the provided `Dockerfile` in this repository which provides both the Tower CLI and Python dependencies required to run this script.
-
-### 4. Install locally
-
-For development or installation of a local copy, you can use pip. After cloning the repo, use the command:
+You can force overwrite the installation to use the latest changes with the command below:
 
 ```
-pip install .
+pip install --upgrade --force-reinstall git+https://github.com/seqeralabs/tw-pywrap.git@main
 ```
 
-You can also prevent the files being copied to your PYTHONPATH and edit them in place using the following command:
+### 3. Configuration
 
-```
-pip install -e .
-```
+Create a Tower access token using the [Nextflow Tower](https://tower.nf/) web interface via the **Your Tokens** page in your profile.
 
-You may wish to activate the [conda environment specified above](#2-conda-environment) for easy management of the dependencies.
+`tw-pywrap` reads this token from the environment variable `TOWER_ACCESS_TOKEN`. Please export it into your terminal as shown below:
 
-### 4. Set your `TOWER_ACCESS_TOKEN`
-
-You must set the `TOWER_ACCESS_TOKEN` as an environment variable to create, modify, delete resources on Tower.
-
-```
+```bash
 export TOWER_ACCESS_TOKEN=<your access token>
 ```
 
-## Configuration
+## Quick start
 
-To run this script, you must set up a yaml file that will define the resources/entities you would like to create or modify on Tower, as well as define the required options for those entities. These options are defined as key-value pairs in your yaml file.
+You must provide a YAML file that defines the options for each of the entities you would like to create in Nextflow Tower. 
 
-For example, to create an organization, you can define the first block of your yaml with the resource you want to create, followed by the options required to pass to the CLI to create the resource, in your yaml:
+You will need to have an account on Nextflow Tower (see [Plans and pricing](https://cloud.tower.nf/pricing/)).
 
-```
-organizations:
-  - name: 'my_organization'
-    full-name: 'company_A_organization'
-    description: 'Organization created E2E with tw CLI scripting'
-    location: 'Global'
-    website: 'https://company.com/'
-    overwrite: False
-```
+- Launching on Tower Cloud
 
-The key-value pairs defined in each block of your yaml file will mirror the options you would provide to the CLI. In this case, on the CLI, we would create this organization by running:
+  If you have an account on Tower Cloud you should have access to the [`community/showcase`](https://seqera.io/blog/introducing-the-tower-cloud-community-workspace/) Workspace. Let's launch a pipeline there!
 
-```
-tw organizations add --name my_organization \
-    --full-name 'company_A_organization' \
-    --description 'Organization created E2E with tw CLI scripting' \
-    --location 'Global' \
-    --website 'https://company.com/' \
-```
+  1. Create a file called `hello_world_config.yml` with the contents below:
 
-Optionally, you can specify `overwrite: True` for each block which will allow you to overwrite the resource if it already exists in Tower.
+      ```
+      launch:
+        - name: 'hello-world'                               # Workflow name
+          workspace: 'community/showcase'                   # Workspace name
+          compute-env: 'AWS_Batch_Ireland_FusionV2_NVMe'    # Compute environment
+          revision: 'master'                                # Pipeline revision
+          pipeline: 'https://github.com/nextflow-io/hello'  # Pipeline URL
+      ```
 
-Additional options can be specified but the script will fail to create or update your resource unless the minimum options are specified.
+  2. Launch the pipeline with `tw-pywrap`:
 
-To determine what minimum options are required for each resource, refer to later section named _Configuration Options_.
+      ```
+      tw-pywrap --config hello_world_config.yml
+      ```
 
-## Run the script
+  3. Login to Tower Cloud and check the [Runs page](https://tower.nf/orgs/community/workspaces/showcase/watch]) in the `community/showcase` for the pipeline you just launched!
 
-You can run the script with the following command:
+- Launching on Tower Enterprise
 
-```
-twpy --config config.yaml
-```
+  If you are a customer with Seqera Labs you will need access to a Workspace with Launch permissions, as well as a pre-defined Compute Environment where you can launch a pipeline. Please customise the entries in the config below as required.
 
-## Configuration Options
+  1. Create a file called `hello_world_config.yml` with the contents below:
 
-Below is a list of minimum and some pre-defined custom options for each resource to be used in your config file.
+      ```
+      launch:
+        - name: 'hello-world'                               # Workflow name
+          workspace: '<YOUR_WORKSPACE>'                     # Workspace name
+          compute-env: '<YOUR_COMPUTE_ENVIRONMENT>'         # Compute environment
+          revision: 'master'                                # Pipeline revision
+          pipeline: 'https://github.com/nextflow-io/hello'  # Pipeline URL
+      ```
 
-### Organizations
+  2. Launch the pipeline with `tw-pywrap`:
 
-```
-organizations:
-  - name: # required
-    full-name: # required
-    description: # optional
-    location: # optional
-    website: # optional
-    overwrite: True # optional
-```
+      ```
+      tw-pywrap --config hello_world_config.yml
+      ```
 
-### Teams
+  3. Login to your Tower Enterprise instance and check the Runs page in the appropriate Workspace for the pipeline you just launched!
 
-```
-teams:
-  - name: # required
-    organization: # required
-    description: # optional
-    members: # optional, specify list of users to add to your team
-      - 'bob@gmail.com'
-      - 'tom@gmail.com'
-    overwrite: True # optional
-```
+## Real world example
 
-### Workspaces
+We have created an end-to-end example that highlights how you can use `tw_pywrap` to create everything sequentially in Nextflow Tower all the way from adding a new Organization to launching a pipeline.
 
-```
-workspaces: # add method
-  - name: # required
-    full-name: # required
-    organization: # required
-    description: # optional
-    visibility: # optional
-    overwrite: True # optional
-```
+## Templates
 
-### Participants
+We have provided template YAML files for each of the entities that can be created on Tower. These can be found in the [`templates/`](templates) directory and should form a good starting point for you to add your own customization:
 
-```
-participants: # add method
-  - name: # required
-    type: # required
-    workspace: # required
-    role: # required
-  - name: 'tom@gmail.com' # optional, user to assign roles to
-    type: 'MEMBER'
-    workspace:  # required
-    role: 'LAUNCH'
-```
+  - [organizations.yml](templates/organizations.yml)
+  - [teams.yml](templates/teams.yml)
+  - [workspaces.yml](templates/workspaces.yml)
+  - [participants.yml](templates/participants.yml)
+  - [credentials.yml](templates/credentials.yml)
+  - [secrets.yml](templates/secrets.yml)
+  - [compute-envs.yml](templates/compute-envs.yml)
+  - [actions.yml](templates/actions.yml)
+  - [datasets.yml](templates/datasets.yml)
+  - [pipelines.yml](templates/pipelines.yml)
+  - [launch.yml](templates/launch.yml)
 
-### Credentials
+## Contributions and Support
 
-To avoid exposing sensitive information about your credentials, you can use environment variables in place of keys and passwords in your config file:
+If you would like to contribute to `tw_pywrap`, please see the [contributing guidelines](.github/CONTRIBUTING.md).
 
-```
-credentials:
-  - type: 'google' # required
-    name: # required (i.e. google_credentials)
-    workspace: # required
-    key: '$GOOGLE_KEY' # required
-    overwrite: True # optional
-  - type: 'aws'
-    name: # required (i.e.'aws_credentials')
-    workspace: # required
-    access-key: $AWS_ACCESS_KEY_ID
-    secret-key: $AWS_SECRET_ACCESS_KEY
-    assume-role-arn: '$AWS_ROLE'
-    overwrite: True # optional
-```
+For further information or help, please don't hesitate to create an [issue](https://github.com/seqeralabs/tw-pywrap/issues) in this repository.
 
-To see the full list of credentials you can add via the CLI, try running `tw credentials add`.
+## Credits
 
-### Compute Environments
-
-To create compute environments, you can either specify all required options in the config file or supply a JSON file containing all configuration for your desired compute environment.
-
-```
-compute-envs:
-  - name: # required (i.e 'aws_compute_environment')
-    workspace: # required
-    credentials: # required
-    wait: # optional
-    file-path: './compute-envs/awss3.json' # optional
-    overwrite: True # optional
-```
-
-### Actions
-
-```
-actions:
-  - type: # required (i.e. 'Tower' or 'Github')
-    name: # required
-    pipeline: # required (i.e. 'https://github.com/nf-core/rnaseq)'
-    workspace: # required
-    compute-env: # required
-    work-dir: # required
-    profile: # optional
-    params: # optional
-      outdir: 's3://my-bucket/nf-core-rnaseq/results'
-    revision: '3.12.0' # required
-    overwrite: True # optional
-```
-
-### Datasets
-
-```
-datasets:
-  - name: # required
-    description: # optional
-    header: true # optional
-    workspace: # required
-    file-path: './datasets/rnaseq_samples.csv' # required
-    overwrite: True # optional
-```
-
-### Pipelines
-
-Pipelines can either be specified to be added from source (i.e. a Github repo) or using infrastructure-as-code with a file path to JSON with pipeline configuration settings.
-
-For example, from a Github repo:
-
-```
-pipelines:
-  - name: 'nf-core-rnaseq' # required
-    url: 'https://github.com/nf-core/rnaseq' # required
-    workspace: # required
-    description: # optional
-    compute-env: # required
-    work-dir: # required
-    profile: # optional
-    revision: '3.12.0' # required
-    params: # optional
-      outdir: 's3://my-bucket/nf-core-rnaseq/results'
-    config: './pipelines/nextflow.config' # optional
-    pre-run: './pipelines/pre_run.txt' # optional
-    overwrite: True # optional
-```
-
-Or, for example, from a JSON file:
-
-```
-   - name: 'nf-sentieon' # required
-     workspace: # required
-     compute-env: # required
-     file-path: './pipelines/nf_sentieon_pipeline.json'
-```
-
-### Launch
-
-Pipelines can be launched using an existing workspace pipeline name from the Launchpad, or from source as described above.
-
-For example, launching a pipeline you added in the previous step:
-
-```
-launch:
-  - name: 'rnaseq-test-cli'
-    pipeline: 'nf-core-rnaseq'
-    workspace: # required
-    params: # optional
-      outdir: 's3://my-bucket/nf-core-rnaseq/results'
-```
-
-## Other scripts
-
-In the `scripts/` subdirectory of this repository are additional scripts that can be used for automation on a smaller-scale (i.e. launching multiple pipelines). You can find READMEs within the subdirectory.
+`tw-pywrap` was written by [Esha Joshi](https://github.com/ejseqera), [Adam Talbot](https://github.com/adamrtalbot) and [Harshil Patel](https://github.com/drpatelh) from the Scientific Development Team at [Seqera Labs](https://seqera.io/).

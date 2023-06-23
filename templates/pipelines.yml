@@ -1,0 +1,24 @@
+## To see the full list of options available run: "tw pipelines add"
+## The options required to create pipelines can be specified:
+##   1. Explicitly in this file
+##   2. Via a JSON file exported from Tower with the "tw pipelines export" command
+pipelines:
+  - name: 'my_first_pipeline'                     # required
+    workspace: 'my_organization/my_workspace'     # required
+    description: 'My test pipeline'               # optional
+    compute-env: 'my_aws_compute_environment'     # required
+    work-dir: 's3://my_bucket'                    # optional
+    profile: 'test'                               # optional
+    revision: 'main'                              # required
+    params:                                       # optional
+      outdir: 's3://my-bucket/my_results'
+    config: './pipelines/my_nextflow.config'      # optional
+    pre-run: './pipelines/my_pre_run.txt'         # optional
+    url: 'https://github.com/my_username/my_repo' # required
+    overwrite: True                               # optional
+  - name: 'my_second_pipeline'                    # required
+    workspace: 'my_organization/my_workspace'     # required
+    description: 'My test pipeline'               # optional
+    compute-env: 'my_aws_compute_environment'     # required
+    file-path: './pipelines/my_pipeline.json'     # required
+    overwrite: True                               # optional

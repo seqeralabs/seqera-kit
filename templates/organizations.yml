@@ -1,0 +1,8 @@
+## To see the full list of options available run: "tw organizations add"
+organizations:
+  - name: 'my_organization'               # required
+    full-name: 'my_organization'          # required
+    description: 'My test organisation'   # optional
+    location: 'Global'                    # optional
+    website: 'https://my_organization/'   # optional
+    overwrite: True                       # optional
