@@ -22,15 +22,26 @@ The key features are:
 
 ## Prerequisites
 
-This guide covers the installation and configuration of `tw-pywrap`.
+You will need to have an account on Nextflow Tower (see [Plans and pricing](https://cloud.tower.nf/pricing/)).
 
 ### 1. Dependencies
 
-1. [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli#1-installation)
+`tw-pywrap` only requires 3 dependencies which should be relatively easy to install manually if required:
 
-2. [Python (`>=3.8`)](https://www.python.org/downloads/) and [PyYAML](https://pypi.org/project/PyYAML/)
+    1. [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli#1-installation)
 
-A [Dockerfile](Dockerfile) with these requirements has been provided if you wish to build you own container.
+    2. [Python (`>=3.8`)](https://www.python.org/downloads/)
+    
+    3. [PyYAML](https://pypi.org/project/PyYAML/)
+
+Alternatively, you can install these dependencies via Conda by downloading and using the [Conda environment file](environment.yml) that has been supplied in this repository:
+
+```console
+conda env create -f environment.yml
+conda activate tw_pywrap
+```
+
+A [Dockerfile](Dockerfile) with these requirements has also been provided if you wish to build you own container.
 
 ### 2. Installation
 
@@ -48,9 +59,9 @@ pip install --upgrade --force-reinstall git+https://github.com/seqeralabs/tw-pyw
 
 ### 3. Configuration
 
-Create a Tower access token using the [Tower](https://tower.nf/) web interface via the **Your Tokens** page in your profile.
+Create a Tower access token using the [Nextflow Tower](https://tower.nf/) web interface via the **Your Tokens** page in your profile.
 
-Providing `tw-pywrap` access to Tower with your access token can be achieved by:
+Providing `tw-pywrap` access to Nextflow Tower with your access token can be achieved by:
 
 1. Exporting it directly into your terminal:
 
@@ -62,43 +73,63 @@ Providing `tw-pywrap` access to Tower with your access token can be achieved by:
 
 ## Quick start
 
-To run this script, you must provide a yaml file that will define the resources you would like to create on Tower, and define the required options for those resources.
+You must provide a YAML file that defines the options for each of the entities you would like to create on Nextflow Tower. 
 
-For example, to get started, you can use the following yaml configuration to launch the Nextflow [hello-world pipeline](https://github.com/nextflow-io/hello):
+You will need to have an account on Nextflow Tower (see [Plans and pricing](https://cloud.tower.nf/pricing/)).
 
-In `config.yaml`:
-```
-launch:
-  - name: 'hello-world-cli-test'                      # workflow name
-    pipeline: 'https://github.com/nextflow-io/hello'  # pipeline URL
-    workspace: 'my_workspace'                         # your workspace name
-    compute-env: 'my_compute_env'                     # your compute environment
-```
-You will need to replace `compute-env` with a valid compute environment to run your pipeline in, and replace `workspace` with a workspace on Tower that you have access to and are able to launch pipelines within.
+- Launching on Tower Cloud
 
-Additional options can be specified but the script will fail to create or update your resource unless the minimum options are specified.
+  If you have an account on Tower Cloud you should have access to the [`community/showcase`](https://seqera.io/blog/introducing-the-tower-cloud-community-workspace/) Workspace. Let's launch a pipeline there!
 
-To determine what minimum options are required for each resource, refer to later section named _Configuration Options_.
+  1. Create a file called `hello_world_config.yml` with the contents below:
 
-## Run the script
+      ```
+      launch:
+        - name: 'hello-world'                               # Workflow name
+          workspace: 'community/showcase'                   # Workspace name
+          compute-env: 'AWS_Batch_Ireland_FusionV2_NVMe'    # Compute environment
+          revision: 'master'                                # Pipeline revision
+          pipeline: 'https://github.com/nextflow-io/hello'  # Pipeline URL
+      ```
 
-You can run the script with the following command:
+  2. Launch the pipeline with `tw-pywrap`:
 
-```
-tw-pywrap --config config.yaml
-```
+      ```
+      tw-pywrap --config hello_world_config.yml
+      ```
 
-## Other scripts
+  3. Login to Tower Cloud and check the [Runs page](https://tower.nf/orgs/community/workspaces/showcase/watch]) in the `community/showcase` for the pipeline you just launched!
 
-In the `scripts/` subdirectory of this repository are additional scripts that can be used for automation on a smaller-scale (i.e. launching multiple pipelines). You can find READMEs within the subdirectory. -->
+- Launching on Tower Enterprise
 
+  If you are a customer with Seqera Labs you will need access to a Workspace with Launch permissions, as well as a pre-defined Compute Environment where you can launch a pipeline. Please customise the entries in the config below as required:
 
-Example to launch hello world as part of the Quick start
-- Create a YAML to launch hello world from URL
+  1. Create a file called `hello_world_config.yml` with the contents below:
+
+      ```
+      launch:
+        - name: 'hello-world'                               # Workflow name
+          workspace: '<YOUR_WORKSPACE>'                     # Workspace name
+          compute-env: '<YOUR_COMPUTE_ENVIRONMENT>'         # Compute environment
+          revision: 'master'                                # Pipeline revision
+          pipeline: 'https://github.com/nextflow-io/hello'  # Pipeline URL
+      ```
+
+  2. Launch the pipeline with `tw-pywrap`:
+
+      ```
+      tw-pywrap --config hello_world_config.yml
+      ```
+
+  3. Login to your Tower Enterprise instance and check the Runs page in the appropriate Workspace for the pipeline you just launched!
+
+## Real world example
+
+We have created an end-to-end example that highlights how you can use `tw_pywrap` to create everything sequentially in Nextflow Tower all the way from adding a new Organization to launching a pipeline.
 
 ## Templates
 
-Template YAML files can be found in the [`templates/`](templates) directory:
+We have provided template YAML files for each of the entities that can be created on Tower. These can be found in the [`templates/`](templates) directory and should form a good starting point for you to add your own customization:
 
   - [organizations.yml](templates/organizations.yml)
   - [teams.yml](templates/teams.yml)
@@ -111,6 +142,12 @@ Template YAML files can be found in the [`templates/`](templates) directory:
   - [datasets.yml](templates/datasets.yml)
   - [pipelines.yml](templates/pipelines.yml)
   - [launch.yml](templates/launch.yml)
+
+## Contributions and Support
+
+If you would like to contribute to `tw_pywrap`, please see the [contributing guidelines](.github/CONTRIBUTING.md).
+
+For further information or help, please don't hesitate to create an [issue](https://github.com/seqeralabs/tw-pywrap/issues) in this repository.
 
 ## Credits
 
