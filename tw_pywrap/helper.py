@@ -1,12 +1,13 @@
 """
 This file contains helper functions for the library.
-Including handling methods for each block in the YAML file, and parsing 
+Including handling methods for each block in the YAML file, and parsing
 methods for each block in the YAML file.
 """
+import json
 import yaml
+
 from tw_pywrap import tower
 from tw_pywrap import utils
-import json
 
 # TODO: rename these functions to be more descriptive
 

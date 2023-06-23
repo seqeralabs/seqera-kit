@@ -26,7 +26,10 @@ def parse_args():
         type=str.upper,
     )
     parser.add_argument(
-        "--config", type=Path, help="Config file with Tower resources to create"
+        "--config",
+        type=Path,
+        help="Config file with Tower resources to create",
+        required=True,
     )
     return parser.parse_args()
 
