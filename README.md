@@ -31,7 +31,7 @@ conda activate tw_pywrap
 
 ### 2. Installation
 
-The scripts in this repository will eventually be packaged via `pip`, but for now you can install them within your existing Python / Conda environment with the command below:
+The scripts in this repository will eventually be packaged via `pip`, but for now you can install the latest development version using the command below:
 
 ```
 pip install git+https://github.com/seqeralabs/tw-pywrap.git@main
