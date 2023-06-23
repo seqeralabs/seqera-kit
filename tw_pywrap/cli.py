@@ -26,10 +26,7 @@ def parse_args():
         type=str.upper,
     )
     parser.add_argument(
-        "--config",
-        type=Path,
-        help="Config file with Tower resources to create",
-        required=True,
+        "yaml", type=Path, help="Config file with Tower resources to create"
     )
     return parser.parse_args()
 
@@ -64,7 +61,7 @@ class BlockParser:
         # Check if overwrite is set to True
         overwrite = args.get("overwrite", False)
         if overwrite:
-            logging.info(f"\nOverwrite is set to 'True' for {block}\n")
+            logging.debug(f" Overwriting {block}\n")
             # Call handle_overwrite if True
             helper.handle_overwrite(self.tw, block, args["cmd_args"])
 
@@ -92,11 +89,11 @@ def main():
             "datasets",
         ],
     )
-    with open(options.config, "r") as f:
+    with open(options.yaml, "r") as f:
         data = yaml.safe_load(f)
 
     # Returns a dict that maps block names to lists of command line arguments.
-    cmd_args_dict = helper.parse_all_yaml(options.config, list(data.keys()))
+    cmd_args_dict = helper.parse_all_yaml(options.yaml, list(data.keys()))
 
     for block, args_list in cmd_args_dict.items():
         for args in args_list:

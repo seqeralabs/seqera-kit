@@ -2,13 +2,14 @@
 ## The options will vary if you are launching a pipeline:
 ##   1. Pre-configured in the Tower Launchpad where most options have already been specified
 ##   2. From source via a remote Git URL where you will need to explicitly specify all launch options
+## Note: overwrite is not supported for "tw launch"
+
 launch:
   - name: 'my_launchpad_launch'                         # required
     workspace: 'my_organization/my_workspace'           # required
     pipeline: 'my_launchpad_pipeline'                   # required
     params:                                             # optional
       outdir: 's3://my_bucket/my_results'
-    overwrite: True                                     # optional
   - name: 'my_remote_launch'                            # required
     workspace: 'my_organization/my_workspace'           # required
     compute-env: 'my_aws_compute_environment'           # required
@@ -19,4 +20,3 @@ launch:
     params-file: './pipelines/my_params.yml'            # optional
     config: './pipelines/my_nextflow.config'            # optional
     pre-run: './pipelines/my_pre_run.txt'               # optional
-    overwrite: True                                     # optional
