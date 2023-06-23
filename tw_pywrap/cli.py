@@ -61,7 +61,7 @@ class BlockParser:
         # Check if overwrite is set to True
         overwrite = args.get("overwrite", False)
         if overwrite:
-            logging.info(f"\nOverwrite is set to 'True' for {block}\n")
+            logging.debug(f" Overwriting {block}\n")
             # Call handle_overwrite if True
             helper.handle_overwrite(self.tw, block, args["cmd_args"])
 
