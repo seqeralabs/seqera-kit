@@ -21,7 +21,7 @@ setup(
     license="MIT",
     entry_points={"console_scripts": ["tw-pywrap=tw_pywrap.cli:main"]},
     python_requires=">=3.8, <4",  # untested
-    install_requires=[],  # TODO: add requirements
+    install_requires=["pyyaml>=6.0.0"],
     packages=find_packages(exclude=("docs")),
     include_package_data=True,
     zip_safe=False,
