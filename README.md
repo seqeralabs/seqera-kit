@@ -1,18 +1,6 @@
 # tw-pywrap
 
-`tw-pywrap` is a Python wrapper for the [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli). It can be leveraged to automate the creation of the following entities in Nextflow Tower via a simple configuration file in YAML format:
-
-  - Organizations
-  - Teams
-  - Workspaces
-  - Participants
-  - Credentials
-  - Secrets
-  - Compute Environments
-  - Actions
-  - Datasets
-  - Pipelines
-  - Launch
+`tw-pywrap` is a Python wrapper for the [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli). It can be leveraged to automate the creation of all of the entities in Nextflow Tower via a simple configuration file in YAML format:
 
 The key features are:
 
@@ -28,11 +16,11 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
 
 `tw-pywrap` only requires 3 dependencies which should be relatively easy to install manually if required:
 
-    1. [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli#1-installation)
+  1. [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli#1-installation)
 
-    2. [Python (`>=3.8`)](https://www.python.org/downloads/)
+  2. [Python (`>=3.8`)](https://www.python.org/downloads/)
     
-    3. [PyYAML](https://pypi.org/project/PyYAML/)
+  3. [PyYAML](https://pypi.org/project/PyYAML/)
 
 Alternatively, you can install these dependencies via Conda by downloading and using the [Conda environment file](environment.yml) that has been supplied in this repository:
 
@@ -73,7 +61,7 @@ Providing `tw-pywrap` access to Nextflow Tower with your access token can be ach
 
 ## Quick start
 
-You must provide a YAML file that defines the options for each of the entities you would like to create on Nextflow Tower. 
+You must provide a YAML file that defines the options for each of the entities you would like to create in Nextflow Tower. 
 
 You will need to have an account on Nextflow Tower (see [Plans and pricing](https://cloud.tower.nf/pricing/)).
 
@@ -102,7 +90,7 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
 
 - Launching on Tower Enterprise
 
-  If you are a customer with Seqera Labs you will need access to a Workspace with Launch permissions, as well as a pre-defined Compute Environment where you can launch a pipeline. Please customise the entries in the config below as required:
+  If you are a customer with Seqera Labs you will need access to a Workspace with Launch permissions, as well as a pre-defined Compute Environment where you can launch a pipeline. Please customise the entries in the config below as required.
 
   1. Create a file called `hello_world_config.yml` with the contents below:
 
