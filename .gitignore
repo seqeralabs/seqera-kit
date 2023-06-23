@@ -7,8 +7,11 @@ scripts/py/scidev/*/*.json
 __pycache__/
 *.py[cod]
 *$py.class
+build/*
 
 # Commitizen
 node_modules/
 package-lock.json
 package.json
+tw_pywrap.egg-info/*
+build/*

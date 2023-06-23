@@ -85,7 +85,7 @@ To determine what minimum options are required for each resource, refer to later
 You can run the script with the following command:
 
 ```
-twpy --config config.yaml
+tw-pywrap --config config.yaml
 ```
 
 ## Other scripts

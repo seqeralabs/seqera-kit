@@ -9,8 +9,8 @@ import time
 import yaml
 
 from pathlib import Path
-from tw_py import tower
-import tw_py.helper as helper  # don't like this
+from tw_pywrap import tower
+import tw_pywrap.helper as helper  # TODO: refactor
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ def parse_args():
         type=str.upper,
     )
     parser.add_argument(
-        "yaml", type=Path, help="Config file with Tower resources to create"
+        "--config", type=Path, help="Config file with Tower resources to create"
     )
     return parser.parse_args()
 
@@ -89,11 +89,11 @@ def main():
             "datasets",
         ],
     )
-    with open(options.yaml, "r") as f:
+    with open(options.config, "r") as f:
         data = yaml.safe_load(f)
 
     # Returns a dict that maps block names to lists of command line arguments.
-    cmd_args_dict = helper.parse_all_yaml(options.yaml, list(data.keys()))
+    cmd_args_dict = helper.parse_all_yaml(options.config, list(data.keys()))
 
     for block, args_list in cmd_args_dict.items():
         for args in args_list:
