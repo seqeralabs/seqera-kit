@@ -357,14 +357,14 @@ def handle_overwrite(tw, block, args):
         # Return JSON data to check if resource exists
         json_method = getattr(tw, "-o json")
 
-        # TODO: refactor this
+        # TODO: (EJ) refactor this, I hate it so much
         if block == "teams":
             tw_args = get_values_from_cmd_args(args[0], keys_to_get)
             json_data = json_method(block, "list", "-o", tw_args["organization"])
-        elif block == "participants":
+        elif block in generic_deletion or block == "participants":
             tw_args = get_values_from_cmd_args(args, keys_to_get)
             json_data = json_method(block, "list", "-w", tw_args["workspace"])
-            if tw_args["type"] == "TEAM":
+            if "type" in tw_args and tw_args["type"] == "TEAM":
                 operation["name_key"] = "teamName"
         elif block == "workspaces":
             tw_args = get_values_from_cmd_args(args, keys_to_get)
