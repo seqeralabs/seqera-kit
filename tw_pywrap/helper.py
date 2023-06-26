@@ -4,10 +4,7 @@ Including handling methods for each block in the YAML file, and parsing
 methods for each block in the YAML file.
 """
 import yaml
-
 from tw_pywrap import utils
-
-# TODO: rename these functions to be more descriptive
 
 
 def parse_yaml_block(file_path, block_name):
@@ -192,14 +189,17 @@ def parse_launch_block(item):
     return cmd_args
 
 
-# Handlers to call the actual tower method,
-# based on the block name and uses that as subcommand.
-# Recall: we dynamically add methods to the `Tower` class to run `tw` subcommand
+# Handlers to call the actual tower method,based on the block name.
+# Certain blocks required special handling and combination of methods.
 
 
-def handle_add_block(tw, block, args):
+def handle_generic_block(tw, block, args, method_name="add"):
+    # Generic handler for most blocks, with optional method name
     method = getattr(tw, block)
-    method("add", *args)
+    if method_name is None:
+        method(*args)
+    else:
+        method(method_name, *args)
 
 
 def handle_teams(tw, args):
@@ -210,19 +210,16 @@ def handle_teams(tw, args):
 
 
 def handle_participants(tw, args):
-    new_args = []
-    skip_next = False
-    for arg in args:
-        if skip_next or arg == "--role":
-            skip_next = not skip_next
-            continue
-        new_args.append(arg)
-    tw.participants("add", *new_args)
-    tw.participants("update", *args)
-
-
-def handle_compute_envs(tw, args):
-    tw.compute_envs("import", *args)
+    # Generic handler for blocks with a key to skip
+    method = getattr(tw, "participants")
+    skip_key = "--role"
+    new_args = [
+        arg
+        for i, arg in enumerate(args)
+        if not (args[i - 1] == skip_key or arg == skip_key)
+    ]
+    method("add", *new_args)
+    method("update", *args)
 
 
 def handle_pipelines(tw, args):
@@ -235,8 +232,3 @@ def handle_pipelines(tw, args):
             break
         elif ".json" in arg:
             method("import", *args)
-
-
-def handle_launch(tw, args):
-    method = getattr(tw, "launch")
-    method(*args)
