@@ -1,6 +1,6 @@
 # Testing configs, jsons
 scripts/py/test*
-
+testing/*
 # Python
 # byte-compiled / optimized / DLL files
 __pycache__/
