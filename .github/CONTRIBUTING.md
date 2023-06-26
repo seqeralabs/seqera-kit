@@ -56,7 +56,7 @@ You can debug in VSCode for stepping through code and monitoring errors. To do s
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/tw_pywrap/cli.py",
-      "args": ["-l", "debug", "--config", "example.yml"], // Change to your specific commands you wish to run
+      "args": ["-l", "debug", "example.yml"], // Change to your specific commands you wish to run
       "cwd": "${workspaceFolder}"
     }
   ]
@@ -77,7 +77,7 @@ You may need additional settings based on your set up. For example, this is mine
       "console": "integratedTerminal",
       "purpose": ["debugging"],
       "justMyCode": true,
-      "args": ["-l", "debug", "--config", "example.yml"],
+      "args": ["-l", "debug", "example.yml"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "openOnSessionStart",
       "env": {
@@ -116,4 +116,4 @@ With an additional `.vscode/tasks.json`:
 }
 ```
 
-After this, press "Run > Start Debugging" (F5) to run the code. Add breakpoints etc to stop the code mid flow.
+After this, press "Run > Start Debugging" (F5) to run the code. To stop the code mid flow, add breakpoints, print statements, assertions, etc.
