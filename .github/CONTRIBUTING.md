@@ -12,7 +12,7 @@ Contributing to documentation is the easiest way to get started. Providing simpl
 
 ### Code
 
-Code contributions are always welcome, from simple bug fixes, to new features. To contribute code please fork the project into your own repository, make changes there, run black and ruff on your code, add tests for bugs/new features, and then submit a pull request. If you are fixing a known issue please add the issue number to the PR message. If you are fixing a new issue feel free to file an issue and then reference it in the PR. You can browse open issues, or consult the project roadmap, for potential code contributions. Fixes for issues tagged with 'help wanted' are especially appreciated.
+Code contributions are always welcome, from simple bug fixes, to new features. To contribute code please fork the project into your own repository, make changes there, run the pre-commit hooks provided, add tests for bugs/new features, and then submit a pull request. If you are fixing a known issue please add the issue number to the PR message. If you are fixing a new issue feel free to file an issue and then reference it in the PR. You can browse open issues, or consult the project roadmap, for potential code contributions. Fixes for issues tagged with 'help wanted' are especially appreciated.
 
 ## Contribution workflow
 
