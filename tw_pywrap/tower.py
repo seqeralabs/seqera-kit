@@ -40,6 +40,8 @@ class Tower:
         if kwargs.get("to_json"):
             to_json = True
             command.extend(["-o", "json"])
+        else:
+            to_json = False
         command.extend(cmd)
         command.extend(args)
 
