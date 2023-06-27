@@ -1,6 +1,6 @@
 # Contributing
 
-Contributions of all kinds are welcome. In particular pull requests are appreciated. The authors will endeavour to help walk you through any issues in the pull request discussion, so please feel free to open a pull request even if you are new to such things.
+Contributions of all kinds are welcome. In particular, pull requests are appreciated. The authors will endeavour to help walk you through any issues in the pull request discussion, so please feel free to open a pull request even if you are new to such things.
 
 ### Issues
 
@@ -29,7 +29,7 @@ conda env create -f environment.yml
 conda activate tw_pywrap
 ```
 
-Afterwards, you can install the local repository for development with `pip`. Using option `-e` will install it in place without copying it to your PYTHONPATH, while using `--no-deps` will ignore dependencies which have already been installed via Conda. This assumes the current working directory is the cloned repository.
+You can then install the local repository for development using the `pip -e` command which will install it in place without copying it to your `PYTHONPATH`. Using `--no-deps` will ignore dependencies which have already been installed via Conda. This assumes the current working directory is a clone of this repository.
 
 ```console
 pip install -e . --no-deps
@@ -39,7 +39,7 @@ You can then develop the code before committing changes and opening a pull reque
 
 ### pre-commit
 
-We use [pre-commit](https://pre-commit.com/) which runs [Black](https://github.com/psf/black) and [Ruff](https://github.com/astral-sh/ruff) to ensure code consistency while developing. Install pre-commit and configure with `pre-commit install` which will now run before every commit ensuring code consistency.
+We use [pre-commit](https://pre-commit.com/) which runs [Black](https://github.com/psf/black) and [Ruff](https://github.com/astral-sh/ruff) to ensure code consistency during development. Install pre-commit and configure with `pre-commit install` which will now run before every commit ensuring code consistency.
 
 ## Appendix
 
