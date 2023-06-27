@@ -45,7 +45,7 @@ We use [pre-commit](https://pre-commit.com/) which runs [Black](https://github.c
 
 ### Debugging
 
-You can debug in VSCode for stepping through code and monitoring errors. To do so, set the Python path to your conda environment created earlier add the following to the `.vscode/launch.json` folder:
+You can debug in VSCode for stepping through code and monitoring errors. To do so, set the Python path to the Conda environment you created earlier and add the following to the `.vscode/launch.json` folder:
 
 ```json
 {
@@ -63,7 +63,7 @@ You can debug in VSCode for stepping through code and monitoring errors. To do s
 }
 ```
 
-You may need additional settings based on your set up. For example, this is mine:
+You may need additional settings based on your set-up. A more complete example may look like below:
 
 ```json
 {
