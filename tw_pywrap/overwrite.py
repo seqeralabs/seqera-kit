@@ -178,20 +178,25 @@ class Overwrite:
                 self.cached_jsondata = json_method(
                     block, "list", "-o", tw_args["organization"]
                 )
+                return self.cached_jsondata, tw_args
+
             elif block in Overwrite.generic_deletion or block == "participants":
                 tw_args = self._get_values_from_cmd_args(args, keys_to_get)
                 self.cached_jsondata = json_method(
                     block, "list", "-w", tw_args["workspace"]
                 )
+                print(
+                    f"DEBUG: From generic deletion the json is {self.cached_jsondata}"
+                )
+                return self.cached_jsondata, tw_args
+
             else:
                 tw_args = self._get_values_from_cmd_args(args, keys_to_get)
                 self.cached_jsondata = json_method(block, "list")
+                return self.cached_jsondata, tw_args
 
-            # Store this data in the block_jsondata dict for later use
-            self.block_jsondata[block] = self.cached_jsondata
-
-            # Return json data and tw_args we need to overwrite
-            return self.cached_jsondata, tw_args
+        # Store this data in the block_jsondata dict for later use
+        self.block_jsondata[block] = self.cached_jsondata
 
     def _resource_exists(self, name_key, tw_args):
         """
