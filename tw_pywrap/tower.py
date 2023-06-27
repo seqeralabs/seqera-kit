@@ -1,8 +1,9 @@
 import subprocess
 import shlex
 import logging
+import re
 
-logging.basicConfig(level=logging.DEBUG)  # add this line at the top of your script
+logging.basicConfig(level=logging.DEBUG)
 
 
 class Tower:
@@ -55,11 +56,21 @@ class Tower:
         logging.debug(f" Running command: {full_cmd}\n")
 
         # Run the command and return the stdout
-        process = subprocess.Popen(full_cmd, stdout=subprocess.PIPE, shell=True)
+        process = subprocess.Popen(
+            full_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+        )
         stdout, _ = process.communicate()
         stdout = stdout.decode("utf-8").strip()
 
-        return stdout
+        # Check if an error occurred
+        # ruff: noqa: E501
+        if stdout:
+            if re.search(r"ERROR: .* already exists", stdout):
+                logging.debug(
+                    " Resource already exists and will not be created. Please set 'overwrite: true'\n"
+                )
+            else:
+                return stdout
 
     # Allow any 'tw' subcommand to be called as a method.
     def __getattr__(self, cmd):
