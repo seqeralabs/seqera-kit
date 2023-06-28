@@ -1,5 +1,6 @@
 import json
 from tw_pywrap import utils
+from tw_pywrap.tower import ResourceExistsError
 import logging
 
 
@@ -84,8 +85,12 @@ class Overwrite:
             if block == "participants":
                 if tw_args.get("type") == "TEAM":
                     self.block_operations["participants"]["name_key"] = "teamName"
+                else:
+                    self.block_operations["participants"]["name_key"] = "email"
 
-            if self.check_resource_exists(operation["name_key"], tw_args):
+            if block != "pipelines" and self.check_resource_exists(
+                operation["name_key"], tw_args
+            ):
                 # if resource exists, delete
                 if overwrite:
                     logging.debug(
@@ -94,8 +99,8 @@ class Overwrite:
                     )
                     self._delete_resource(block, operation, tw_args)
                 else:  # return an error if resource exists, overwrite=False
-                    raise Exception(
-                        f"Error: The {block} resource already exists and"
+                    raise ResourceExistsError(
+                        f" The {block} resource already exists and"
                         " will not be created. Please set 'overwrite: True'"
                         " in your config file.\n"
                     )
@@ -112,10 +117,14 @@ class Overwrite:
         used to delete will be retrieved using the find_key_value_in_dict() method.
         """
         jsondata = self.block_jsondata.get("teams", None)
-        if jsondata is None:
+
+        if not jsondata:
             json_method = getattr(self.tw, "-o json")
             json_out = json_method("teams", "list", "-o", args["organization"])
             self.block_jsondata["teams"] = json_out
+        else:
+            json_out = jsondata
+
         # Get the teamId from the json data
         team_id = utils.find_key_value_in_dict(
             json.loads(json_out), "name", args["name"], "teamId"
