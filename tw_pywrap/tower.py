@@ -1,6 +1,7 @@
+import json
+import logging
 import subprocess
 import shlex
-import logging
 
 logging.basicConfig(level=logging.DEBUG)  # add this line at the top of your script
 
@@ -37,7 +38,10 @@ class Tower:
         """
         command = ["tw"]
         if kwargs.get("to_json"):
+            to_json = True
             command.extend(["-o", "json"])
+        else:
+            to_json = False
         command.extend(cmd)
         command.extend(args)
 
@@ -59,7 +63,10 @@ class Tower:
         stdout, _ = process.communicate()
         stdout = stdout.decode("utf-8").strip()
 
-        return stdout
+        if to_json is not True:
+            return stdout
+        else:
+            return json.loads(stdout)
 
     # Allow any 'tw' subcommand to be called as a method.
     def __getattr__(self, cmd):
