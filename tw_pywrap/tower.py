@@ -2,7 +2,6 @@ import json
 import logging
 import subprocess
 import shlex
-import logging
 import re
 
 logging.basicConfig(level=logging.DEBUG)
