@@ -11,6 +11,7 @@ import yaml
 from pathlib import Path
 from tw_pywrap import tower
 import tw_pywrap.helper as helper  # TODO: refactor
+from tw_pywrap import overwrite
 
 logger = logging.getLogger(__name__)
 
@@ -48,25 +49,35 @@ class BlockParser:
         """
         self.tw = tw
         self.list_for_add_method = list_for_add_method
+        # Create an instance of Overwrite class
+        self.overwrite_method = overwrite.Overwrite(self.tw)
 
     def handle_block(self, block, args):
         # Handles a block of commands by calling the appropriate function.
         block_handler_map = {
-            "teams": helper.handle_teams,
-            "participants": helper.handle_participants,
-            "compute-envs": helper.handle_compute_envs,
-            "pipelines": helper.handle_pipelines,
-            "launch": helper.handle_launch,
+            "teams": (helper.handle_teams),
+            "participants": (helper.handle_participants),
+            "compute-envs": lambda tw, args: helper.handle_generic_block(
+                tw, "compute_envs", args, method_name="import"
+            ),
+            "pipelines": (helper.handle_pipelines),
+            "launch": lambda tw, args: helper.handle_generic_block(
+                tw, "launch", args, method_name=None
+            ),
         }
-        # Check if overwrite is set to True
-        overwrite = args.get("overwrite", False)
-        if overwrite:
-            logging.debug(f" Overwriting {block}\n")
-            # Call handle_overwrite if True
-            helper.handle_overwrite(self.tw, block, args["cmd_args"])
+
+        # Check if overwrite is set to True, and call overwrite handler
+        overwrite_option = args.get("overwrite", False)
+        if overwrite_option:
+            logging.debug(f" Overwrite is set to 'True' for {block}\n")
+            self.overwrite_method.handle_overwrite(
+                block, args["cmd_args"], overwrite_option
+            )
+        else:
+            self.overwrite_method.handle_overwrite(block, args["cmd_args"])
 
         if block in self.list_for_add_method:
-            helper.handle_add_block(self.tw, block, args["cmd_args"])
+            helper.handle_generic_block(self.tw, block, args["cmd_args"])
         elif block in block_handler_map:
             block_handler_map[block](self.tw, args["cmd_args"])
         else:
@@ -97,9 +108,13 @@ def main():
 
     for block, args_list in cmd_args_dict.items():
         for args in args_list:
-            # Run the methods for each block
-            block_manager.handle_block(block, args)
-            time.sleep(3)
+            try:
+                # Run the methods for each block
+                block_manager.handle_block(block, args)
+                time.sleep(3)
+            except Exception as e:
+                logging.error(e)
+                continue  # Move to the next block
 
 
 if __name__ == "__main__":

@@ -3,13 +3,8 @@ This file contains helper functions for the library.
 Including handling methods for each block in the YAML file, and parsing
 methods for each block in the YAML file.
 """
-import json
 import yaml
-
-from tw_pywrap import tower
 from tw_pywrap import utils
-
-# TODO: rename these functions to be more descriptive
 
 
 def parse_yaml_block(file_path, block_name):
@@ -59,6 +54,11 @@ def parse_block(block_name, item):
     # Use the generic block function as a default.
     parse_fn = block_to_function.get(block_name, parse_generic_block)
     overwrite = item.pop("overwrite", False)
+
+    # Check if the name-value pairs are unique
+    names = [key for key in item.keys() if key != "overwrite"]
+    if len(names) != len(set(names)):
+        raise ValueError(f"Duplicate name-value pairs found in the {block_name} block.")
 
     # Call the appropriate function and return its result along with overwrite value.
     cmd_args = parse_fn(item)
@@ -194,14 +194,17 @@ def parse_launch_block(item):
     return cmd_args
 
 
-# Handlers to call the actual tower method,
-# based on the block name and uses that as subcommand.
-# Recall: we dynamically add methods to the `Tower` class to run `tw` subcommand
+# Handlers to call the actual tower method,based on the block name.
+# Certain blocks required special handling and combination of methods.
 
 
-def handle_add_block(tw, block, args):
+def handle_generic_block(tw, block, args, method_name="add"):
+    # Generic handler for most blocks, with optional method name
     method = getattr(tw, block)
-    method("add", *args)
+    if method_name is None:
+        method(*args)
+    else:
+        method(method_name, *args)
 
 
 def handle_teams(tw, args):
@@ -212,19 +215,16 @@ def handle_teams(tw, args):
 
 
 def handle_participants(tw, args):
-    new_args = []
-    skip_next = False
-    for arg in args:
-        if skip_next or arg == "--role":
-            skip_next = not skip_next
-            continue
-        new_args.append(arg)
-    tw.participants("add", *new_args)
-    tw.participants("update", *args)
-
-
-def handle_compute_envs(tw, args):
-    tw.compute_envs("import", *args)
+    # Generic handler for blocks with a key to skip
+    method = getattr(tw, "participants")
+    skip_key = "--role"
+    new_args = [
+        arg
+        for i, arg in enumerate(args)
+        if not (args[i - 1] == skip_key or arg == skip_key)
+    ]
+    method("add", *new_args)
+    method("update", *args)
 
 
 def handle_pipelines(tw, args):
@@ -237,180 +237,3 @@ def handle_pipelines(tw, args):
             break
         elif ".json" in arg:
             method("import", *args)
-
-
-def handle_launch(tw, args):
-    method = getattr(tw, "launch")
-    method(*args)
-
-
-# Handle overwrite functionality
-
-
-def get_delete_identifier(block, yaml_key, key_value, target_key, tw_args=None):
-    """
-    Special handler for resources that need to be deleted by another identifier.
-    TODO: Remove when `--overwrite` is supported by the CLI
-    """
-    # Get details about entity to delete in JSON
-    tw = tower.Tower()
-    base_method = getattr(tw, "-o json")
-
-    if block == "teams":
-        block_data = base_method(block, "list", "-o", tw_args)
-    else:
-        block_data = base_method(block, "list")
-
-    # Get the identifier key for the block
-    real_identifier = utils.find_key_value_in_dict(
-        json.loads(block_data), yaml_key, key_value, target_key
-    )
-    # Return the correct identifier to use delete method on
-    return real_identifier
-
-
-def handle_overwrite(tw, block, args):
-    """
-    Handler for overwrite functionality which will delete the resource
-    before adding it again.
-    # TODO: Remove when `--overwrite` is supported by the CLI
-    # TODO: Refactor this desperately
-    """
-    # Define blocks for simple overwrite with --name and --workspace
-    generic_deletion = [
-        "credentials",
-        "secrets",
-        "compute-envs",
-        "datasets",
-        "actions",
-        "pipelines",
-    ]
-    # Special handlers for certain resources that need to be deleted with specific args
-    block_operations = {
-        "organizations": {
-            "keys": ["name"],
-            "method_args": lambda tw_args: ("delete", "--name", tw_args["name"]),
-            "name_key": "orgName",
-        },
-        # Requires teamId to delete, not name
-        "teams": {
-            "keys": ["name", "organization"],
-            "method_args": lambda tw_args: (
-                "delete",
-                "--id",
-                str(
-                    get_delete_identifier(
-                        "teams",
-                        "name",
-                        tw_args["name"],
-                        "teamId",
-                        tw_args["organization"],
-                    )
-                ),
-                "--organization",
-                tw_args["organization"],
-            ),
-            "name_key": "name",
-        },
-        "participants": {
-            "keys": ["name", "type", "workspace"],
-            "method_args": lambda tw_args: (
-                "delete",
-                "--name",
-                tw_args["name"],
-                "--type",
-                tw_args["type"],
-                "--workspace",
-                tw_args["workspace"],
-            ),
-            "name_key": "email",
-        },
-        # Requires workspace formatted a certain way for valid workspace name
-        "workspaces": {
-            "keys": ["name", "organization"],
-            "method_args": lambda tw_args: (
-                "delete",
-                "--id",
-                str(tw_args["name"]),
-            ),
-            "name_key": "workspaceId",
-        },
-    }
-
-    if block in generic_deletion:
-        block_operations[block] = {
-            "keys": ["name", "workspace"],
-            "method_args": lambda tw_args: (
-                "delete",
-                "--name",
-                tw_args["name"],
-                "--workspace",
-                tw_args["workspace"],
-            ),
-            "name_key": "name",
-        }
-
-    if block in block_operations:
-        operation = block_operations[block]
-        keys_to_get = operation["keys"]
-
-        # Return JSON data to check if resource exists
-        json_method = getattr(tw, "-o json")
-
-        # TODO: (EJ) refactor this, I hate it so much
-        if block == "teams":
-            tw_args = get_values_from_cmd_args(args[0], keys_to_get)
-            json_data = json_method(block, "list", "-o", tw_args["organization"])
-        elif block in generic_deletion or block == "participants":
-            tw_args = get_values_from_cmd_args(args, keys_to_get)
-            json_data = json_method(block, "list", "-w", tw_args["workspace"])
-            if "type" in tw_args and tw_args["type"] == "TEAM":
-                operation["name_key"] = "teamName"
-        elif block == "workspaces":
-            tw_args = get_values_from_cmd_args(args, keys_to_get)
-            json_data = json_method(block, "list")
-            workspaceId = find_workspace_id(
-                json_data, tw_args["organization"], tw_args["name"]
-            )
-            tw_args["name"] = workspaceId  # override workspace name with workspaceId
-        else:
-            tw_args = get_values_from_cmd_args(args, keys_to_get)
-            json_data = json_method(block, "list")
-
-        # Check if the resource exists, if true, delete it, else return
-        if utils.check_if_exists(json_data, operation["name_key"], tw_args["name"]):
-            method_args = operation["method_args"](tw_args)
-            method = getattr(tw, block)
-            method(*method_args)
-        else:
-            return
-
-
-# Other utility functions
-def get_values_from_cmd_args(cmd_args, keys):
-    values = {key: None for key in keys}
-    key = None
-
-    for arg in cmd_args:
-        if arg.startswith("--"):
-            key = arg[2:]
-        else:
-            if key and key in keys:
-                values[key] = arg
-            key = None
-    return values
-
-
-# There can be multiple workspaces in an org with the same name
-# This retrieves the workspace id for a given workspace name and org
-def find_workspace_id(json_data, organization, workspace_name):
-    json_data = json.loads(json_data)
-    if "workspaces" in json_data:
-        workspaces = json_data["workspaces"]
-        for workspace in workspaces:
-            if (
-                workspace.get("orgName") == organization
-                and workspace.get("workspaceName") == workspace_name
-            ):
-                return workspace.get("workspaceId")
-    return None
