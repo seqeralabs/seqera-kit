@@ -9,9 +9,9 @@ import time
 import yaml
 
 from pathlib import Path
-from tw_pywrap import tower
-import tw_pywrap.helper as helper  # TODO: refactor
-from tw_pywrap import overwrite
+from tw_pywrap import tower, helper, overwrite
+from tw_pywrap.tower import ResourceCreationError, ResourceExistsError
+
 
 logger = logging.getLogger(__name__)
 
@@ -100,21 +100,24 @@ def main():
             "datasets",
         ],
     )
-    with open(options.yaml, "r") as f:
-        data = yaml.safe_load(f)
+    try:
+        with open(options.yaml, "r") as f:
+            data = yaml.safe_load(f)
 
-    # Returns a dict that maps block names to lists of command line arguments.
-    cmd_args_dict = helper.parse_all_yaml(options.yaml, list(data.keys()))
+        # Returns a dict that maps block names to lists of command line arguments.
+        cmd_args_dict = helper.parse_all_yaml(options.yaml, list(data.keys()))
 
-    for block, args_list in cmd_args_dict.items():
-        for args in args_list:
-            try:
-                # Run the methods for each block
-                block_manager.handle_block(block, args)
-                time.sleep(3)
-            except Exception as e:
-                logging.error(e)
-                continue  # Move to the next block
+        for block, args_list in cmd_args_dict.items():
+            for args in args_list:
+                try:
+                    # Run the 'tw' methods for each block
+                    block_manager.handle_block(block, args)
+                    time.sleep(3)
+                except ResourceExistsError as e:
+                    logging.error(e)
+                    continue
+    except ResourceCreationError as e:
+        logging.error(e)
 
 
 if __name__ == "__main__":
