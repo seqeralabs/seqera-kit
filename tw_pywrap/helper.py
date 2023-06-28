@@ -18,9 +18,21 @@ def parse_yaml_block(file_path, block_name):
     # Initialize an empty list to hold the lists of command line arguments.
     cmd_args_list = []
 
+    # Initialize a set to track the --name values within the block.
+    name_values = set()
+
     # Iterate over each item in the block.
     for item in block:
-        cmd_args_list.append(parse_block(block_name, item))
+        cmd_args = parse_block(block_name, item)
+        name = find_name(cmd_args)
+        if name in name_values:
+            raise ValueError(
+                f" Duplicate 'name' specified in config file"
+                f" for {block_name}: {name}. Please specify a unique name."
+            )
+        name_values.add(name)
+
+        cmd_args_list.append(cmd_args)
 
     # Return the block name and list of command line argument lists.
     return block_name, cmd_args_list
@@ -54,11 +66,6 @@ def parse_block(block_name, item):
     # Use the generic block function as a default.
     parse_fn = block_to_function.get(block_name, parse_generic_block)
     overwrite = item.pop("overwrite", False)
-
-    # Check if the name-value pairs are unique
-    names = [key for key in item.keys() if key != "overwrite"]
-    if len(names) != len(set(names)):
-        raise ValueError(f"Duplicate name-value pairs found in the {block_name} block.")
 
     # Call the appropriate function and return its result along with overwrite value.
     cmd_args = parse_fn(item)
@@ -237,3 +244,14 @@ def handle_pipelines(tw, args):
             break
         elif ".json" in arg:
             method("import", *args)
+
+
+def find_name(cmd_args):
+    """
+    Find and return the value associated with --name in the cmd_args list.
+    """
+    args_list = cmd_args.get("cmd_args", [])
+    for i in range(len(args_list) - 1):
+        if args_list[i] == "--name":
+            return args_list[i + 1]
+    return None
