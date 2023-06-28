@@ -1,3 +1,5 @@
+import json
+import logging
 import subprocess
 import shlex
 import logging
@@ -38,7 +40,10 @@ class Tower:
         """
         command = ["tw"]
         if kwargs.get("to_json"):
+            to_json = True
             command.extend(["-o", "json"])
+        else:
+            to_json = False
         command.extend(cmd)
         command.extend(args)
 
@@ -74,6 +79,8 @@ class Tower:
                     f" Resource creation failed with the following error: '{stdout}'.\n"
                     "Please check your config file and try again.\n"
                 )
+            elif to_json is True:
+                return json.loads(stdout)
             else:
                 return stdout
 
