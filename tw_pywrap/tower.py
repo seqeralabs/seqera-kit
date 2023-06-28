@@ -1,8 +1,10 @@
+import json
+import logging
 import subprocess
 import shlex
-import logging
+import re
 
-logging.basicConfig(level=logging.DEBUG)  # add this line at the top of your script
+logging.basicConfig(level=logging.DEBUG)
 
 
 class Tower:
@@ -37,7 +39,10 @@ class Tower:
         """
         command = ["tw"]
         if kwargs.get("to_json"):
+            to_json = True
             command.extend(["-o", "json"])
+        else:
+            to_json = False
         command.extend(cmd)
         command.extend(args)
 
@@ -55,11 +60,28 @@ class Tower:
         logging.debug(f" Running command: {full_cmd}\n")
 
         # Run the command and return the stdout
-        process = subprocess.Popen(full_cmd, stdout=subprocess.PIPE, shell=True)
+        process = subprocess.Popen(
+            full_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+        )
         stdout, _ = process.communicate()
         stdout = stdout.decode("utf-8").strip()
 
-        return stdout
+        # Error handling for stdout
+        if stdout:
+            if re.search(r"ERROR: (?!A pipeline).* already exists", stdout):
+                raise ResourceExistsError(
+                    " Resource already exists and will not be created."
+                    "Please set 'overwrite: true'\n"
+                )
+            elif re.search(r"ERROR: .*", stdout):
+                raise ResourceCreationError(
+                    f" Resource creation failed with the following error: '{stdout}'.\n"
+                    "Please check your config file and try again.\n"
+                )
+            elif to_json is True:
+                return json.loads(stdout)
+            else:
+                return stdout
 
     # Allow any 'tw' subcommand to be called as a method.
     def __getattr__(self, cmd):
@@ -69,3 +91,11 @@ class Tower:
         """
         cmd = cmd.replace("_", "-")  # replace underscores with hyphens
         return self.TwCommand(self, cmd)
+
+
+class ResourceExistsError(Exception):
+    pass
+
+
+class ResourceCreationError(Exception):
+    pass
