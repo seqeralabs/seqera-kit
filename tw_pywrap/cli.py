@@ -49,6 +49,8 @@ class BlockParser:
         """
         self.tw = tw
         self.list_for_add_method = list_for_add_method
+        # Create an instance of Overwrite class
+        self.overwrite_method = overwrite.Overwrite(self.tw)
 
     def handle_block(self, block, args):
         # Handles a block of commands by calling the appropriate function.
@@ -68,7 +70,11 @@ class BlockParser:
         overwrite_option = args.get("overwrite", False)
         if overwrite_option:
             logging.debug(f" Overwrite is set to 'True' for {block}\n")
-            overwrite.Overwrite(self.tw).handle_overwrite(block, args["cmd_args"])
+            self.overwrite_method.handle_overwrite(
+                block, args["cmd_args"], overwrite_option
+            )
+        else:
+            self.overwrite_method.handle_overwrite(block, args["cmd_args"])
 
         if block in self.list_for_add_method:
             helper.handle_generic_block(self.tw, block, args["cmd_args"])
@@ -102,9 +108,13 @@ def main():
 
     for block, args_list in cmd_args_dict.items():
         for args in args_list:
-            # Run the methods for each block
-            block_manager.handle_block(block, args)
-            time.sleep(3)
+            try:
+                # Run the methods for each block
+                block_manager.handle_block(block, args)
+                time.sleep(3)
+            except Exception as e:
+                logging.error(e)
+                continue  # Move to the next block
 
 
 if __name__ == "__main__":

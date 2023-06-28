@@ -55,6 +55,11 @@ def parse_block(block_name, item):
     parse_fn = block_to_function.get(block_name, parse_generic_block)
     overwrite = item.pop("overwrite", False)
 
+    # Check if the name-value pairs are unique
+    names = [key for key in item.keys() if key != "overwrite"]
+    if len(names) != len(set(names)):
+        raise ValueError(f"Duplicate name-value pairs found in the {block_name} block.")
+
     # Call the appropriate function and return its result along with overwrite value.
     cmd_args = parse_fn(item)
     return {"cmd_args": cmd_args, "overwrite": overwrite}
