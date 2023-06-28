@@ -62,7 +62,7 @@ class Overwrite:
             },
         }
 
-    def handle_overwrite(self, block, args):
+    def handle_overwrite(self, block, args, overwrite=False):
         """
         Handles overwrite functionality for Tower resources and
         calling the 'tw delete' method with the correct args.
@@ -85,11 +85,20 @@ class Overwrite:
                 if tw_args.get("type") == "TEAM":
                     self.block_operations["participants"]["name_key"] = "teamName"
 
-            if self._resource_exists(operation["name_key"], tw_args):
-                logging.debug(
-                    f" The attempted {block} resource already exists. Overwriting.\n"
-                )
-                self._delete_resource(block, operation, tw_args)
+            if self.check_resource_exists(operation["name_key"], tw_args):
+                # if resource exists, delete
+                if overwrite:
+                    logging.debug(
+                        f" The attempted {block} resource already exists."
+                        " Overwriting.\n"
+                    )
+                    self._delete_resource(block, operation, tw_args)
+                else:  # return an error if resource exists, overwrite=False
+                    raise Exception(
+                        f"Error: The {block} resource already exists and"
+                        " will not be created. Please set 'overwrite: True'"
+                        " in your config file.\n"
+                    )
 
     def _get_organization_args(self, args):
         """
@@ -105,7 +114,7 @@ class Overwrite:
         jsondata = self.block_jsondata.get("teams", None)
         if jsondata is None:
             json_method = getattr(self.tw, "-o json")
-            json_out = json_method("teams", "-o", args["organization"])
+            json_out = json_method("teams", "list", "-o", args["organization"])
             self.block_jsondata["teams"] = json_out
         # Get the teamId from the json data
         team_id = utils.find_key_value_in_dict(
@@ -161,44 +170,40 @@ class Overwrite:
         For the specified keys in the operations dictionary, get the values from
         the command line arguments and return a dictionary of values.
 
-        Also, gets json data from Tower by calling the list() method.
+        Also, gets json data from Tower by calling the list() method once and caches
+        the json data for that block in self.block_jsondata. If the block data already
+        exists, it will be retrieved from the dictionary instead of calling the list().
 
         Returns a tuple of json data and a dictionary of values to run delete() on.
         """
         json_method = getattr(self.tw, "-o json")
+        tw_args = []  # Default value for tw_args
 
         # Check if block data already exists
         if block in self.block_jsondata:
             self.cached_jsondata = self.block_jsondata[block]
+            tw_args = self._get_values_from_cmd_args(args, keys_to_get)
         else:
             # Fetch the data if it does not exist
             if block == "teams":
                 tw_args = self._get_values_from_cmd_args(args[0], keys_to_get)
-                print(f"tw_args for teams are: {tw_args}")
                 self.cached_jsondata = json_method(
                     block, "list", "-o", tw_args["organization"]
                 )
-                return self.cached_jsondata, tw_args
-
             elif block in Overwrite.generic_deletion or block == "participants":
                 tw_args = self._get_values_from_cmd_args(args, keys_to_get)
                 self.cached_jsondata = json_method(
                     block, "list", "-w", tw_args["workspace"]
                 )
-                print(
-                    f"DEBUG: From generic deletion the json is {self.cached_jsondata}"
-                )
-                return self.cached_jsondata, tw_args
-
             else:
                 tw_args = self._get_values_from_cmd_args(args, keys_to_get)
                 self.cached_jsondata = json_method(block, "list")
-                return self.cached_jsondata, tw_args
 
         # Store this data in the block_jsondata dict for later use
         self.block_jsondata[block] = self.cached_jsondata
+        return self.cached_jsondata, tw_args
 
-    def _resource_exists(self, name_key, tw_args):
+    def check_resource_exists(self, name_key, tw_args):
         """
         Check if a resource exists in Tower by looking for the name and value
         in the json data generated from the list() method.
