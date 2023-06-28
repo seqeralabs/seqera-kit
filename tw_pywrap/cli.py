@@ -9,9 +9,9 @@ import time
 import yaml
 
 from pathlib import Path
-from tw_pywrap import tower
-import tw_pywrap.helper as helper  # TODO: refactor
-from tw_pywrap import overwrite
+from tw_pywrap import tower, helper, overwrite
+from tw_pywrap.tower import ResourceCreationError, ResourceExistsError
+
 
 logger = logging.getLogger(__name__)
 
@@ -113,10 +113,10 @@ def main():
                     # Run the 'tw' methods for each block
                     block_manager.handle_block(block, args)
                     time.sleep(3)
-                except Exception as e:
+                except ResourceExistsError as e:
                     logging.error(e)
                     continue
-    except Exception as e:
+    except ResourceCreationError as e:
         logging.error(e)
 
 

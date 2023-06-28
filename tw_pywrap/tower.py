@@ -62,12 +62,17 @@ class Tower:
         stdout, _ = process.communicate()
         stdout = stdout.decode("utf-8").strip()
 
-        # Check if an error occurred
-        # ruff: noqa: E501
+        # Error handling for stdout
         if stdout:
-            if re.search(r"ERROR: .* already exists", stdout):
-                logging.debug(
-                    " Resource already exists and will not be created. Please set 'overwrite: true'\n"
+            if re.search(r"ERROR: (?!A pipeline).* already exists", stdout):
+                raise ResourceExistsError(
+                    " Resource already exists and will not be created."
+                    "Please set 'overwrite: true'\n"
+                )
+            elif re.search(r"ERROR: .*", stdout):
+                raise ResourceCreationError(
+                    f" Resource creation failed with the following error: '{stdout}'.\n"
+                    "Please check your config file and try again.\n"
                 )
             else:
                 return stdout
@@ -80,3 +85,11 @@ class Tower:
         """
         cmd = cmd.replace("_", "-")  # replace underscores with hyphens
         return self.TwCommand(self, cmd)
+
+
+class ResourceExistsError(Exception):
+    pass
+
+
+class ResourceCreationError(Exception):
+    pass
