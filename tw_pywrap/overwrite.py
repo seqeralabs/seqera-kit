@@ -88,9 +88,7 @@ class Overwrite:
                 else:
                     self.block_operations["participants"]["name_key"] = "email"
 
-            if block != "pipelines" and self.check_resource_exists(
-                operation["name_key"], tw_args
-            ):
+            if self.check_resource_exists(operation["name_key"], tw_args):
                 # if resource exists, delete
                 if overwrite:
                     logging.debug(
