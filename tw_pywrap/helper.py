@@ -46,6 +46,7 @@ def parse_all_yaml(file_path, block_names):
         "participants",
         "credentials",
         "compute-envs",
+        "secrets",
         "actions",
         "datasets",
         "pipelines",
