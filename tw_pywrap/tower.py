@@ -68,10 +68,10 @@ class Tower:
 
         # Error handling for stdout
         if stdout:
-            if re.search(r"ERROR: (?!A pipeline).* already exists", stdout):
+            if re.search(r"ERROR: .* already exists", stdout):
                 raise ResourceExistsError(
                     " Resource already exists and will not be created."
-                    "Please set 'overwrite: true'\n"
+                    " Please set 'overwrite: true'\n"
                 )
             elif re.search(r"ERROR: .*", stdout):
                 raise ResourceCreationError(
