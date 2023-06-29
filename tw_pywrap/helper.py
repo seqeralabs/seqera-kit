@@ -39,14 +39,29 @@ def parse_yaml_block(file_path, block_name):
 
 
 def parse_all_yaml(file_path, block_names):
+    resource_order = [
+        "organizations",
+        "teams",
+        "workspaces",
+        "participants",
+        "credentials",
+        "compute-envs",
+        "secrets",
+        "actions",
+        "datasets",
+        "pipelines",
+        "launch",
+    ]
     # Initialize an empty dictionary to hold all the command arguments.
     cmd_args_dict = {}
 
-    # Iterate over each block name.
-    for block_name in block_names:
-        # Parse the block and add its command arguments to the dictionary.
-        block_name, cmd_args_list = parse_yaml_block(file_path, block_name)
-        cmd_args_dict[block_name] = cmd_args_list
+    # Iterate over each block name in the desired order.
+    for block_name in resource_order:
+        # Check if the block name is present in the provided block_names list
+        if block_name in block_names:
+            # Parse the block and add its command arguments to the dictionary.
+            block_name, cmd_args_list = parse_yaml_block(file_path, block_name)
+            cmd_args_dict[block_name] = cmd_args_list
 
     # Return the dictionary of command arguments.
     return cmd_args_dict
