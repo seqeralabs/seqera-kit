@@ -1,4 +1,17 @@
+# Testing configs, jsons
 scripts/py/test*
-scripts/py/scidev/*/*.json
-scripts/py/__pycache__/*
-scripts/py/benchmarking_scripts/__pycache__/*
+testing/*
+# Python
+# byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+build/lib/*
+*.egg-info/*
+
+# Commitizen
+node_modules/
+package-lock.json
+package.json
+tw_pywrap.egg-info/*
+build/*

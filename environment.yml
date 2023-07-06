@@ -1,8 +1,10 @@
-name: tw-python
+name: tw_pywrap
 channels:
+  - bioconda
   - conda-forge
+  - bioconda
   - defaults
 dependencies:
-  - mamba=1.4.0
-  - python=3.10.9
-  - pyyaml=6.0
+  - conda-forge::python=3.10.9
+  - conda-forge::pyyaml=6.0
+  - bioconda::tower-cli=0.8.0
