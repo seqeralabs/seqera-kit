@@ -16,11 +16,11 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
 
 `tw-pywrap` requires the following dependencies:
 
-  1. [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli#1-installation)
+1. [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli#1-installation)
 
-  2. [Python (`>=3.8`)](https://www.python.org/downloads/)
-    
-  3. [PyYAML](https://pypi.org/project/PyYAML/)
+2. [Python (`>=3.8`)](https://www.python.org/downloads/)
+
+3. [PyYAML](https://pypi.org/project/PyYAML/)
 
 Alternatively, you can install the dependencies via Conda by downloading and using the [Conda environment file](environment.yml) that has been supplied in this repository:
 
@@ -55,7 +55,7 @@ export TOWER_ACCESS_TOKEN=<your access token>
 
 ## Quick start
 
-You must provide a YAML file that defines the options for each of the entities you would like to create in Nextflow Tower. 
+You must provide a YAML file that defines the options for each of the entities you would like to create in Nextflow Tower.
 
 You will need to have an account on Nextflow Tower (see [Plans and pricing](https://cloud.tower.nf/pricing/)).
 
@@ -65,22 +65,28 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
 
   1. Create a file called `hello_world_config.yml` with the contents below:
 
-      ```
-      launch:
-        - name: 'hello-world'                               # Workflow name
-          workspace: 'community/showcase'                   # Workspace name
-          compute-env: 'AWS_Batch_Ireland_FusionV2_NVMe'    # Compute environment
-          revision: 'master'                                # Pipeline revision
-          pipeline: 'https://github.com/nextflow-io/hello'  # Pipeline URL
-      ```
+     ```
+     launch:
+       - name: 'hello-world'                               # Workflow name
+         workspace: 'community/showcase'                   # Workspace name
+         compute-env: 'AWS_Batch_Ireland_FusionV2_NVMe'    # Compute environment
+         revision: 'master'                                # Pipeline revision
+         pipeline: 'https://github.com/nextflow-io/hello'  # Pipeline URL
+     ```
 
   2. Launch the pipeline with `tw-pywrap`:
 
-      ```
-      tw-pywrap hello_world_config.yml
-      ```
+     ```
+     tw-pywrap hello_world_config.yml
+     ```
 
-  3. Login to Tower Cloud and check the [Runs page](https://tower.nf/orgs/community/workspaces/showcase/watch]) in the `community/showcase` for the pipeline you just launched!
+  3. Alternatively, to test usage of the `tw-pywrap` package for running `tw` commands and launching pipelines, you can run the `launch_hello_world.py` example script in `templates/quick_start`:
+
+     ```
+     python launch_hello_world.py
+     ```
+
+  4. Login to Tower Cloud and check the [Runs page](https://tower.nf/orgs/community/workspaces/showcase/watch) in the `community/showcase` for the pipeline you just launched!
 
 - Launching on Tower Enterprise
 
@@ -88,20 +94,20 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
 
   1. Create a file called `hello_world_config.yml` with the contents below:
 
-      ```
-      launch:
-        - name: 'hello-world'                               # Workflow name
-          workspace: '<YOUR_WORKSPACE>'                     # Workspace name
-          compute-env: '<YOUR_COMPUTE_ENVIRONMENT>'         # Compute environment
-          revision: 'master'                                # Pipeline revision
-          pipeline: 'https://github.com/nextflow-io/hello'  # Pipeline URL
-      ```
+     ```
+     launch:
+       - name: 'hello-world'                               # Workflow name
+         workspace: '<YOUR_WORKSPACE>'                     # Workspace name
+         compute-env: '<YOUR_COMPUTE_ENVIRONMENT>'         # Compute environment
+         revision: 'master'                                # Pipeline revision
+         pipeline: 'https://github.com/nextflow-io/hello'  # Pipeline URL
+     ```
 
   2. Launch the pipeline with `tw-pywrap`:
 
-      ```
-      tw-pywrap hello_world_config.yml
-      ```
+     ```
+     tw-pywrap hello_world_config.yml
+     ```
 
   3. Login to your Tower Enterprise instance and check the Runs page in the appropriate Workspace for the pipeline you just launched!
 
@@ -113,17 +119,17 @@ We have created an end-to-end example that highlights how you can use `tw_pywrap
 
 We have provided template YAML files for each of the entities that can be created on Tower. These can be found in the [`templates/`](templates) directory and should form a good starting point for you to add your own customization:
 
-  - [organizations.yml](templates/organizations.yml)
-  - [teams.yml](templates/teams.yml)
-  - [workspaces.yml](templates/workspaces.yml)
-  - [participants.yml](templates/participants.yml)
-  - [credentials.yml](templates/credentials.yml)
-  - [secrets.yml](templates/secrets.yml)
-  - [compute-envs.yml](templates/compute-envs.yml)
-  - [actions.yml](templates/actions.yml)
-  - [datasets.yml](templates/datasets.yml)
-  - [pipelines.yml](templates/pipelines.yml)
-  - [launch.yml](templates/launch.yml)
+- [organizations.yml](templates/organizations.yml)
+- [teams.yml](templates/teams.yml)
+- [workspaces.yml](templates/workspaces.yml)
+- [participants.yml](templates/participants.yml)
+- [credentials.yml](templates/credentials.yml)
+- [secrets.yml](templates/secrets.yml)
+- [compute-envs.yml](templates/compute-envs.yml)
+- [actions.yml](templates/actions.yml)
+- [datasets.yml](templates/datasets.yml)
+- [pipelines.yml](templates/pipelines.yml)
+- [launch.yml](templates/launch.yml)
 
 ## Contributions and Support
 

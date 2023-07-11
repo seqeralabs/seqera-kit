@@ -1,0 +1,208 @@
+organizations:
+  - name: 'tw_cli_e2e_test'
+    full-name: 'tw_cli_e2e_test'
+    description: 'Organization created E2E with tw CLI scripting'
+    location: 'Global'
+    website: 'https://seqera.io/'
+    overwrite: True
+teams:
+  - name: 'scidev_team'
+    organization: 'tw_cli_e2e_test'
+    description: 'Scientific Development team @ Seqera Labs'
+    members:
+      - 'drpatelhh@gmail.com'
+      - 'esha.joshi@seqera.io'
+      - 'adam.talbot@seqera.io'
+    overwrite: True
+workspaces:
+  - name: 'showcase'
+    full-name: 'showcase'
+    organization: 'tw_cli_e2e_test'
+    description: 'Workspace created E2E with tw CLI scripting'
+    visibility: 'PRIVATE'
+    overwrite: True
+participants:
+  - name: 'scidev_team'
+    type: 'TEAM'
+    workspace: 'tw_cli_e2e_test/showcase'
+    role: 'ADMIN'
+    overwrite: True
+  - name: 'adam.talbot@seqera.io'
+    type: 'MEMBER'
+    workspace: 'tw_cli_e2e_test/showcase'
+    role: 'LAUNCH'
+    overwrite: True
+credentials:
+  - type: 'github'
+    name: 'github_credentials'
+    workspace: 'tw_cli_e2e_test/showcase'
+    username: 'drpatelh'
+    password: '$TOWER_GITHUB_PASSWORD'
+    overwrite: True
+  - type: 'container-reg'
+    name: 'dockerhub_credentials'
+    workspace: 'tw_cli_e2e_test/showcase'
+    username: 'drpatelh'
+    password: '$DOCKERHUB_PASSWORD'
+    registry: 'docker.io'
+    overwrite: True
+  - type: 'aws'
+    name: 'aws_credentials'
+    workspace: 'tw_cli_e2e_test/showcase'
+    access-key: $AWS_ACCESS_KEY_ID
+    secret-key: $AWS_SECRET_ACCESS_KEY
+    assume-role-arn: $AWS_ASSUME_ROLE_ARN
+    overwrite: True
+  - type: 'azure'
+    name: 'azure_credentials'
+    workspace: 'tw_cli_e2e_test/showcase'
+    batch-key: '$AZURE_BATCH_KEY'
+    batch-name: 'seqeralabs'
+    storage-key: '$AZURE_STORAGE_KEY'
+    storage-name: 'seqeralabs'
+    overwrite: True
+  - type: 'google'
+    name: 'google_credentials'
+    workspace: 'tw_cli_e2e_test/showcase'
+    key: '$GOOGLE_KEY'
+    overwrite: True
+secrets:
+  - name: 'SENTIEON_LICENSE_BASE64'
+    workspace: 'tw_cli_e2e_test/showcase'
+    value: '$SENTIEON_LICENSE_BASE64'
+    overwrite: True
+compute-envs:
+  - name: 'seqera_aws_ireland_fusionv2_nvme'
+    workspace: 'tw_cli_e2e_test/showcase'
+    credentials: 'aws_credentials'
+    wait: 'AVAILABLE'
+    file-path: './compute-envs/seqera_aws_ireland_fusionv2_nvme.json'
+    overwrite: True
+  - name: 'seqera_azure_virginia'
+    workspace: 'tw_cli_e2e_test/showcase'
+    credentials: 'azure_credentials'
+    wait: 'AVAILABLE'
+    file-path: './compute-envs/seqera_azure_virginia.json'
+    overwrite: True
+  - name: 'seqera_gcp_finland'
+    workspace: 'tw_cli_e2e_test/showcase'
+    credentials: 'google_credentials'
+    wait: 'AVAILABLE'
+    file-path: './compute-envs/seqera_gcp_finland.json'
+    overwrite: True
+actions:
+  - type: 'github'
+    name: 'nf_core_rnaseq_launch_hook'
+    pipeline: 'https://github.com/nf-core/rnaseq'
+    workspace: 'tw_cli_e2e_test/showcase'
+    compute-env: 'seqera_aws_ireland_fusionv2_nvme'
+    work-dir: 's3://seqeralabs-showcase'
+    profile: 'test'
+    params:
+      outdir: 's3://seqeralabs-showcase/nf-core-rnaseq/results'
+    revision: '3.12.0'
+    overwrite: True
+  - type: 'tower'
+    name: 'nf_core_rnaseq_web_hook'
+    pipeline: 'https://github.com/nf-core/rnaseq'
+    workspace: 'tw_cli_e2e_test/showcase'
+    compute-env: 'seqera_aws_ireland_fusionv2_nvme'
+    work-dir: 's3://seqeralabs-showcase'
+    profile: 'test'
+    params:
+      outdir: 's3://seqeralabs-showcase/nf-core-rnaseq/results'
+    revision: '3.12.0'
+    overwrite: True
+datasets:
+  - name: 'rnaseq_samples'
+    description: 'Samplesheet to run the nf-core/rnaseq pipeline from end-to-end'
+    header: true
+    workspace: 'tw_cli_e2e_test/showcase'
+    file-path: './datasets/rnaseq_samples.csv'
+    overwrite: True
+  - name: 'sarek_samples'
+    description: 'Samplesheet to run the nf-core/sarek pipeline from end-to-end'
+    header: true
+    workspace: 'tw_cli_e2e_test/showcase'
+    file-path: './datasets/sarek_samples.csv'
+    overwrite: True
+  - name: 'viralrecon_illumina_samples'
+    description: 'Samplesheet to run the nf-core/viralrecon pipeline from end-to-end with Illumina data'
+    header: true
+    workspace: 'tw_cli_e2e_test/showcase'
+    file-path: './datasets/viralrecon_illumina_samples.csv'
+    overwrite: True
+  - name: 'viralrecon_nanopore_samples'
+    description: 'Samplesheet to run the nf-core/viralrecon pipeline from end-to-end with Nanopore data'
+    header: true
+    workspace: 'tw_cli_e2e_test/showcase'
+    file-path: './datasets/viralrecon_nanopore_samples.csv'
+    overwrite: True
+  - name: 'sentieon_samples'
+    description: 'Samplesheet to run the seqeralabs/nf-sentieon pipeline from end-to-end'
+    header: true
+    workspace: 'tw_cli_e2e_test/showcase'
+    file-path: './datasets/sentieon_samples.csv'
+    overwrite: True
+pipelines:
+  - name: 'nf-core-rnaseq'
+    url: 'https://github.com/nf-core/rnaseq'
+    workspace: 'tw_cli_e2e_test/showcase'
+    description: 'RNA sequencing analysis pipeline using STAR, RSEM, HISAT2 or Salmon with gene/isoform counts and extensive quality control.'
+    compute-env: 'seqera_aws_ireland_fusionv2_nvme'
+    work-dir: 's3://seqeralabs-showcase'
+    profile: 'test'
+    revision: '3.12.0'
+    params:
+      outdir: 's3://seqeralabs-showcase/nf-core-rnaseq/results'
+    config: './pipelines/nextflow.config'
+    pre-run: './pipelines/pre_run.txt'
+    overwrite: True
+  - name: 'nf-core-viralrecon-nanopore'
+    workspace: 'tw_cli_e2e_test/showcase'
+    compute-env: 'seqera_azure_virginia'
+    file-path: './pipelines/nf_core_viralrecon_nanopore_pipeline.json'
+    overwrite: True
+  - name: 'nf-core-viralrecon-illumina'
+    url: 'https://github.com/nf-core/viralrecon'
+    workspace: 'tw_cli_e2e_test/showcase'
+    description: 'Pipeline for assembly and intrahost/low-frequency variant calling for viral samples.'
+    compute-env: 'seqera_gcp_finland'
+    work-dir: 'gs://seqeralabs-showcase-eu-north-1'
+    profile: 'test'
+    revision: '2.6.0'
+    params-file: './pipelines/nf_core_viralrecon_illumina_params.yml'
+    config: './pipelines/nextflow.config'
+    pre-run: './pipelines/pre_run.txt'
+    overwrite: True
+  - name: 'nf-sentieon'
+    workspace: 'tw_cli_e2e_test/showcase'
+    compute-env: 'seqera_aws_ireland_fusionv2_nvme'
+    file-path: './pipelines/nf_sentieon_pipeline.json'
+    overwrite: True
+launch:
+  - name: 'nf-core-rnaseq-launchpad'
+    workspace: 'tw_cli_e2e_test/showcase'
+    pipeline: 'nf-core-rnaseq'
+  - name: 'nf-core-rnaseq-remote'
+    workspace: 'tw_cli_e2e_test/showcase'
+    pipeline: 'https://github.com/nf-core/rnaseq'
+    compute-env: 'seqera_azure_virginia'
+    work-dir: 'az://seqeralabs-showcase'
+    profile: 'test'
+    revision: '3.12.0'
+    params-file: './pipelines/nf_core_rnaseq_params.yml'
+    config: './pipelines/nextflow.config'
+    pre-run: './pipelines/pre_run.txt'
+  - name: 'nf-core-viralrecon-nanopore'
+    workspace: 'tw_cli_e2e_test/showcase'
+    pipeline: 'nf-core-viralrecon-nanopore'
+    params-file: './pipelines/nf_core_viralrecon_nanopore_params.yml'
+    config: './pipelines/nextflow.config'
+    pre-run: './pipelines/pre_run.txt'
+  - name: 'nf-core-viralrecon-illumina'
+    workspace: 'tw_cli_e2e_test/showcase'
+    pipeline: 'nf-core-viralrecon-illumina'
+  - name: 'nf-sentieon'
+    workspace: 'tw_cli_e2e_test/showcase'
+    pipeline: 'nf-sentieon'
