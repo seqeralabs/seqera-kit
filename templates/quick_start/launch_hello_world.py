@@ -9,8 +9,8 @@ logging.basicConfig(level=logging.DEBUG)
 tw = tower.Tower()
 
 # Specify the workspace to use
-workspace = "community/showcase"
-compute_env_name = "AWS_Batch_Ireland_FusionV2_NVMe"
+workspace = "my_workspace"  # name of the workspace
+compute_env_name = "my_compute_env"  # name of your compute env
 
 # Specify a human-readable run name
 run_name = "hello-world-tw-pywrap"

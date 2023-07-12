@@ -68,8 +68,8 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
      ```
      launch:
        - name: 'hello-world'                               # Workflow name
-         workspace: 'community/showcase'                   # Workspace name
-         compute-env: 'AWS_Batch_Ireland_FusionV2_NVMe'    # Compute environment
+         workspace: <name_of_your_workspace>               # Workspace name
+         compute-env: <name_of_your_compute_env>           # Compute environment
          revision: 'master'                                # Pipeline revision
          pipeline: 'https://github.com/nextflow-io/hello'  # Pipeline URL
      ```
@@ -80,7 +80,7 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
      tw-pywrap hello_world_config.yml
      ```
 
-  3. Alternatively, to test usage of the `tw-pywrap` package for running `tw` commands and launching pipelines, you can run the `launch_hello_world.py` example script in `templates/quick_start`:
+  3. Alternatively, to test usage of the `tw-pywrap` package for running `tw` commands and launching pipelines, you can run the `launch_hello_world.py` example script in `templates/quick_start` by replacing the placeholder values for `workspace` and `compute_env_name`:
 
      ```
      python launch_hello_world.py
