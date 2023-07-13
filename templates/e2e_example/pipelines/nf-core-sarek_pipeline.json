@@ -1,0 +1,15 @@
+{
+  "description" : "Analysis pipeline to detect germline or somatic variants (pre-processing, variant calling and annotation) from WGS / targeted sequencing.",
+  "launch" : {
+    "pipeline" : "https://github.com/nf-core/sarek",
+    "workDir" : "az://seqeralabs-showcase",
+    "revision" : "3.1.2",
+    "configProfiles" : [ "test" ],
+    "configText" : "",
+    "paramsText" : "outdir: 'az://seqeralabs-showcase/nf-core-sarek/results'",
+    "preRunScript" : "",
+    "resume" : false,
+    "pullLatest" : false,
+    "stubRun" : false
+  }
+}
