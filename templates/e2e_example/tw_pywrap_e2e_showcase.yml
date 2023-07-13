@@ -36,13 +36,13 @@ credentials:
   - type: 'github'
     name: 'github_credentials'
     workspace: 'tw_cli_e2e_test/showcase'
-    username: 'drpatelh'
+    username: 'ejseqera'
     password: '$TOWER_GITHUB_PASSWORD'
     overwrite: True
   - type: 'container-reg'
     name: 'dockerhub_credentials'
     workspace: 'tw_cli_e2e_test/showcase'
-    username: 'drpatelh'
+    username: 'eshajoshi'
     password: '$DOCKERHUB_PASSWORD'
     registry: 'docker.io'
     overwrite: True
