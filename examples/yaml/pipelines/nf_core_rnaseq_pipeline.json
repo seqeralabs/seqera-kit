@@ -1,0 +1,17 @@
+{
+  "description" : "RNA sequencing analysis pipeline using STAR, RSEM, HISAT2 or Salmon with gene/isoform counts and extensive quality control.",
+  "launch" : {
+    "pipeline" : "https://github.com/nf-core/rnaseq",
+    "workDir" : "s3://seqeralabs-showcase",
+    "revision" : "3.12.0",
+    "configProfiles" : [ "test" ],
+    "userSecrets" : [ ],
+    "workspaceSecrets" : [ ],
+    "configText" : "",
+    "paramsText" : "outdir: 's3://seqeralabs-showcase/nf-core-rnaseq/results'",
+    "preRunScript" : "",
+    "resume" : false,
+    "pullLatest" : false,
+    "stubRun" : false
+  }
+}

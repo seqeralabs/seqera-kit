@@ -1,0 +1,14 @@
+{
+  "workDir" : "az://seqeralabs-showcase",
+  "region" : "eastus",
+  "forge" : {
+    "vmType" : "Standard_D16s_v3",
+    "vmCount" : 16,
+    "autoScale" : true,
+    "disposeOnDeletion" : true
+  },
+  "deleteJobsOnCompletion" : "on_success",
+  "deletePoolsOnCompletion" : false,
+  "environment" : [ ],
+  "discriminator" : "azure-batch"
+}

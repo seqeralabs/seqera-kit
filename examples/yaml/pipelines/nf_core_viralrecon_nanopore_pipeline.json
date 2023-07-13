@@ -1,0 +1,15 @@
+{
+  "description" : "Pipeline for assembly and intrahost/low-frequency variant calling for viral samples.",
+  "launch" : {
+    "pipeline" : "https://github.com/nf-core/viralrecon",
+    "workDir" : "s3://seqeralabs-showcase",
+    "revision" : "2.6.0",
+    "configProfiles" : [ "test_nanopore" ],
+    "configText" : "",
+    "paramsText" : "outdir: 's3://seqeralabs-showcase/nf-core-viralrecon/nanopore/results'",
+    "preRunScript" : "",
+    "resume" : false,
+    "pullLatest" : false,
+    "stubRun" : false
+  }
+}

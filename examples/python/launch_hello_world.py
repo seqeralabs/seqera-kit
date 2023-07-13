@@ -1,26 +1,26 @@
 import logging
 
-# Import the tw_pywrap package
+# Import the tw-pywrap package
 from tw_pywrap import tower
 
 logging.basicConfig(level=logging.DEBUG)
 
-# Constructs a new tw_pywrap Tower instance
+# Construct a new tw-pywrap Tower instance
 tw = tower.Tower()
 
-# Specify the workspace to use
-workspace = "my_workspace"  # name of the workspace
-compute_env_name = "my_compute_env"  # name of your compute env
+# Customise the entries below as required
+workspace = "<YOUR_WORKSPACE>"              # Name of your Workspace
+compute_env = "<YOUR_COMPUTE_ENVIRONMENT>"  # Name of your Compute Environment
 
 # Specify a human-readable run name
 run_name = "hello-world-tw-pywrap"
 
-# Launch 'hello-world' pipeline using the 'launch' method
+# Launch the 'hello-world' pipeline using the 'launch' method
 pipeline_run = tw.launch(
     "--workspace",
     workspace,
     "--compute-env",
-    compute_env_name,
+    compute_env,
     "--name",
     run_name,
     "--revision",
