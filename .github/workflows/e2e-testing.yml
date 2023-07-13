@@ -43,7 +43,7 @@ jobs:
       - name: Install pip & tw-pywrap
         run: |
           mamba install -y -c conda-forge pip
-          pip install -e
+          pip install -e .
 
       - name: Create all entities on Tower from end-to-end
         run: |
