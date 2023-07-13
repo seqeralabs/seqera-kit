@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.DEBUG)
 tw = tower.Tower()
 
 # Customise the entries below as required
-workspace = "<YOUR_WORKSPACE>"              # Name of your Workspace
+workspace = "<YOUR_WORKSPACE>"  # Name of your Workspace
 compute_env = "<YOUR_COMPUTE_ENVIRONMENT>"  # Name of your Compute Environment
 
 # Specify a human-readable run name
