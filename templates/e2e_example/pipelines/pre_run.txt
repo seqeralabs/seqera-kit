@@ -1,0 +1,1 @@
+export NXF_VER=23.06.0-edge
