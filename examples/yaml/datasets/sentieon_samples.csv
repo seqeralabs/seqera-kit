@@ -1,0 +1,6 @@
+sample,rg_id,rg_lb,rg_pl,fastq_1,fastq_2
+NA12878,NA12878.H88WKADXX.1.CGATGT-1,NA12878.U0a,ILLUMINA,https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/illumina/sispa/SRR11140744_R1.fastq.gz,https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/illumina/sispa/SRR11140744_R2.fastq.gz
+NA12878,NA12878.H88WKADXX.1.CGATGT-2,NA12878.U0a,ILLUMINA,https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/illumina/sispa/SRR11140746_R1.fastq.gz,https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/illumina/sispa/SRR11140746_R2.fastq.gz
+NA13000,NA13000.H90WKADXX.1.GCCAAT-1,NA13000.U5a,ILLUMINA,https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/illumina/sispa/SRR11140748_R1.fastq.gz,https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/illumina/sispa/SRR11140748_R2.fastq.gz
+NA14000,NA14000.H91WKADXX.1.GTGAAA-1,NA14000.U1b,ILLUMINA,https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/illumina/sispa/SRR11140750_R1.fastq.gz,
+NA14000,NA14000.H91WKADXX.1.GTGAAA-2,NA14000.U1b,ILLUMINA,https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/illumina/sispa/SRR11140748_R1.fastq.gz,
