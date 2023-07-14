@@ -39,10 +39,10 @@ credentials:
     username: 'ejseqera'
     password: '$TOWER_GITHUB_PASSWORD'
     overwrite: True
-  - type: 'container-reg' 
+  - type: 'container-reg'
     name: 'dockerhub_credentials'
     workspace: 'tw-pywrap-e2e/showcase'
-    username: 'ejseqera'
+    username: 'eshajoshi'
     password: '$DOCKERHUB_PASSWORD'
     registry: 'docker.io'
     overwrite: True
