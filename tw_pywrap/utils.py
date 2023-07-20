@@ -60,8 +60,8 @@ def is_valid_yaml(file_path):
         with open(file_path, "r") as file:
             yaml.safe_load(file)
         return True
-    except yaml.YAMLError:
-        return False
+    except yaml.YAMLError as e:
+        raise e
 
 
 def get_pipeline_repo(pipeline_repo):

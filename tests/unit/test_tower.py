@@ -59,7 +59,7 @@ class TestTower(unittest.TestCase):
 
             # Check that the error is raised
             with self.assertRaises(tower.ResourceExistsError):
-                command("arg1", "arg2")
+                command("list", "-w", "community/showcase")
 
     def test_resource_creation_error(self):
         with patch("subprocess.Popen") as mock_subprocess:
@@ -75,7 +75,7 @@ class TestTower(unittest.TestCase):
             with self.assertRaises(tower.ResourceCreationError):
                 command("import", "my_pipeline.json", "--name", "pipeline_name")
 
-    def test_json_parsing(self):
+    def test_simple_json_parsing(self):
         with patch("subprocess.Popen") as mock_subprocess:
             # Mock the stdout of the Popen process to return JSON
             mock_subprocess.return_value.communicate.return_value = (
@@ -86,7 +86,10 @@ class TestTower(unittest.TestCase):
             command = getattr(self.tw, "pipelines")
 
             # Check that the JSON is parsed correctly
-            self.assertEqual(command("arg1", "arg2", to_json=True), {"key": "value"})
+            self.assertEqual(
+                command("list", "-w", "community/showcase", to_json=True),
+                {"key": "value"},
+            )
 
 
 if __name__ == "__main__":
