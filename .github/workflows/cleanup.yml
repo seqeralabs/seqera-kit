@@ -1,4 +1,4 @@
-cleaname: e2e-testing-cleanup
+cleaname: e2ecleanup
 run-name: Delete the organization in Tower created for e2e testing
 # This workflow can be triggered manually with GitHub actions workflow dispatch button.
 # It will automate the end-to-end creation all of the following entities in Nextflow Tower.
