@@ -76,32 +76,21 @@ compute-envs:
     workspace: 'tw-pywrap-e2e/showcase'
     credentials: 'aws_credentials'
     wait: 'AVAILABLE'
-    file-path: './compute-envs/seqera_aws_ireland_fusionv2_nvme.json'
+    file-path: './examples/yaml/compute-envs/seqera_aws_ireland_fusionv2_nvme.json'
     overwrite: True
   - name: 'seqera_azure_virginia'
     workspace: 'tw-pywrap-e2e/showcase'
     credentials: 'azure_credentials'
     wait: 'AVAILABLE'
-    file-path: './compute-envs/seqera_azure_virginia.json'
+    file-path: './examples/yaml/compute-envs/seqera_azure_virginia.json'
     overwrite: True
   - name: 'seqera_gcp_finland'
     workspace: 'tw-pywrap-e2e/showcase'
     credentials: 'google_credentials'
     wait: 'AVAILABLE'
-    file-path: './compute-envs/seqera_gcp_finland.json'
+    file-path: './examples/yaml/compute-envs/seqera_gcp_finland.json'
     overwrite: True
 actions:
-  - type: 'github'
-    name: 'nf_core_rnaseq_launch_hook'
-    pipeline: 'https://github.com/nf-core/rnaseq'
-    workspace: 'tw-pywrap-e2e/showcase'
-    compute-env: 'seqera_aws_ireland_fusionv2_nvme'
-    work-dir: 's3://seqeralabs-showcase'
-    profile: 'test'
-    params:
-      outdir: 's3://seqeralabs-showcase/nf-core-rnaseq/results'
-    revision: '3.12.0'
-    overwrite: True
   - type: 'tower'
     name: 'nf_core_rnaseq_web_hook'
     pipeline: 'https://github.com/nf-core/rnaseq'
@@ -118,31 +107,31 @@ datasets:
     description: 'Samplesheet to run the nf-core/rnaseq pipeline from end-to-end'
     header: true
     workspace: 'tw-pywrap-e2e/showcase'
-    file-path: './datasets/rnaseq_samples.csv'
+    file-path: './examples/yaml/datasets/rnaseq_samples.csv'
     overwrite: True
   - name: 'sarek_samples'
     description: 'Samplesheet to run the nf-core/sarek pipeline from end-to-end'
     header: true
     workspace: 'tw-pywrap-e2e/showcase'
-    file-path: './datasets/sarek_samples.csv'
+    file-path: './examples/yaml/datasets/sarek_samples.csv'
     overwrite: True
   - name: 'viralrecon_illumina_samples'
     description: 'Samplesheet to run the nf-core/viralrecon pipeline from end-to-end with Illumina data'
     header: true
     workspace: 'tw-pywrap-e2e/showcase'
-    file-path: './datasets/viralrecon_illumina_samples.csv'
+    file-path: './examples/yaml/datasets/viralrecon_illumina_samples.csv'
     overwrite: True
   - name: 'viralrecon_nanopore_samples'
     description: 'Samplesheet to run the nf-core/viralrecon pipeline from end-to-end with Nanopore data'
     header: true
     workspace: 'tw-pywrap-e2e/showcase'
-    file-path: './datasets/viralrecon_nanopore_samples.csv'
+    file-path: './examples/yaml/datasets/viralrecon_nanopore_samples.csv'
     overwrite: True
   - name: 'sentieon_samples'
     description: 'Samplesheet to run the seqeralabs/nf-sentieon pipeline from end-to-end'
     header: true
     workspace: 'tw-pywrap-e2e/showcase'
-    file-path: './datasets/sentieon_samples.csv'
+    file-path: './examples/yaml/datasets/sentieon_samples.csv'
     overwrite: True
 pipelines:
   - name: 'nf-core-rnaseq'
@@ -155,18 +144,18 @@ pipelines:
     revision: '3.12.0'
     params:
       outdir: 's3://seqeralabs-showcase/nf-core-rnaseq/results'
-    config: './pipelines/nextflow.config'
-    pre-run: './pipelines/pre_run.txt'
+    config: './examples/yaml/pipelines/nextflow.config'
+    pre-run: './examples/yaml/pipelines/pre_run.txt'
     overwrite: True
   - name: 'nf-core-sarek'
     workspace: 'tw-pywrap-e2e/showcase'
     compute-env: 'seqera_azure_virginia'
-    file-path: './pipelines/nf-core-sarek_pipeline.json'
+    file-path: './examples/yaml/pipelines/nf-core-sarek_pipeline.json'
     overwrite: True
   - name: 'nf-core-viralrecon-nanopore'
     workspace: 'tw-pywrap-e2e/showcase'
     compute-env: 'seqera_aws_ireland_fusionv2_nvme'
-    file-path: './pipelines/nf_core_viralrecon_nanopore_pipeline.json'
+    file-path: './examples/yaml/pipelines/nf_core_viralrecon_nanopore_pipeline.json'
     overwrite: True
   - name: 'nf-core-viralrecon-illumina'
     url: 'https://github.com/nf-core/viralrecon'
@@ -177,13 +166,13 @@ pipelines:
     profile: 'test'
     revision: '2.6.0'
     params-file: './pipelines/nf_core_viralrecon_illumina_params.yml'
-    config: './pipelines/nextflow.config'
-    pre-run: './pipelines/pre_run.txt'
+    config: './examples/yamlpipelines/nextflow.config'
+    pre-run: './examples/yaml/pipelines/pre_run.txt'
     overwrite: True
   - name: 'nf-sentieon'
     workspace: 'tw-pywrap-e2e/showcase'
     compute-env: 'seqera_aws_ireland_fusionv2_nvme'
-    file-path: './pipelines/nf_sentieon_pipeline.json'
+    file-path: './examples/yaml/pipelines/nf_sentieon_pipeline.json'
     overwrite: True
 launch:
   - name: 'nf-core-rnaseq-launchpad'
@@ -196,14 +185,14 @@ launch:
     work-dir: 'az://seqeralabs-showcase'
     profile: 'test'
     revision: '3.12.0'
-    params-file: './pipelines/nf_core_rnaseq_params.yml'
-    config: './pipelines/nextflow.config'
-    pre-run: './pipelines/pre_run.txt'
+    params-file: './examples/yaml/pipelines/nf_core_rnaseq_params.yml'
+    config: './examples/yaml/pipelines/nextflow.config'
+    pre-run: './examples/yamlpipelines/pre_run.txt'
   - name: 'nf-core-sarek'
     workspace: 'tw-pywrap-e2e/showcase'
     pipeline: 'nf-core-sarek'
-    config: './pipelines/nextflow.config'
-    pre-run: './pipelines/pre_run.txt'
+    config: './examples/yaml/pipelines/nextflow.config'
+    pre-run: './examples/yaml/pipelines/pre_run.txt'
   - name: 'nf-core-viralrecon-nanopore'
     workspace: 'tw-pywrap-e2e/showcase'
     pipeline: 'nf-core-viralrecon-nanopore'
