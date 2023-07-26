@@ -91,6 +91,17 @@ compute-envs:
     file-path: './examples/yaml/compute-envs/seqera_gcp_finland.json'
     overwrite: True
 actions:
+  - type: 'github'
+    name: 'nf_core_rnaseq_launch_hook'
+    pipeline: 'https://github.com/nf-core/rnaseq'
+    workspace: 'tw-pywrap-e2e/showcase'
+    compute-env: 'seqera_aws_ireland_fusionv2_nvme'
+    work-dir: 's3://seqeralabs-showcase'
+    profile: 'test'
+    params:
+      outdir: 's3://seqeralabs-showcase/nf-core-rnaseq/results'
+    revision: '3.12.0'
+    overwrite: True
   - type: 'tower'
     name: 'nf_core_rnaseq_web_hook'
     pipeline: 'https://github.com/nf-core/rnaseq'
