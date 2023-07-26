@@ -10,8 +10,7 @@ with open("README.md") as f:
 setup(
     name="tw-pywrap",
     version=version,
-    description="""Automation of resource creation to be able 
-    to setup and run pipelines on Nextflow Tower.""",
+    description="""Automate creation of Nextflow Tower resources""",
     long_description=readme,
     long_description_content_type="text/markdown",
     keywords=["nextflow", "bioinformatics", "workflow", "pipeline", "nextflow-tower"],
