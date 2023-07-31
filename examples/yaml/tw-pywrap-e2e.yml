@@ -53,24 +53,24 @@ credentials:
     secret-key: '$AWS_SECRET_ACCESS_KEY'
     assume-role-arn: '$AWS_ASSUME_ROLE_ARN'
     overwrite: True
-  - type: 'azure'
-    name: 'azure_credentials'
-    workspace: 'tw-pywrap-e2e/showcase'
-    batch-key: '$AZURE_BATCH_KEY'
-    batch-name: 'seqeralabs'
-    storage-key: '$AZURE_STORAGE_KEY'
-    storage-name: 'seqeralabs'
-    overwrite: True
+  # - type: 'azure'
+  #   name: 'azure_credentials'
+  #   workspace: 'tw-pywrap-e2e/showcase'
+  #   batch-key: '$AZURE_BATCH_KEY'
+  #   batch-name: 'seqeralabs'
+  #   storage-key: '$AZURE_STORAGE_KEY'
+  #   storage-name: 'seqeralabs'
+  #   overwrite: True
   - type: 'google'
     name: 'google_credentials'
     workspace: 'tw-pywrap-e2e/showcase'
     key: '$GOOGLE_KEY'
     overwrite: True
-secrets:
-  - name: 'SENTIEON_LICENSE_BASE64'
-    workspace: 'tw-pywrap-e2e/showcase'
-    value: '$SENTIEON_LICENSE_BASE64'
-    overwrite: True
+# secrets:
+#   - name: 'SENTIEON_LICENSE_BASE64'
+#     workspace: 'tw-pywrap-e2e/showcase'
+#     value: '$SENTIEON_LICENSE_BASE64'
+#     overwrite: True
 compute-envs:
   - name: 'seqera_aws_virginia_fusionv2_nvme'
     workspace: 'tw-pywrap-e2e/showcase'
@@ -102,17 +102,17 @@ actions:
   #     outdir: 's3://seqeralabs-showcase/nf-core-rnaseq/results'
   #   revision: '3.12.0'
   #   overwrite: True
-  - type: 'tower'
-    name: 'nf_core_rnaseq_web_hook'
-    pipeline: 'https://github.com/nf-core/rnaseq'
-    workspace: 'tw-pywrap-e2e/showcase'
-    compute-env: 'seqera_aws_virginia_fusionv2_nvme'
-    work-dir: 's3://seqeralabs-showcase'
-    profile: 'test'
-    params:
-      outdir: 's3://seqeralabs-showcase/nf-core-rnaseq/results'
-    revision: '3.12.0'
-    overwrite: True
+  # - type: 'tower'
+  #   name: 'nf_core_rnaseq_web_hook'
+  #   pipeline: 'https://github.com/nf-core/rnaseq'
+  #   workspace: 'tw-pywrap-e2e/showcase'
+  #   compute-env: 'seqera_aws_virginia_fusionv2_nvme'
+  #   work-dir: 's3://seqeralabs-showcase'
+  #   profile: 'test'
+  #   params:
+  #     outdir: 's3://seqeralabs-showcase/nf-core-rnaseq/results'
+  #   revision: '3.12.0'
+  #   overwrite: True
 datasets:
   - name: 'rnaseq_samples'
     description: 'Samplesheet to run the nf-core/rnaseq pipeline from end-to-end'
@@ -180,11 +180,11 @@ pipelines:
     config: './examples/yamlpipelines/nextflow.config'
     pre-run: './examples/yaml/pipelines/pre_run.txt'
     overwrite: True
-  - name: 'nf-sentieon'
-    workspace: 'tw-pywrap-e2e/showcase'
-    compute-env: 'seqera_aws_virginia_fusionv2_nvme'
-    file-path: './examples/yaml/pipelines/nf_sentieon_pipeline.json'
-    overwrite: True
+  # - name: 'nf-sentieon'
+  #   workspace: 'tw-pywrap-e2e/showcase'
+  #   compute-env: 'seqera_aws_virginia_fusionv2_nvme'
+  #   file-path: './examples/yaml/pipelines/nf_sentieon_pipeline.json'
+  #   overwrite: True
 launch:
   - name: 'nf-core-rnaseq-launchpad'
     workspace: 'tw-pywrap-e2e/showcase'
@@ -210,6 +210,6 @@ launch:
   - name: 'nf-core-viralrecon-illumina'
     workspace: 'tw-pywrap-e2e/showcase'
     pipeline: 'nf-core-viralrecon-illumina'
-  - name: 'nf-sentieon'
-    workspace: 'tw-pywrap-e2e/showcase'
-    pipeline: 'nf-sentieon'
+  # - name: 'nf-sentieon'
+  #   workspace: 'tw-pywrap-e2e/showcase'
+  #   pipeline: 'nf-sentieon'
