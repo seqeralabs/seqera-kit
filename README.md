@@ -1,4 +1,4 @@
-# tw-pywrap
+# ![tw-pywrap logo](assets/tw-py.svg) tw-pywrap
 
 `tw-pywrap` is a Python wrapper for the [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli). It can be leveraged to automate the creation of all of the entities in Nextflow Tower via a simple configuration file in YAML format.
 
@@ -31,16 +31,16 @@ conda activate tw-pywrap
 
 ### 2. Installation
 
-The scripts in this repository will eventually be packaged via `pip`, but for now you can install the latest development version using the command below:
+The scripts in this repository are packaged and available on [PyPI](https://pypi.org/project/tw-pywrap/). They can be installed via `pip`:
 
 ```
-pip install git+https://github.com/seqeralabs/tw-pywrap.git@main
+pip install tw-pywrap
 ```
 
 You can force overwrite the installation to use the latest changes with the command below:
 
 ```
-pip install --upgrade --force-reinstall git+https://github.com/seqeralabs/tw-pywrap.git@main
+pip install --upgrade --force-reinstall tw-pywrap
 ```
 
 ### 3. Configuration
