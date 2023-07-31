@@ -78,12 +78,12 @@ compute-envs:
     wait: 'AVAILABLE'
     file-path: './examples/yaml/compute-envs/seqera_aws_virginia_fusionv2_nvme.json'
     overwrite: True
-  - name: 'seqera_azure_virginia'
-    workspace: 'tw-pywrap-e2e/showcase'
-    credentials: 'azure_credentials'
-    wait: 'AVAILABLE'
-    file-path: './examples/yaml/compute-envs/seqera_azure_virginia.json'
-    overwrite: True
+  # - name: 'seqera_azure_virginia'
+  #   workspace: 'tw-pywrap-e2e/showcase'
+  #   credentials: 'azure_credentials'
+  #   wait: 'AVAILABLE'
+  #   file-path: './examples/yaml/compute-envs/seqera_azure_virginia.json'
+  #   overwrite: True
   - name: 'seqera_gcp_finland'
     workspace: 'tw-pywrap-e2e/showcase'
     credentials: 'google_credentials'
@@ -160,7 +160,7 @@ pipelines:
     overwrite: True
   - name: 'nf-core-sarek'
     workspace: 'tw-pywrap-e2e/showcase'
-    compute-env: 'seqera_azure_virginia'
+    compute-env: 'seqera_aws_virginia_fusionv2_nvme'
     file-path: './examples/yaml/pipelines/nf-core-sarek_pipeline.json'
     overwrite: True
   - name: 'nf-core-viralrecon-nanopore'
@@ -192,7 +192,7 @@ launch:
   - name: 'nf-core-rnaseq-remote'
     workspace: 'tw-pywrap-e2e/showcase'
     pipeline: 'https://github.com/nf-core/rnaseq'
-    compute-env: 'seqera_azure_virginia'
+    compute-env: 'seqera_aws_virginia_fusionv2_nvme'
     work-dir: 'az://seqeralabs-showcase'
     profile: 'test'
     revision: '3.12.0'
