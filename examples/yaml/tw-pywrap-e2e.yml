@@ -90,7 +90,7 @@ compute-envs:
     wait: 'AVAILABLE'
     file-path: './examples/yaml/compute-envs/seqera_gcp_finland.json'
     overwrite: True
-actions:
+# actions:
   # - type: 'github'
   #   name: 'nf_core_rnaseq_launch_hook'
   #   pipeline: 'https://github.com/nf-core/rnaseq'
