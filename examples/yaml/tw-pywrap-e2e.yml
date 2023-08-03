@@ -144,7 +144,7 @@ compute-envs:
   #   workspace: 'tw-pywrap-e2e/showcase'
   #   file-path: './examples/yaml/datasets/sentieon_samples.csv'
   #   overwrite: True
-pipelines:
+# pipelines:
   # - name: 'nf-core-rnaseq'
   #   url: 'https://github.com/nf-core/rnaseq'
   #   workspace: 'tw-pywrap-e2e/showcase'
