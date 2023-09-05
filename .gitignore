@@ -13,5 +13,5 @@ build/lib/*
 node_modules/
 package-lock.json
 package.json
-tw-pywrap.egg-info/*
+twkit.egg-info/*
 build/*

@@ -1,4 +1,4 @@
-name: tw-pywrap
+name: twkit
 channels:
   - bioconda
   - conda-forge
