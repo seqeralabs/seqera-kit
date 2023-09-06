@@ -1,5 +1,5 @@
 name: e2e-testing
-run-name: Create all entities in Tower from end-to-end with tw-pywrap
+run-name: Create all entities in Tower from end-to-end with twkit
 # This workflow can be triggered manually with GitHub actions workflow dispatch button.
 # It will automate the end-to-end creation all of the following entities in Nextflow Tower.
 
@@ -9,7 +9,7 @@ on:
 jobs:
   e2e-testing:
     name:
-    if: github.repository == 'seqeralabs/tw-pywrap'
+    if: github.repository == 'seqeralabs/twkit'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -36,11 +36,11 @@ jobs:
           environment-file: environment.yml
           miniforge-variant: Mambaforge
           miniforge-version: latest
-          python-version: "3.10"
-          activate-environment: tw-pywrap
+          python-version: '3.10'
+          activate-environment: twkit
           use-mamba: true
 
-      - name: Install pip & tw-pywrap
+      - name: Install pip & twkit
         run: |
           mamba install -y -c conda-forge pip
           pip install -e .
@@ -52,4 +52,4 @@ jobs:
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          tw-pywrap examples/yaml/tw-pywrap-e2e.yml
+          twkit examples/yaml/twkit-e2e.yml

@@ -4,7 +4,7 @@ Including handling methods for each block in the YAML file, and parsing
 methods for each block in the YAML file.
 """
 import yaml
-from tw_pywrap import utils
+from twkit import utils
 
 
 def parse_yaml_block(file_path, block_name):
