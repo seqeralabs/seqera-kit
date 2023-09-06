@@ -1,4 +1,4 @@
-# ![twkit logo](https://raw.githubusercontent.com/seqeralabs/twkit/main/assets/twkit.svg)twkit
+# <img src="https://raw.githubusercontent.com/seqeralabs/twkit/main/assets/twkit.svg" width=50 alt="twkit logo"> twkit
 
 `twkit` is a Python wrapper for the [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli). It can be leveraged to automate the creation of all of the entities in Nextflow Tower via a simple configuration file in YAML format.
 

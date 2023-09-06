@@ -15,3 +15,5 @@ package-lock.json
 package.json
 twkit.egg-info/*
 build/*
+
+.DS_Store
