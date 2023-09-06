@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from tw_pywrap import tower
+from twkit import tower
 
 
 class TestTowerSubcommands(unittest.TestCase):

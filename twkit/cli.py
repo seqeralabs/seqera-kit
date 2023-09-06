@@ -9,8 +9,8 @@ import time
 import yaml
 
 from pathlib import Path
-from tw_pywrap import tower, helper, overwrite
-from tw_pywrap.tower import ResourceCreationError, ResourceExistsError
+from twkit import tower, helper, overwrite
+from twkit.tower import ResourceCreationError, ResourceExistsError
 
 
 logger = logging.getLogger(__name__)

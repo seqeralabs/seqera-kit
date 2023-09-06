@@ -2,7 +2,7 @@
 Subclass of Tower class for overriding compute environments subcommand methods.
 """
 from pathlib import Path
-from .tower import Tower
+from twkit.tower import Tower
 
 
 class ComputeEnvs(Tower):
