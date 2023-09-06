@@ -1,4 +1,4 @@
-# ![twkit logo](assets/twkit.svg)twkit
+# ![twkit logo](https://raw.githubusercontent.com/seqeralabs/twkit/rename_package/assets/twkit.svg)twkit
 
 `twkit` is a Python wrapper for the [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli). It can be leveraged to automate the creation of all of the entities in Nextflow Tower via a simple configuration file in YAML format.
 
@@ -22,7 +22,7 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
 
 3. [PyYAML](https://pypi.org/project/PyYAML/)
 
-Alternatively, you can install the dependencies via Conda by downloading and using the [Conda environment file](environment.yml) that has been supplied in this repository:
+Alternatively, you can install the dependencies via Conda by downloading and using the [Conda environment file](https://github.com/seqeralabs/twkit/blob/main/environment.yml) that has been supplied in this repository:
 
 ```console
 conda env create -f environment.yml
@@ -84,7 +84,7 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
 
 You can also launch the same pipeline via a Python script. This will essentially allow you to extend the functionality on offer within the Tower CLI by leveraging the flexibility and customisation options available in Python.
 
-1. Download the [`launch_hello_world.py`](examples/python/launch_hello_world.py) Python script and customise the `<YOUR_WORKSPACE>` and `<YOUR_COMPUTE_ENVIRONMENT>'` entries as required.
+1. Download the [`launch_hello_world.py`](https://github.com/seqeralabs/twkit/blob/main/examples/python/launch_hello_world.py) Python script and customise the `<YOUR_WORKSPACE>` and `<YOUR_COMPUTE_ENVIRONMENT>` entries as required.
 
 2. Launch the pipeline with `twkit`:
 
@@ -96,27 +96,27 @@ You can also launch the same pipeline via a Python script. This will essentially
 
 ## Real world example
 
-Please see [`twkit-e2e.yml`](examples/yaml/twkit-e2e.yml) for an end-to-end example that highlights how you can use `twkit` to create everything sequentially in Nextflow Tower all the way from creating a new Organization to launching a pipeline.
+Please see [`twkit-e2e.yml`](https://github.com/seqeralabs/twkit/blob/main/examples/yaml/twkit-e2e.yml) for an end-to-end example that highlights how you can use `twkit` to create everything sequentially in Nextflow Tower all the way from creating a new Organization to launching a pipeline.
 
 ## Templates
 
-We have provided template YAML files for each of the entities that can be created on Tower. These can be found in the [`templates/`](templates) directory and should form a good starting point for you to add your own customization:
+We have provided template YAML files for each of the entities that can be created on Tower. These can be found in the [`templates/`](https://github.com/seqeralabs/blob/main/twkit/templates) directory and should form a good starting point for you to add your own customization:
 
-- [organizations.yml](templates/organizations.yml)
-- [teams.yml](templates/teams.yml)
-- [workspaces.yml](templates/workspaces.yml)
-- [participants.yml](templates/participants.yml)
-- [credentials.yml](templates/credentials.yml)
-- [secrets.yml](templates/secrets.yml)
-- [compute-envs.yml](templates/compute-envs.yml)
-- [actions.yml](templates/actions.yml)
-- [datasets.yml](templates/datasets.yml)
-- [pipelines.yml](templates/pipelines.yml)
-- [launch.yml](templates/launch.yml)
+- [organizations.yml](https://github.com/seqeralabs/twkit/blob/main/templates/organizations.yml)
+- [teams.yml](https://github.com/seqeralabs/twkit/blob/main/templates/teams.yml)
+- [workspaces.yml](https://github.com/seqeralabs/twkit/blob/main/templates/workspaces.yml)
+- [participants.yml](https://github.com/seqeralabs/twkit/blob/main/templates/participants.yml)
+- [credentials.yml](https://github.com/seqeralabs/twkit/blob/main/templates/credentials.yml)
+- [secrets.yml](https://github.com/seqeralabs/twkit/blob/main/templates/secrets.yml)
+- [compute-envs.yml](https://github.com/seqeralabs/twkit/blob/main/templates/compute-envs.yml)
+- [actions.yml](https://github.com/seqeralabs/twkit/blob/main/templates/actions.yml)
+- [datasets.yml](https://github.com/seqeralabs/twkit/blob/main/templates/datasets.yml)
+- [pipelines.yml](https://github.com/seqeralabs/twkit/blob/main/templates/pipelines.yml)
+- [launch.yml](https://github.com/seqeralabs/twkit/blob/main/templates/launch.yml)
 
 ## Contributions and Support
 
-If you would like to contribute to `twkit`, please see the [contributing guidelines](.github/CONTRIBUTING.md).
+If you would like to contribute to `twkit`, please see the [contributing guidelines](https://github.com/seqeralabs/twkit/blob/main/.github/CONTRIBUTING.md).
 
 For further information or help, please don't hesitate to create an [issue](https://github.com/seqeralabs/twkit/issues) in this repository.
 
