@@ -1,14 +1,15 @@
 organizations:
   - name: '$TOWER_ORGANIZATION_NAME'
-    description: 'Organization for JnJ Tower webinar'
+    full-name: '$TOWER_ORGANIZATION_NAME'
+    description: 'Example of an organization'
     overwrite: False
 teams:
-  - name: 'seqera_team'
+  - name: '$TOWER_TEAM_NAME'
     organization: '$TOWER_ORGANIZATION_NAME'
-    description: 'Seqera team'
+    description: 'Example of a team'
     members:
-      - 'rob.syme@seqera.io'
-      - 'drpatelhh@gmail.com'
+      - '$TEAM_MEMBER_EMAIL1'
+      - '$TEAM_MEMBER_EMAIL2'
     overwrite: False
 workspaces:
   - name: '$TOWER_WORKSPACE_NAME'
@@ -17,7 +18,7 @@ workspaces:
     visibility: 'PRIVATE'
     overwrite: False
 participants:
-  - name: 'seqera_team'
+  - name: '$TOWER_TEAM_NAME'
     type: 'TEAM'
     workspace: '$TOWER_ORGANIZATION_NAME/$TOWER_WORKSPACE_NAME'
     role: 'ADMIN'
@@ -44,37 +45,18 @@ credentials:
     assume-role-arn: '$AWS_ASSUME_ROLE_ARN'
     overwrite: False
 compute-envs:
-  - name: 'aws_ireland_fusion'
+  - name: '$AWS_CE_NAME'
     workspace: '$TOWER_ORGANIZATION_NAME/$TOWER_WORKSPACE_NAME'
     credentials: 'aws_credentials'
     wait: 'AVAILABLE'
-    file-path: './compute-envs/aws_ireland_fusion.json'
-    overwrite: False
-datasets:
-  - name: 'rnaseq_samples'
-    description: 'Samplesheet to run the nf-core/rnaseq pipeline from end-to-end'
-    header: true
-    workspace: '$TOWER_ORGANIZATION_NAME/$TOWER_WORKSPACE_NAME'
-    file-path: './datasets/rnaseq_samples.csv'
-    overwrite: False
-  - name: 'atacseq_samples'
-    description: 'Samplesheet to run the nf-core/atacseq pipeline from end-to-end'
-    header: true
-    workspace: '$TOWER_ORGANIZATION_NAME/$TOWER_WORKSPACE_NAME'
-    file-path: './datasets/atacseq_samples.csv'
-    overwrite: False
-  - name: 'sarek_samples'
-    description: 'Samplesheet to run the nf-core/sarek pipeline from end-to-end'
-    header: true
-    workspace: '$TOWER_ORGANIZATION_NAME/$TOWER_WORKSPACE_NAME'
-    file-path: './datasets/sarek_samples.csv'
+    file-path: './compute-envs/seqera_aws_ireland_fusionv2_nvme.json'
     overwrite: False
 pipelines:
   - name: 'hello-world'
     url: 'https://github.com/nextflow-io/hello'
     workspace: '$TOWER_ORGANIZATION_NAME/$TOWER_WORKSPACE_NAME'
     description: 'Tiny hello world pipeline composed of four tasks.'
-    compute-env: 'aws_ireland_fusion'
+    compute-env: '$AWS_CE_NAME'
     work-dir: '$WORK_DIRECTORY'
     revision: 'master'
     config: './pipelines/nextflow.config'
@@ -84,7 +66,7 @@ pipelines:
     url: 'https://github.com/nf-core/rnaseq'
     workspace: '$TOWER_ORGANIZATION_NAME/$TOWER_WORKSPACE_NAME'
     description: 'RNA sequencing analysis pipeline using STAR, RSEM, HISAT2 or Salmon with gene/isoform counts and extensive quality control.'
-    compute-env: 'aws_ireland_fusion'
+    compute-env: '$AWS_CE_NAME'
     work-dir: '$WORK_DIRECTORY'
     profile: 'test'
     revision: '3.12.0'
@@ -97,8 +79,8 @@ pipelines:
     url: 'https://github.com/nf-core/atacseq'
     workspace: '$TOWER_ORGANIZATION_NAME/$TOWER_WORKSPACE_NAME'
     description: 'ATAC-seq peak-calling and QC analysis pipeline.'
-    compute-env: 'aws_ireland_fusion'
-    work-dir: '$WORK_DIRECTORY' # should be optional
+    compute-env: '$AWS_CE_NAME'
+    work-dir: '$WORK_DIRECTORY'
     profile: 'test'
     revision: '2.1.2'
     params:
@@ -110,7 +92,7 @@ pipelines:
     url: 'https://github.com/nf-core/sarek'
     workspace: '$TOWER_ORGANIZATION_NAME/$TOWER_WORKSPACE_NAME'
     description: 'Analysis pipeline to detect germline or somatic variants (pre-processing, variant calling and annotation) from WGS / targeted sequencing.'
-    compute-env: 'aws_ireland_fusion'
+    compute-env: '$AWS_CE_NAME'
     work-dir: '$WORK_DIRECTORY'
     profile: 'test'
     revision: '3.2.3'
