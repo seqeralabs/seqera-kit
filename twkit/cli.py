@@ -29,6 +29,9 @@ def parse_args():
     parser.add_argument(
         "yaml", type=Path, help="Config file with Tower resources to create"
     )
+    parser.add_argument(
+        "cli_args", nargs="*", help="Additional arguments to pass to the Tower CLI"
+    )
     return parser.parse_args()
 
 
@@ -110,6 +113,8 @@ def main():
         for block, args_list in cmd_args_dict.items():
             for args in args_list:
                 try:
+                    if options.cli_args:
+                        args["cmd_args"].extend(options.cli_args)
                     # Run the 'tw' methods for each block
                     block_manager.handle_block(block, args)
                     time.sleep(3)
