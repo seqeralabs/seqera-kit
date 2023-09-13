@@ -30,7 +30,9 @@ def parse_args():
         "yaml", type=Path, help="Config file with Tower resources to create"
     )
     parser.add_argument(
-        "cli_args", nargs="*", help="Additional arguments to pass to the Tower CLI"
+        "cli_args",
+        nargs=argparse.REMAINDER,
+        help="Additional arguments to pass to the Tower CLI",
     )
     return parser.parse_args()
 
