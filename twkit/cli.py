@@ -29,6 +29,11 @@ def parse_args():
     parser.add_argument(
         "yaml", type=Path, help="Config file with Tower resources to create"
     )
+    parser.add_argument(
+        "cli_args",
+        nargs=argparse.REMAINDER,
+        help="Additional arguments to pass to the Tower CLI",
+    )
     return parser.parse_args()
 
 
@@ -86,7 +91,7 @@ def main():
     options = parse_args()
     logging.basicConfig(level=options.log_level)
 
-    tw = tower.Tower()
+    tw = tower.Tower(cli_args=options.cli_args)
     block_manager = BlockParser(
         tw,
         [
