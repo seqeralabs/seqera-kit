@@ -78,6 +78,12 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
    twkit hello-world-config.yml
    ```
 
+   <b>Note</b>: The Tower CLI expects to connect to a Tower instance that is secured by a TLS certificate. If your Tower instance does not present a certificate, you will need to qualify and run your `tw` commands with the `--insecure` flag. For example:
+
+   ```
+   twkit hello-world-config.yml --insecure
+   ```
+
 3. Login to your Tower instance and check the Runs page in the appropriate Workspace for the pipeline you just launched!
 
 ### Launch via a Python script
@@ -97,6 +103,20 @@ You can also launch the same pipeline via a Python script. This will essentially
 ## Real world example
 
 Please see [`twkit-e2e.yml`](https://github.com/seqeralabs/twkit/blob/main/examples/yaml/twkit-e2e.yml) for an end-to-end example that highlights how you can use `twkit` to create everything sequentially in Nextflow Tower all the way from creating a new Organization to launching a pipeline.
+
+You can modify this YAML to similarly create Nextflow Tower resources end-to-end for your setup. This YAML encodes environment variables to protect sensitive keys, usernames, and passwords that are required to create or add certain resources (i.e. credentials, compute environments). Prior to running it with `twkit examples/yaml/twkit-e2e.yml`, you will have to set the following environment variables:
+
+```
+$TOWER_GITHUB_PASSWORD
+$DOCKERHUB_PASSWORD
+$AWS_ACCESS_KEY_ID
+$AWS_SECRET_ACCESS_KEY
+$AWS_ASSUME_ROLE_ARN
+$AZURE_BATCH_KEY
+$AZURE_STORAGE_KEY
+$GOOGLE_KEY
+$SENTIEON_LICENSE_BASE64
+```
 
 ## Templates
 
