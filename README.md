@@ -98,6 +98,20 @@ You can also launch the same pipeline via a Python script. This will essentially
 
 Please see [`twkit-e2e.yml`](https://github.com/seqeralabs/twkit/blob/main/examples/yaml/twkit-e2e.yml) for an end-to-end example that highlights how you can use `twkit` to create everything sequentially in Nextflow Tower all the way from creating a new Organization to launching a pipeline.
 
+You can modify this YAML to similarly create Nextflow Tower resources end-to-end for your setup. This YAML encodes environment variables to protect sensitive keys, usernames, and passwords that are required to create or add certain resources (i.e. credentials, compute environments). Prior to running it with `twkit examples/yaml/twkit-e2e.yml`, you will have to set the following environment variables:
+
+```
+$TOWER_GITHUB_PASSWORD
+$DOCKERHUB_PASSWORD
+$AWS_ACCESS_KEY_ID
+$AWS_SECRET_ACCESS_KEY
+$AWS_ASSUME_ROLE_ARN
+$AZURE_BATCH_KEY
+$AZURE_STORAGE_KEY
+$GOOGLE_KEY
+$SENTIEON_LICENSE_BASE64
+```
+
 ## Templates
 
 We have provided template YAML files for each of the entities that can be created on Tower. These can be found in the [`templates/`](https://github.com/seqeralabs/blob/main/twkit/templates) directory and should form a good starting point for you to add your own customization:
