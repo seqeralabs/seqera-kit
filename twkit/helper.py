@@ -111,8 +111,10 @@ def parse_credentials_block(item):
 def parse_compute_envs_block(item):
     cmd_args = []
     for key, value in item.items():
-        if key == "file-path":
+        if key == "file-path" or key == "type" or key == "config-mode":
             cmd_args.append(str(value))
+        elif isinstance(value, bool) and value:
+            cmd_args.append(f"--{key}")
         else:
             cmd_args.extend([f"--{key}", str(value)])
     return cmd_args
@@ -192,6 +194,8 @@ def parse_pipelines_block(item):
             params_args.extend(["--params-file", temp_file_name])
         elif key == "file-path":
             repo_args.extend([str(value)])
+        elif isinstance(value, bool) and value:
+            cmd_args.append(f"--{key}")
         else:
             cmd_args.extend([f"--{key}", str(value)])
 
@@ -247,6 +251,17 @@ def handle_participants(tw, args):
     ]
     method("add", *new_args)
     method("update", *args)
+
+
+def handle_compute_envs(tw, args):
+    json_file = any(".json" in arg for arg in args)
+
+    method = getattr(tw, "compute_envs")
+
+    if json_file:
+        method("import", *args)
+    else:
+        method("add", *args)
 
 
 def handle_pipelines(tw, args):

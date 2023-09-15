@@ -57,9 +57,7 @@ class BlockParser:
         block_handler_map = {
             "teams": (helper.handle_teams),
             "participants": (helper.handle_participants),
-            "compute-envs": lambda tw, args: helper.handle_generic_block(
-                tw, "compute_envs", args, method_name="import"
-            ),
+            "compute-envs": (helper.handle_compute_envs),
             "pipelines": (helper.handle_pipelines),
             "launch": lambda tw, args: helper.handle_generic_block(
                 tw, "launch", args, method_name=None
