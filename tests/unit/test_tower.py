@@ -89,5 +89,43 @@ class TestTower(unittest.TestCase):
             self.assertEqual(command("arg1", "arg2", to_json=True), {"key": "value"})
 
 
+class TestTowerCLIArgs(unittest.TestCase):
+    def setUp(self):
+        self.cli_args = ["--url", "http://tower-api.com", "--insecure"]
+        self.tw = tower.Tower(cli_args=self.cli_args)
+
+    @patch("subprocess.Popen")
+    def test_cli_args_inclusion(self, mock_subprocess):
+        # Mock the stdout of the Popen process
+        mock_subprocess.return_value.communicate.return_value = (
+            json.dumps({"key": "value"}).encode(),
+            b"",
+        )
+
+        # Call a method
+        self.tw.pipelines("view", "--name", "pipeline_name", to_json=True)
+
+        # Extract the command used to call Popen
+        called_command = mock_subprocess.call_args[0][0]
+
+        # Check if the cli_args are present in the called command
+        for arg in self.cli_args:
+            self.assertIn(arg, called_command)
+
+    def test_cli_args_exclusion_of_verbose(self):  # TODO: remove this test once fixed
+        # Add --verbose to cli_args
+        verbose_args = ["--verbose"]
+
+        # Check if ValueError is raised when initializing Tower with --verbose
+        with self.assertRaises(ValueError) as context:
+            tower.Tower(cli_args=verbose_args)
+
+        # Check the error message
+        self.assertEqual(
+            str(context.exception),
+            "--verbose is not supported as a CLI argument to twkit.",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

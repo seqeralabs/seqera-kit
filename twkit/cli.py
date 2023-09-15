@@ -93,7 +93,7 @@ def main():
     options = parse_args()
     logging.basicConfig(level=options.log_level)
 
-    tw = tower.Tower()
+    tw = tower.Tower(cli_args=options.cli_args)
     block_manager = BlockParser(
         tw,
         [
@@ -115,8 +115,6 @@ def main():
         for block, args_list in cmd_args_dict.items():
             for args in args_list:
                 try:
-                    if options.cli_args:
-                        args["cmd_args"].extend(options.cli_args)
                     # Run the 'tw' methods for each block
                     block_manager.handle_block(block, args)
                     time.sleep(3)
