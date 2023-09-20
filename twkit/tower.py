@@ -33,10 +33,11 @@ class Tower:
             return self.tw_instance._tw_run(command, **kwargs)
 
     # Constructs a new Tower instance
-    def __init__(self, cli_args=None):
+    def __init__(self, cli_args=None, dryrun=False):
         if cli_args and "--verbose" in cli_args:  # TODO: remove this
             raise ValueError("--verbose is not supported as a CLI argument to twkit.")
         self.cli_args = cli_args if cli_args else []
+        self.dryrun = dryrun
 
     # Executes a 'tw' command in a subprocess and returns the output.
     def _tw_run(self, cmd, *args, **kwargs):
@@ -67,6 +68,10 @@ class Tower:
             arg if arg.startswith("$") else shlex.quote(arg) for arg in command
         )
         logging.debug(f" Running command: {full_cmd}\n")
+
+        # Skip if --dryrun
+        if self.dryrun:
+            return
 
         # Run the command and return the stdout
         process = subprocess.Popen(
