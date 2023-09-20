@@ -1,6 +1,5 @@
 name: twkit
 channels:
-  - bioconda
   - conda-forge
   - bioconda
   - defaults
