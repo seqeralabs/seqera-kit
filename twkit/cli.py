@@ -27,6 +27,11 @@ def parse_args():
         type=str.upper,
     )
     parser.add_argument(
+        "--dryrun",
+        action="store_true",
+        help="Print the commands that would be executed without running them.",
+    )
+    parser.add_argument(
         "yaml", type=Path, help="Config file with Tower resources to create"
     )
     parser.add_argument(
@@ -91,7 +96,7 @@ def main():
     options = parse_args()
     logging.basicConfig(level=options.log_level)
 
-    tw = tower.Tower(cli_args=options.cli_args)
+    tw = tower.Tower(cli_args=options.cli_args, dryrun=options.dryrun)
     block_manager = BlockParser(
         tw,
         [
