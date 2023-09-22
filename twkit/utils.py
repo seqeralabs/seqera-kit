@@ -95,7 +95,7 @@ def create_temp_yaml(params_dict):
         pass
 
     def quoted_str_representer(dumper, data):
-        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="'")
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style='"')
 
     yaml.add_representer(quoted_str, quoted_str_representer)
     for k, v in params_dict.items():
