@@ -64,9 +64,7 @@ class Tower:
             params_path = kwargs["params_file"]
             command.append(f"--params-file={params_path}")
 
-        full_cmd = " ".join(
-            arg if arg.startswith("$") else shlex.quote(arg) for arg in command
-        )
+        full_cmd = " ".join(arg if "$" in arg else shlex.quote(arg) for arg in command)
         logging.debug(f" Running command: {full_cmd}\n")
 
         # Skip if --dryrun
