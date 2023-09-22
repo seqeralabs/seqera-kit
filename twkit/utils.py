@@ -1,5 +1,6 @@
 import json
 import tempfile
+import os
 import yaml
 from urllib.parse import urlparse
 
@@ -95,12 +96,10 @@ def create_temp_yaml(params_dict):
         pass
 
     def quoted_str_representer(dumper, data):
-        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="'")
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style='"')
 
     yaml.add_representer(quoted_str, quoted_str_representer)
-    for k, v in params_dict.items():
-        if k == "outdir" and isinstance(v, str):
-            params_dict[k] = quoted_str(v)
+    params_dict = {k: os.path.expandvars(v) for k, v in params_dict.items()}
 
     with tempfile.NamedTemporaryFile(
         mode="w", delete=False, suffix=".yaml"
