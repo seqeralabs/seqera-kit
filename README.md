@@ -84,6 +84,13 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
    twkit hello-world-config.yml --cli --insecure
    ```
 
+   To use an SSL certificate that it is not accepted by the default Java certificate authorities and specify a custom `cacerts` store as accepted by the `tw` CLI, you can specify the `-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts` option to `twkit` as you would to `tw`, preceded by `--cli` flag to indicate use of `tw` specific CLI options. For example:
+
+   ```
+   twkit hello-world-config.yml --cli -Djavax.net.ssl.trustStore=/absolute/path/to/cacerts
+
+   ```
+
 3. Login to your Tower instance and check the Runs page in the appropriate Workspace for the pipeline you just launched!
 
 ### Launch via a Python script
