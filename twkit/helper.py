@@ -8,7 +8,6 @@ from twkit import utils
 
 
 def parse_yaml_block(yaml_data, block_name):
-
     # Get the name of the specified block/resource.
     block = yaml_data.get(block_name)
 
@@ -39,7 +38,7 @@ def parse_yaml_block(yaml_data, block_name):
     return block_name, cmd_args_list
 
 
-def parse_all_yaml(file_paths):
+def parse_all_yaml(file_paths, destroy=False):
     # If multiple yamls, merge them into one dictionary
     merged_data = {}
 
@@ -66,6 +65,11 @@ def parse_all_yaml(file_paths):
         "pipelines",
         "launch",
     ]
+
+    # Reverse the order of resources if destroy is True
+    if destroy:
+        resource_order = resource_order[:-1][::-1]
+
     # Initialize an empty dictionary to hold all the command arguments.
     cmd_args_dict = {}
 

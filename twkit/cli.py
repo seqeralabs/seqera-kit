@@ -37,7 +37,13 @@ def parse_args():
         help="One or more YAML files with Tower resources to create",
     )
     parser.add_argument(
-        "cli_args",
+        "--delete",
+        action="store_true",
+        help="Recursively delete all resources defined in the YAML file(s)",
+    )
+    parser.add_argument(
+        "--cli",
+        dest="cli_args",
         nargs=argparse.REMAINDER,
         help="Additional arguments to pass to the Tower CLI",
     )
@@ -64,7 +70,15 @@ class BlockParser:
         # Create an instance of Overwrite class
         self.overwrite_method = overwrite.Overwrite(self.tw)
 
-    def handle_block(self, block, args):
+    def handle_block(self, block, args, destroy=False):
+        # Check if delete is set to True, and call delete handler
+        if destroy:
+            logging.debug(" The '--delete' flag has been specified.\n")
+            self.overwrite_method.handle_overwrite(
+                block, args["cmd_args"], overwrite=False, destroy=True
+            )
+            return
+
         # Handles a block of commands by calling the appropriate function.
         block_handler_map = {
             "teams": (helper.handle_teams),
@@ -113,13 +127,13 @@ def main():
 
     # Parse the YAML file(s) by blocks
     # and get a dictionary of command line arguments
-    cmd_args_dict = helper.parse_all_yaml(options.yaml)
+    cmd_args_dict = helper.parse_all_yaml(options.yaml, destroy=options.delete)
 
     for block, args_list in cmd_args_dict.items():
         for args in args_list:
             try:
                 # Run the 'tw' methods for each block
-                block_manager.handle_block(block, args)
+                block_manager.handle_block(block, args, destroy=options.delete)
                 time.sleep(3)
             except ResourceExistsError as e:
                 logging.error(e)
