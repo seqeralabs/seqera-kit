@@ -5,7 +5,6 @@ the required options for each resource based on the Tower CLI.
 """
 import argparse
 import logging
-import time
 
 from pathlib import Path
 from twkit import tower, helper, overwrite
@@ -134,7 +133,6 @@ def main():
             try:
                 # Run the 'tw' methods for each block
                 block_manager.handle_block(block, args, destroy=options.delete)
-                time.sleep(3)
             except ResourceExistsError as e:
                 logging.error(e)
                 continue
