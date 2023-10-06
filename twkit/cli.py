@@ -6,11 +6,10 @@ the required options for each resource based on the Tower CLI.
 import argparse
 import logging
 import time
-import yaml
 
 from pathlib import Path
 from twkit import tower, helper, overwrite
-from twkit.tower import ResourceCreationError, ResourceExistsError
+from twkit.tower import ResourceExistsError
 
 
 logger = logging.getLogger(__name__)
@@ -32,7 +31,10 @@ def parse_args():
         help="Print the commands that would be executed without running them.",
     )
     parser.add_argument(
-        "yaml", type=Path, help="Config file with Tower resources to create"
+        "yaml",
+        type=Path,
+        nargs="+",  # allow multiple YAML paths
+        help="One or more YAML files with Tower resources to create",
     )
     parser.add_argument(
         "cli_args",
@@ -108,24 +110,20 @@ def main():
             "datasets",
         ],
     )
-    try:
-        with open(options.yaml, "r") as f:
-            data = yaml.safe_load(f)
 
-        # Returns a dict that maps block names to lists of command line arguments.
-        cmd_args_dict = helper.parse_all_yaml(options.yaml, list(data.keys()))
+    # Parse the YAML file(s) by blocks
+    # and get a dictionary of command line arguments
+    cmd_args_dict = helper.parse_all_yaml(options.yaml)
 
-        for block, args_list in cmd_args_dict.items():
-            for args in args_list:
-                try:
-                    # Run the 'tw' methods for each block
-                    block_manager.handle_block(block, args)
-                    time.sleep(3)
-                except ResourceExistsError as e:
-                    logging.error(e)
-                    continue
-    except ResourceCreationError as e:
-        logging.error(e)
+    for block, args_list in cmd_args_dict.items():
+        for args in args_list:
+            try:
+                # Run the 'tw' methods for each block
+                block_manager.handle_block(block, args)
+                time.sleep(3)
+            except ResourceExistsError as e:
+                logging.error(e)
+                continue
 
 
 if __name__ == "__main__":
