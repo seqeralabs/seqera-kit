@@ -44,7 +44,7 @@ def parse_args():
         "--cli",
         dest="cli_args",
         nargs=argparse.REMAINDER,
-        help="Additional arguments to pass to the Tower CLI",
+        help="Additional arguments to pass to the Tower CLI (e.g. '--insecure')",
     )
     return parser.parse_args()
 
