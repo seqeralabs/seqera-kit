@@ -8,7 +8,6 @@ from twkit import utils
 
 
 def parse_yaml_block(yaml_data, block_name):
-
     # Get the name of the specified block/resource.
     block = yaml_data.get(block_name)
 
