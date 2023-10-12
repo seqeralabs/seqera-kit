@@ -22,7 +22,7 @@ participants:
     type: 'TEAM'
     workspace: '$TOWER_ORGANIZATION_NAME/$TOWER_WORKSPACE_NAME'
     role: 'ADMIN'
-    overwrite: True
+    overwrite: False
 credentials:
   - type: 'github'
     name: 'github_credentials'
