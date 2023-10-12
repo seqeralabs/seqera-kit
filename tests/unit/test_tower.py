@@ -61,6 +61,20 @@ class TestTower(unittest.TestCase):
             with self.assertRaises(tower.ResourceExistsError):
                 command("arg1", "arg2")
 
+    def test_resource_exists_error_alt_error(self):
+        with patch("subprocess.Popen") as mock_subprocess:
+            # Simulate a 'resource already exists' error
+            mock_subprocess.return_value.communicate.return_value = (
+                b"ERROR: Already a participant",
+                b"",
+            )
+
+            command = getattr(self.tw, "pipelines")
+
+            # Check that the error is raised
+            with self.assertRaises(tower.ResourceExistsError):
+                command("arg1", "arg2")
+
     def test_resource_creation_error(self):
         with patch("subprocess.Popen") as mock_subprocess:
             # Simulate a 'resource creation failed' error
