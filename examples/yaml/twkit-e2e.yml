@@ -153,7 +153,7 @@ pipelines:
     work-dir: 'gs://seqeralabs-showcase-eu-north-1'
     profile: 'test'
     revision: '2.6.0'
-    params-file: './pipelines/nf_core_viralrecon_illumina_params.yml'
+    params-file: './examples/yaml/pipelines/nf_core_viralrecon_illumina_params.yml'
     config: './examples/yamlpipelines/nextflow.config'
     pre-run: './examples/yaml/pipelines/pre_run.txt'
     overwrite: True
