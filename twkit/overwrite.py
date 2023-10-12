@@ -63,7 +63,7 @@ class Overwrite:
             },
         }
 
-    def handle_overwrite(self, block, args, overwrite=False):
+    def handle_overwrite(self, block, args, overwrite=False, destroy=False):
         """
         Handles overwrite functionality for Tower resources and
         calling the 'tw delete' method with the correct args.
@@ -89,13 +89,16 @@ class Overwrite:
                     self.block_operations["participants"]["name_key"] = "email"
 
             if self.check_resource_exists(operation["name_key"], tw_args):
-                # if resource exists, delete
+                # if resource exists and overwrite is true, delete
                 if overwrite:
                     logging.debug(
                         f" The attempted {block} resource already exists."
                         " Overwriting.\n"
                     )
-                    self._delete_resource(block, operation, tw_args)
+                    self.delete_resource(block, operation, tw_args)
+                elif destroy:
+                    logging.debug(f" Deleting the {block} resource.")
+                    self.delete_resource(block, operation, tw_args)
                 else:  # return an error if resource exists, overwrite=False
                     raise ResourceExistsError(
                         f" The {block} resource already exists and"
@@ -217,7 +220,7 @@ class Overwrite:
         """
         return utils.check_if_exists(self.cached_jsondata, name_key, tw_args["name"])
 
-    def _delete_resource(self, block, operation, tw_args):
+    def delete_resource(self, block, operation, tw_args):
         """
         Delete a resource in Tower by calling the delete() method and
         arguments defined in the operation dictionary.

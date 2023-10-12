@@ -78,10 +78,10 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
    twkit hello-world-config.yml
    ```
 
-   <b>Note</b>: The Tower CLI expects to connect to a Tower instance that is secured by a TLS certificate. If your Tower instance does not present a certificate, you will need to qualify and run your `tw` commands with the `--insecure` flag. For example:
+   <b>Note</b>: The Tower CLI expects to connect to a Tower instance that is secured by a TLS certificate. If your Tower instance does not present a certificate, you will need to qualify and run your `tw` commands with `--cli` followed by the `--insecure` flag. For example:
 
    ```
-   twkit hello-world-config.yml --insecure
+   twkit hello-world-config.yml --cli --insecure
    ```
 
 3. Login to your Tower instance and check the Runs page in the appropriate Workspace for the pipeline you just launched!
