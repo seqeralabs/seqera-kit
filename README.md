@@ -99,7 +99,7 @@ For example:
 twkit file.yaml --cli="--insecure"
 ```
 
-To use an SSL certificate that it is not accepted by the default Java certificate authorities and specify a custom `cacerts` store as accepted by the `tw` CLI, you can specify the `-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts` option enclosed in double quotes to `twkit` as you would to `tw`, preceded by `--cli=`.
+To use an SSL certificate that is not accepted by the default Java certificate authorities and specify a custom `cacerts` store as accepted by the `tw` CLI, you can specify the `-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts` option enclosed in double quotes to `twkit` as you would to `tw`, preceded by `--cli=`.
 
 For example:
 
