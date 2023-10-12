@@ -81,13 +81,13 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
    <b>Note</b>: The Tower CLI expects to connect to a Tower instance that is secured by a TLS certificate. If your Tower instance does not present a certificate, you will need to qualify and run your `tw` commands with `--cli` followed by the `--insecure` flag. For example:
 
    ```
-   twkit hello-world-config.yml --cli --insecure
+   twkit hello-world-config.yml --cli "--insecure"
    ```
 
-   To use an SSL certificate that it is not accepted by the default Java certificate authorities and specify a custom `cacerts` store as accepted by the `tw` CLI, you can specify the `-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts` option to `twkit` as you would to `tw`, preceded by `--cli` flag to indicate use of `tw` specific CLI options. For example:
+   To use an SSL certificate that it is not accepted by the default Java certificate authorities and specify a custom `cacerts` store as accepted by the `tw` CLI, you can specify the `-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts` option enclosed in double quotes to `twkit` as you would to `tw`, preceded by `--cli` flag to indicate use of `tw` specific CLI options. For example:
 
    ```
-   twkit hello-world-config.yml --cli -Djavax.net.ssl.trustStore=/absolute/path/to/cacerts
+   twkit hello-world-config.yml --cli "-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts"
 
    ```
 
