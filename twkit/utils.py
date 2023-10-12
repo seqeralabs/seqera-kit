@@ -48,6 +48,9 @@ def check_if_exists(json_data, namekey, namevalue):
     Wrapper around find_key_value_in_dict() to validate that a resource was
     created successfully in Tower by looking for the name and value.
     """
+    if not json_data:
+        return False
+
     data = json.loads(json_data)
     if find_key_value_in_dict(data, namekey, namevalue, return_key=None):
         return True
