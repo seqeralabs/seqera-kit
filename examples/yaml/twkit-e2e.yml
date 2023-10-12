@@ -72,11 +72,11 @@ secrets:
     value: '$SENTIEON_LICENSE_BASE64'
     overwrite: True
 compute-envs:
-  - name: 'seqera_aws_ireland_fusionv2_nvme'
+  - name: 'seqera_aws_virginia_fusionv2_nvme'
     workspace: 'twkit-e2e/showcase'
     credentials: 'aws_credentials'
     wait: 'AVAILABLE'
-    file-path: './examples/yaml/compute-envs/seqera_aws_ireland_fusionv2_nvme.json'
+    file-path: './examples/yaml/compute-envs/seqera_aws_virginia_fusionv2_nvme.json'
     overwrite: True
   - name: 'seqera_azure_virginia'
     workspace: 'twkit-e2e/showcase'
@@ -126,7 +126,7 @@ pipelines:
     url: 'https://github.com/nf-core/rnaseq'
     workspace: 'twkit-e2e/showcase'
     description: 'RNA sequencing analysis pipeline using STAR, RSEM, HISAT2 or Salmon with gene/isoform counts and extensive quality control.'
-    compute-env: 'seqera_aws_ireland_fusionv2_nvme'
+    compute-env: 'seqera_aws_virginia_fusionv2_nvme'
     work-dir: 's3://seqeralabs-showcase'
     profile: 'test'
     revision: '3.12.0'
@@ -142,7 +142,7 @@ pipelines:
     overwrite: True
   - name: 'nf-core-viralrecon-nanopore'
     workspace: 'twkit-e2e/showcase'
-    compute-env: 'seqera_aws_ireland_fusionv2_nvme'
+    compute-env: 'seqera_aws_virginia_fusionv2_nvme'
     file-path: './examples/yaml/pipelines/nf_core_viralrecon_nanopore_pipeline.json'
     overwrite: True
   - name: 'nf-core-viralrecon-illumina'
@@ -159,7 +159,7 @@ pipelines:
     overwrite: True
   - name: 'nf-sentieon'
     workspace: 'twkit-e2e/showcase'
-    compute-env: 'seqera_aws_ireland_fusionv2_nvme'
+    compute-env: 'seqera_aws_virginia_fusionv2_nvme'
     file-path: './examples/yaml/pipelines/nf_sentieon_pipeline.json'
     overwrite: True
 launch:
