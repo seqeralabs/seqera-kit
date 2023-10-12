@@ -81,9 +81,17 @@ For example, if you have a YAML file that defines an Organization -> Workspace -
 
 ### Using `tw` specific CLI options
 
+`tw` specific CLI options can be specified with the `--cli=` flag:
+
+```
+twkit file.yaml --cli="--arg1 --arg2"
+```
+
+You can find the full list of options by running `tw -h`.
+
 The Tower CLI expects to connect to a Tower instance that is secured by a TLS certificate. If your Tower instance does not present a certificate, you will need to qualify and run your `tw` commands with the `--insecure` flag.
 
-To use `tw` specific CLI options such as `--insecure` (you can find the full list of options by running `tw -h`), use the `--cli=` flag, followed by the options you would like to use enclosed in double quotes.
+To use `tw` specific CLI options such as `--insecure`, use the `--cli=` flag, followed by the options you would like to use enclosed in double quotes.
 
 For example:
 
