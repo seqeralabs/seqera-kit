@@ -7,13 +7,13 @@ import yaml
 from twkit import utils
 
 
-def parse_yaml_block(file_path, block_name):
-    # Load the YAML file.
-    with open(file_path, "r") as f:
-        data = yaml.safe_load(f)
+def parse_yaml_block(yaml_data, block_name):
+    # Get the name of the specified block/resource.
+    block = yaml_data.get(block_name)
 
-    # Get the specified block.
-    block = data.get(block_name)
+    # If block is not found in the YAML, return an empty list.
+    if not block:
+        return block_name, []
 
     # Initialize an empty list to hold the lists of command line arguments.
     cmd_args_list = []
@@ -38,7 +38,20 @@ def parse_yaml_block(file_path, block_name):
     return block_name, cmd_args_list
 
 
-def parse_all_yaml(file_path, block_names):
+def parse_all_yaml(file_paths):
+    # If multiple yamls, merge them into one dictionary
+    merged_data = {}
+
+    for file_path in file_paths:
+        with open(file_path, "r") as f:
+            data = yaml.safe_load(f)
+            # Update merged_data with the content of this file
+            merged_data.update(data)
+
+    # Get the names of all the blocks/resources to create in the merged data.
+    block_names = list(merged_data.keys())
+
+    # Define the order in which the resources should be created.
     resource_order = [
         "organizations",
         "teams",
@@ -57,10 +70,9 @@ def parse_all_yaml(file_path, block_names):
 
     # Iterate over each block name in the desired order.
     for block_name in resource_order:
-        # Check if the block name is present in the provided block_names list
         if block_name in block_names:
-            # Parse the block and add its command arguments to the dictionary.
-            block_name, cmd_args_list = parse_yaml_block(file_path, block_name)
+            # Parse the block and add its command line arguments to the dictionary.
+            block_name, cmd_args_list = parse_yaml_block(merged_data, block_name)
             cmd_args_dict[block_name] = cmd_args_list
 
     # Return the dictionary of command arguments.
