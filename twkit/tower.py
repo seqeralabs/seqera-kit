@@ -77,7 +77,9 @@ class Tower:
 
         # Error handling for stdout
         if stdout:
-            if re.search(r"ERROR: .* already exists", stdout):
+            if re.search(
+                r"ERROR: .*already (exists|a participant)", stdout, flags=re.IGNORECASE
+            ):
                 raise ResourceExistsError(
                     " Resource already exists and will not be created."
                     " Please set 'overwrite: true'\n"
