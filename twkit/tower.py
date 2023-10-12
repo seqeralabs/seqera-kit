@@ -27,7 +27,6 @@ class Tower:
             command = ["tw"]
 
             # Prepend the CLI args if present
-            # command.extend(self.tw_instance.cli_args)
             command = self.cmd.split()
             command.extend(args)
             return self.tw_instance._tw_run(command, **kwargs)
@@ -65,11 +64,13 @@ class Tower:
             command.append(f"--params-file={params_path}")
 
         full_cmd = " ".join(arg if "$" in arg else shlex.quote(arg) for arg in command)
-        logging.debug(f" Running command: {full_cmd}\n")
 
         # Skip if --dryrun
         if self.dryrun:
+            logging.debug(f" DRYRUN: Running command: {full_cmd}\n")
             return
+        else:
+            logging.debug(f" Running command: {full_cmd}\n")
 
         # Run the command and return the stdout
         process = subprocess.Popen(

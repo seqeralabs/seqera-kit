@@ -44,9 +44,8 @@ def parse_args():
         "--cli",
         dest="cli_args",
         type=str,
-        nargs="+",
         help="Additional arguments to pass to the Tower"
-        "CLI enclosed in double quotes (e.g. '--cli \"--insecure\"')",
+        "CLI enclosed in double quotes (e.g. '--cli=\"--insecure\"')",
     )
     return parser.parse_args()
 
@@ -112,9 +111,12 @@ class BlockParser:
 def main():
     options = parse_args()
     logging.basicConfig(level=options.log_level)
-    cli_args_list = options.cli_args[0].split()
+
+    # Parse CLI arguments into a list
+    cli_args_list = options.cli_args.split() if options.cli_args else []
 
     tw = tower.Tower(cli_args=cli_args_list, dryrun=options.dryrun)
+
     block_manager = BlockParser(
         tw,
         [
