@@ -112,6 +112,31 @@ class TestTowerCLIArgs(unittest.TestCase):
         for arg in self.cli_args:
             self.assertIn(arg, called_command)
 
+    @patch("subprocess.Popen")
+    def test_cli_args_inclusion_ssl_certs(self, mock_subprocess):
+        # Add path to custom certs store to cli_args
+        self.cli_args.append("-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts")
+
+        # Initialize Tower with cli_args
+        tower.Tower(cli_args=self.cli_args)
+
+        # Mock the stdout of the Popen process
+        mock_subprocess.return_value.communicate.return_value = (
+            json.dumps({"key": "value"}).encode(),
+            b"",
+        )
+
+        # Call a method
+        self.tw.pipelines("view", "--name", "pipeline_name", to_json=True)
+
+        # Extract the command used to call Popen
+        called_command = mock_subprocess.call_args[0][0]
+
+        # Check if the cli_args are present in the called command
+        self.assertIn(
+            "-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts", called_command
+        )
+
     def test_cli_args_exclusion_of_verbose(self):  # TODO: remove this test once fixed
         # Add --verbose to cli_args
         verbose_args = ["--verbose"]
@@ -125,6 +150,19 @@ class TestTowerCLIArgs(unittest.TestCase):
             str(context.exception),
             "--verbose is not supported as a CLI argument to twkit.",
         )
+
+
+class TestKitOptions(unittest.TestCase):
+    def setUp(self):
+        self.dryrun_tw = tower.Tower(dryrun=True)
+
+    @patch("subprocess.Popen")
+    def test_dryrun_call(self, mock_subprocess):
+        # Run a method with dryrun=True
+        self.dryrun_tw.pipelines("view", "--name", "pipeline_name", to_json=True)
+
+        # Assert that subprocess.Popen is not called
+        mock_subprocess.assert_not_called()
 
 
 if __name__ == "__main__":
