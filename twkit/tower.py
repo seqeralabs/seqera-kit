@@ -82,8 +82,8 @@ class Tower:
         if stdout:
             if re.search(r"ERROR: .* already exists", stdout):
                 raise ResourceExistsError(
-                    " Resource already exists and will not be created."
-                    " Please set 'overwrite: true'\n"
+                    " Resource already exists and cannot be created."
+                    " Please delete first or if using a YAML, set 'overwrite: true'\n"
                 )
             elif re.search(r"ERROR: .*", stdout):
                 raise ResourceCreationError(
