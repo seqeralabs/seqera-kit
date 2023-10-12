@@ -4,16 +4,16 @@ Including handling methods for each block in the YAML file, and parsing
 methods for each block in the YAML file.
 """
 import yaml
-from tw_pywrap import utils
+from twkit import utils
 
 
-def parse_yaml_block(file_path, block_name):
-    # Load the YAML file.
-    with open(file_path, "r") as f:
-        data = yaml.safe_load(f)
+def parse_yaml_block(yaml_data, block_name):
+    # Get the name of the specified block/resource.
+    block = yaml_data.get(block_name)
 
-    # Get the specified block.
-    block = data.get(block_name)
+    # If block is not found in the YAML, return an empty list.
+    if not block:
+        return block_name, []
 
     # Initialize an empty list to hold the lists of command line arguments.
     cmd_args_list = []
@@ -38,7 +38,20 @@ def parse_yaml_block(file_path, block_name):
     return block_name, cmd_args_list
 
 
-def parse_all_yaml(file_path, block_names):
+def parse_all_yaml(file_paths, destroy=False):
+    # If multiple yamls, merge them into one dictionary
+    merged_data = {}
+
+    for file_path in file_paths:
+        with open(file_path, "r") as f:
+            data = yaml.safe_load(f)
+            # Update merged_data with the content of this file
+            merged_data.update(data)
+
+    # Get the names of all the blocks/resources to create in the merged data.
+    block_names = list(merged_data.keys())
+
+    # Define the order in which the resources should be created.
     resource_order = [
         "organizations",
         "teams",
@@ -52,15 +65,19 @@ def parse_all_yaml(file_path, block_names):
         "pipelines",
         "launch",
     ]
+
+    # Reverse the order of resources if destroy is True
+    if destroy:
+        resource_order = resource_order[:-1][::-1]
+
     # Initialize an empty dictionary to hold all the command arguments.
     cmd_args_dict = {}
 
     # Iterate over each block name in the desired order.
     for block_name in resource_order:
-        # Check if the block name is present in the provided block_names list
         if block_name in block_names:
-            # Parse the block and add its command arguments to the dictionary.
-            block_name, cmd_args_list = parse_yaml_block(file_path, block_name)
+            # Parse the block and add its command line arguments to the dictionary.
+            block_name, cmd_args_list = parse_yaml_block(merged_data, block_name)
             cmd_args_dict[block_name] = cmd_args_list
 
     # Return the dictionary of command arguments.
@@ -111,8 +128,10 @@ def parse_credentials_block(item):
 def parse_compute_envs_block(item):
     cmd_args = []
     for key, value in item.items():
-        if key == "file-path":
+        if key == "file-path" or key == "type" or key == "config-mode":
             cmd_args.append(str(value))
+        elif isinstance(value, bool) and value:
+            cmd_args.append(f"--{key}")
         else:
             cmd_args.extend([f"--{key}", str(value)])
     return cmd_args
@@ -192,6 +211,8 @@ def parse_pipelines_block(item):
             params_args.extend(["--params-file", temp_file_name])
         elif key == "file-path":
             repo_args.extend([str(value)])
+        elif isinstance(value, bool) and value:
+            cmd_args.append(f"--{key}")
         else:
             cmd_args.extend([f"--{key}", str(value)])
 
@@ -247,6 +268,17 @@ def handle_participants(tw, args):
     ]
     method("add", *new_args)
     method("update", *args)
+
+
+def handle_compute_envs(tw, args):
+    json_file = any(".json" in arg for arg in args)
+
+    method = getattr(tw, "compute_envs")
+
+    if json_file:
+        method("import", *args)
+    else:
+        method("add", *args)
 
 
 def handle_pipelines(tw, args):

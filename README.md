@@ -1,6 +1,6 @@
-# tw-pywrap
+# <img src="https://raw.githubusercontent.com/seqeralabs/twkit/main/assets/twkit.svg" width=50 alt="twkit logo"> twkit
 
-`tw-pywrap` is a Python wrapper for the [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli). It can be leveraged to automate the creation of all of the entities in Nextflow Tower via a simple configuration file in YAML format.
+`twkit` is a Python wrapper for the [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli). It can be leveraged to automate the creation of all of the entities in Nextflow Tower via a simple configuration file in YAML format.
 
 The key features are:
 
@@ -14,7 +14,7 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
 
 ### 1. Dependencies
 
-`tw-pywrap` requires the following dependencies:
+`twkit` requires the following dependencies:
 
 1. [Nextflow Tower CLI](https://github.com/seqeralabs/tower-cli#1-installation)
 
@@ -22,36 +22,92 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
 
 3. [PyYAML](https://pypi.org/project/PyYAML/)
 
-Alternatively, you can install the dependencies via Conda by downloading and using the [Conda environment file](environment.yml) that has been supplied in this repository:
+Alternatively, you can install the dependencies via Conda by downloading and using the [Conda environment file](https://github.com/seqeralabs/twkit/blob/main/environment.yml) that has been supplied in this repository:
 
 ```console
 conda env create -f environment.yml
-conda activate tw-pywrap
+conda activate twkit
 ```
 
 ### 2. Installation
 
-The scripts in this repository will eventually be packaged via `pip`, but for now you can install the latest development version using the command below:
+The scripts in this repository are packaged and available on [PyPI](https://pypi.org/project/twkit/). They can be installed via `pip`:
 
 ```
-pip install git+https://github.com/seqeralabs/tw-pywrap.git@main
+pip install twkit
 ```
 
 You can force overwrite the installation to use the latest changes with the command below:
 
 ```
-pip install --upgrade --force-reinstall git+https://github.com/seqeralabs/tw-pywrap.git@main
+pip install --upgrade --force-reinstall twkit
 ```
 
 ### 3. Configuration
 
 Create a Tower access token using the [Nextflow Tower](https://tower.nf/) web interface via the **Your Tokens** page in your profile.
 
-`tw-pywrap` reads this token from the environment variable `TOWER_ACCESS_TOKEN`. Please export it into your terminal as shown below:
+`twkit` reads this token from the environment variable `TOWER_ACCESS_TOKEN`. Please export it into your terminal as shown below:
 
 ```bash
 export TOWER_ACCESS_TOKEN=<your access token>
 ```
+
+## Usage
+
+Use the -h or --help parameter to list the available commands and their associated options:
+
+```
+twkit -h
+```
+
+### Dryrun
+
+To print the commands that would executed with `tw` when using a YAML file, you can run `twkit` with the `--dryrun` flag:
+
+```
+twkit file.yaml --dryrun
+```
+
+### Recursively delete
+
+Instead of adding or creating resources, you can recursively delete resources in your YAML file by specifying the `--delete` flag:
+
+```
+twkit file.yaml --delete
+```
+
+For example, if you have a YAML file that defines an Organization -> Workspace -> Team -> Credentials -> Compute Environment that have already been created, with the `--delete` flag, `twkit` will recursively delete the Compute Environment -> Credentials -> Team -> Workspace -> Organization.
+
+### Using `tw` specific CLI options
+
+`tw` specific CLI options can be specified with the `--cli=` flag:
+
+```
+twkit file.yaml --cli="--arg1 --arg2"
+```
+
+You can find the full list of options by running `tw -h`.
+
+The Tower CLI expects to connect to a Tower instance that is secured by a TLS certificate. If your Tower instance does not present a certificate, you will need to qualify and run your `tw` commands with the `--insecure` flag.
+
+To use `tw` specific CLI options such as `--insecure`, use the `--cli=` flag, followed by the options you would like to use enclosed in double quotes.
+
+For example:
+
+```
+twkit file.yaml --cli="--insecure"
+```
+
+To use an SSL certificate that is not accepted by the default Java certificate authorities and specify a custom `cacerts` store as accepted by the `tw` CLI, you can specify the `-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts` option enclosed in double quotes to `twkit` as you would to `tw`, preceded by `--cli=`.
+
+For example:
+
+```
+twkit hello-world-config.yml --cli="-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts"
+```
+
+<b>Note</b>: Use of `--verbose` option for the `tw` CLI is currently not supported by `twkit`. Supplying `--cli="--verbose"` will raise an error.
 
 ## Quick start
 
@@ -61,7 +117,7 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
 
 ### Launch via YAML
 
-1. Create a YAML file called `hello-world-config.yml` with the contents below, and customise the `<YOUR_WORKSPACE>` and `<YOUR_COMPUTE_ENVIRONMENT>'` entries as required:
+1. Create a YAML file called `hello-world-config.yml` with the contents below, and customise the `<YOUR_WORKSPACE>` and `<YOUR_COMPUTE_ENVIRONMENT>` entries as required:
 
    ```
    launch:
@@ -72,10 +128,10 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
        pipeline: 'https://github.com/nextflow-io/hello'  # Pipeline URL
    ```
 
-2. Launch the pipeline with `tw-pywrap`:
+2. Launch the pipeline with `twkit`:
 
    ```
-   tw-pywrap hello-world-config.yml
+   twkit hello-world-config.yml
    ```
 
 3. Login to your Tower instance and check the Runs page in the appropriate Workspace for the pipeline you just launched!
@@ -84,9 +140,9 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
 
 You can also launch the same pipeline via a Python script. This will essentially allow you to extend the functionality on offer within the Tower CLI by leveraging the flexibility and customisation options available in Python.
 
-1. Download the [`launch_hello_world.py`](examples/python/launch_hello_world.py) Python script and customise the `<YOUR_WORKSPACE>` and `<YOUR_COMPUTE_ENVIRONMENT>'` entries as required.
+1. Download the [`launch_hello_world.py`](https://github.com/seqeralabs/twkit/blob/main/examples/python/launch_hello_world.py) Python script and customise the `<YOUR_WORKSPACE>` and `<YOUR_COMPUTE_ENVIRONMENT>` entries as required.
 
-2. Launch the pipeline with `tw-pywrap`:
+2. Launch the pipeline with `twkit`:
 
    ```
    python launch_hello_world.py
@@ -96,30 +152,44 @@ You can also launch the same pipeline via a Python script. This will essentially
 
 ## Real world example
 
-Please see [`tw-pywrap-e2e.yml`](examples/yaml/tw-pywrap-e2e.yml) for an end-to-end example that highlights how you can use `tw-pywrap` to create everything sequentially in Nextflow Tower all the way from creating a new Organization to launching a pipeline.
+Please see [`twkit-e2e.yml`](https://github.com/seqeralabs/twkit/blob/main/examples/yaml/twkit-e2e.yml) for an end-to-end example that highlights how you can use `twkit` to create everything sequentially in Nextflow Tower all the way from creating a new Organization to launching a pipeline.
+
+You can modify this YAML to similarly create Nextflow Tower resources end-to-end for your setup. This YAML encodes environment variables to protect sensitive keys, usernames, and passwords that are required to create or add certain resources (i.e. credentials, compute environments). Prior to running it with `twkit examples/yaml/twkit-e2e.yml`, you will have to set the following environment variables:
+
+```
+$TOWER_GITHUB_PASSWORD
+$DOCKERHUB_PASSWORD
+$AWS_ACCESS_KEY_ID
+$AWS_SECRET_ACCESS_KEY
+$AWS_ASSUME_ROLE_ARN
+$AZURE_BATCH_KEY
+$AZURE_STORAGE_KEY
+$GOOGLE_KEY
+$SENTIEON_LICENSE_BASE64
+```
 
 ## Templates
 
-We have provided template YAML files for each of the entities that can be created on Tower. These can be found in the [`templates/`](templates) directory and should form a good starting point for you to add your own customization:
+We have provided template YAML files for each of the entities that can be created on Tower. These can be found in the [`templates/`](https://github.com/seqeralabs/blob/main/twkit/templates) directory and should form a good starting point for you to add your own customization:
 
-- [organizations.yml](templates/organizations.yml)
-- [teams.yml](templates/teams.yml)
-- [workspaces.yml](templates/workspaces.yml)
-- [participants.yml](templates/participants.yml)
-- [credentials.yml](templates/credentials.yml)
-- [secrets.yml](templates/secrets.yml)
-- [compute-envs.yml](templates/compute-envs.yml)
-- [actions.yml](templates/actions.yml)
-- [datasets.yml](templates/datasets.yml)
-- [pipelines.yml](templates/pipelines.yml)
-- [launch.yml](templates/launch.yml)
+- [organizations.yml](https://github.com/seqeralabs/twkit/blob/main/templates/organizations.yml)
+- [teams.yml](https://github.com/seqeralabs/twkit/blob/main/templates/teams.yml)
+- [workspaces.yml](https://github.com/seqeralabs/twkit/blob/main/templates/workspaces.yml)
+- [participants.yml](https://github.com/seqeralabs/twkit/blob/main/templates/participants.yml)
+- [credentials.yml](https://github.com/seqeralabs/twkit/blob/main/templates/credentials.yml)
+- [secrets.yml](https://github.com/seqeralabs/twkit/blob/main/templates/secrets.yml)
+- [compute-envs.yml](https://github.com/seqeralabs/twkit/blob/main/templates/compute-envs.yml)
+- [actions.yml](https://github.com/seqeralabs/twkit/blob/main/templates/actions.yml)
+- [datasets.yml](https://github.com/seqeralabs/twkit/blob/main/templates/datasets.yml)
+- [pipelines.yml](https://github.com/seqeralabs/twkit/blob/main/templates/pipelines.yml)
+- [launch.yml](https://github.com/seqeralabs/twkit/blob/main/templates/launch.yml)
 
 ## Contributions and Support
 
-If you would like to contribute to `tw-pywrap`, please see the [contributing guidelines](.github/CONTRIBUTING.md).
+If you would like to contribute to `twkit`, please see the [contributing guidelines](https://github.com/seqeralabs/twkit/blob/main/.github/CONTRIBUTING.md).
 
-For further information or help, please don't hesitate to create an [issue](https://github.com/seqeralabs/tw-pywrap/issues) in this repository.
+For further information or help, please don't hesitate to create an [issue](https://github.com/seqeralabs/twkit/issues) in this repository.
 
 ## Credits
 
-`tw-pywrap` was written by [Esha Joshi](https://github.com/ejseqera), [Adam Talbot](https://github.com/adamrtalbot) and [Harshil Patel](https://github.com/drpatelh) from the Scientific Development Team at [Seqera Labs](https://seqera.io/).
+`twkit` was written by [Esha Joshi](https://github.com/ejseqera), [Adam Talbot](https://github.com/adamrtalbot) and [Harshil Patel](https://github.com/drpatelh) from the Scientific Development Team at [Seqera Labs](https://seqera.io/).
