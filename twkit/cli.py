@@ -5,12 +5,10 @@ the required options for each resource based on the Tower CLI.
 """
 import argparse
 import logging
-import time
-import yaml
 
 from pathlib import Path
 from twkit import tower, helper, overwrite
-from twkit.tower import ResourceCreationError, ResourceExistsError
+from twkit.tower import ResourceExistsError
 
 
 logger = logging.getLogger(__name__)
@@ -27,12 +25,27 @@ def parse_args():
         type=str.upper,
     )
     parser.add_argument(
-        "yaml", type=Path, help="Config file with Tower resources to create"
+        "--dryrun",
+        action="store_true",
+        help="Print the commands that would be executed without running them.",
     )
     parser.add_argument(
-        "cli_args",
-        nargs=argparse.REMAINDER,
-        help="Additional arguments to pass to the Tower CLI",
+        "yaml",
+        type=Path,
+        nargs="+",  # allow multiple YAML paths
+        help="One or more YAML files with Tower resources to create",
+    )
+    parser.add_argument(
+        "--delete",
+        action="store_true",
+        help="Recursively delete all resources defined in the YAML file(s)",
+    )
+    parser.add_argument(
+        "--cli",
+        dest="cli_args",
+        type=str,
+        help="Additional arguments to pass to the Tower"
+        "CLI enclosed in double quotes (e.g. '--cli=\"--insecure\"')",
     )
     return parser.parse_args()
 
@@ -57,7 +70,15 @@ class BlockParser:
         # Create an instance of Overwrite class
         self.overwrite_method = overwrite.Overwrite(self.tw)
 
-    def handle_block(self, block, args):
+    def handle_block(self, block, args, destroy=False):
+        # Check if delete is set to True, and call delete handler
+        if destroy:
+            logging.debug(" The '--delete' flag has been specified.\n")
+            self.overwrite_method.handle_overwrite(
+                block, args["cmd_args"], overwrite=False, destroy=True
+            )
+            return
+
         # Handles a block of commands by calling the appropriate function.
         block_handler_map = {
             "teams": (helper.handle_teams),
@@ -91,7 +112,11 @@ def main():
     options = parse_args()
     logging.basicConfig(level=options.log_level)
 
-    tw = tower.Tower(cli_args=options.cli_args)
+    # Parse CLI arguments into a list
+    cli_args_list = options.cli_args.split() if options.cli_args else []
+
+    tw = tower.Tower(cli_args=cli_args_list, dryrun=options.dryrun)
+
     block_manager = BlockParser(
         tw,
         [
@@ -103,24 +128,19 @@ def main():
             "datasets",
         ],
     )
-    try:
-        with open(options.yaml, "r") as f:
-            data = yaml.safe_load(f)
 
-        # Returns a dict that maps block names to lists of command line arguments.
-        cmd_args_dict = helper.parse_all_yaml(options.yaml, list(data.keys()))
+    # Parse the YAML file(s) by blocks
+    # and get a dictionary of command line arguments
+    cmd_args_dict = helper.parse_all_yaml(options.yaml, destroy=options.delete)
 
-        for block, args_list in cmd_args_dict.items():
-            for args in args_list:
-                try:
-                    # Run the 'tw' methods for each block
-                    block_manager.handle_block(block, args)
-                    time.sleep(3)
-                except ResourceExistsError as e:
-                    logging.error(e)
-                    continue
-    except ResourceCreationError as e:
-        logging.error(e)
+    for block, args_list in cmd_args_dict.items():
+        for args in args_list:
+            try:
+                # Run the 'tw' methods for each block
+                block_manager.handle_block(block, args, destroy=options.delete)
+            except ResourceExistsError as e:
+                logging.error(e)
+                continue
 
 
 if __name__ == "__main__":

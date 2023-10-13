@@ -27,16 +27,16 @@ class Tower:
             command = ["tw"]
 
             # Prepend the CLI args if present
-            # command.extend(self.tw_instance.cli_args)
             command = self.cmd.split()
             command.extend(args)
             return self.tw_instance._tw_run(command, **kwargs)
 
     # Constructs a new Tower instance
-    def __init__(self, cli_args=None):
+    def __init__(self, cli_args=None, dryrun=False):
         if cli_args and "--verbose" in cli_args:  # TODO: remove this
             raise ValueError("--verbose is not supported as a CLI argument to twkit.")
         self.cli_args = cli_args if cli_args else []
+        self.dryrun = dryrun
 
     # Executes a 'tw' command in a subprocess and returns the output.
     def _tw_run(self, cmd, *args, **kwargs):
@@ -63,10 +63,14 @@ class Tower:
             params_path = kwargs["params_file"]
             command.append(f"--params-file={params_path}")
 
-        full_cmd = " ".join(
-            arg if arg.startswith("$") else shlex.quote(arg) for arg in command
-        )
-        logging.debug(f" Running command: {full_cmd}\n")
+        full_cmd = " ".join(arg if "$" in arg else shlex.quote(arg) for arg in command)
+
+        # Skip if --dryrun
+        if self.dryrun:
+            logging.debug(f" DRYRUN: Running command: {full_cmd}\n")
+            return
+        else:
+            logging.debug(f" Running command: {full_cmd}\n")
 
         # Run the command and return the stdout
         process = subprocess.Popen(
@@ -77,10 +81,12 @@ class Tower:
 
         # Error handling for stdout
         if stdout:
-            if re.search(r"ERROR: .* already exists", stdout):
+            if re.search(
+                r"ERROR: .*already (exists|a participant)", stdout, flags=re.IGNORECASE
+            ):
                 raise ResourceExistsError(
-                    " Resource already exists and will not be created."
-                    " Please set 'overwrite: true'\n"
+                    " Resource already exists and cannot be created."
+                    " Please delete first or if using a YAML, set 'overwrite: true'\n"
                 )
             elif re.search(r"ERROR: .*", stdout):
                 raise ResourceCreationError(

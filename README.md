@@ -53,6 +53,62 @@ Create a Tower access token using the [Nextflow Tower](https://tower.nf/) web in
 export TOWER_ACCESS_TOKEN=<your access token>
 ```
 
+## Usage
+
+Use the -h or --help parameter to list the available commands and their associated options:
+
+```
+twkit -h
+```
+
+### Dryrun
+
+To print the commands that would executed with `tw` when using a YAML file, you can run `twkit` with the `--dryrun` flag:
+
+```
+twkit file.yaml --dryrun
+```
+
+### Recursively delete
+
+Instead of adding or creating resources, you can recursively delete resources in your YAML file by specifying the `--delete` flag:
+
+```
+twkit file.yaml --delete
+```
+
+For example, if you have a YAML file that defines an Organization -> Workspace -> Team -> Credentials -> Compute Environment that have already been created, with the `--delete` flag, `twkit` will recursively delete the Compute Environment -> Credentials -> Team -> Workspace -> Organization.
+
+### Using `tw` specific CLI options
+
+`tw` specific CLI options can be specified with the `--cli=` flag:
+
+```
+twkit file.yaml --cli="--arg1 --arg2"
+```
+
+You can find the full list of options by running `tw -h`.
+
+The Tower CLI expects to connect to a Tower instance that is secured by a TLS certificate. If your Tower instance does not present a certificate, you will need to qualify and run your `tw` commands with the `--insecure` flag.
+
+To use `tw` specific CLI options such as `--insecure`, use the `--cli=` flag, followed by the options you would like to use enclosed in double quotes.
+
+For example:
+
+```
+twkit file.yaml --cli="--insecure"
+```
+
+To use an SSL certificate that is not accepted by the default Java certificate authorities and specify a custom `cacerts` store as accepted by the `tw` CLI, you can specify the `-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts` option enclosed in double quotes to `twkit` as you would to `tw`, preceded by `--cli=`.
+
+For example:
+
+```
+twkit hello-world-config.yml --cli="-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts"
+```
+
+<b>Note</b>: Use of `--verbose` option for the `tw` CLI is currently not supported by `twkit`. Supplying `--cli="--verbose"` will raise an error.
+
 ## Quick start
 
 You must provide a YAML file that defines the options for each of the entities you would like to create in Nextflow Tower.
@@ -76,12 +132,6 @@ You will need to have an account on Nextflow Tower (see [Plans and pricing](http
 
    ```
    twkit hello-world-config.yml
-   ```
-
-   <b>Note</b>: The Tower CLI expects to connect to a Tower instance that is secured by a TLS certificate. If your Tower instance does not present a certificate, you will need to qualify and run your `tw` commands with the `--insecure` flag. For example:
-
-   ```
-   twkit hello-world-config.yml --insecure
    ```
 
 3. Login to your Tower instance and check the Runs page in the appropriate Workspace for the pipeline you just launched!
