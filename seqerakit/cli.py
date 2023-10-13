@@ -1,14 +1,14 @@
 """
-This script is used to build a Tower instance from a YAML configuration file.
-Requires a YAML file that defines the resources to be created in Tower and
-the required options for each resource based on the Tower CLI.
+This script is used to build a Seqera Platform instance from a YAML configuration file.
+Requires a YAML file that defines the resources to be created in Seqera Platform and
+the required options for each resource based on the Seqera Platform CLI.
 """
 import argparse
 import logging
 
 from pathlib import Path
-from twkit import tower, helper, overwrite
-from twkit.tower import ResourceExistsError
+from seqerakit import seqeraplatform, helper, overwrite
+from seqerakit.seqeraplatform import ResourceExistsError
 
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ def parse_args():
         "yaml",
         type=Path,
         nargs="+",  # allow multiple YAML paths
-        help="One or more YAML files with Tower resources to create",
+        help="One or more YAML files with Seqera Platform resources to create",
     )
     parser.add_argument(
         "--delete",
@@ -44,8 +44,8 @@ def parse_args():
         "--cli",
         dest="cli_args",
         type=str,
-        help="Additional arguments to pass to the Tower"
-        "CLI enclosed in double quotes (e.g. '--cli=\"--insecure\"')",
+        help="Additional arguments to pass to Seqera Platform"
+        " CLI enclosed in double quotes (e.g. '--cli=\"--insecure\"')",
     )
     return parser.parse_args()
 
@@ -56,19 +56,19 @@ class BlockParser:
     functions for each block for custom handling of command-line arguments to _tw_run().
     """
 
-    def __init__(self, tw, list_for_add_method):
+    def __init__(self, sp, list_for_add_method):
         """
         Initializes a BlockParser instance.
 
         Args:
-        tw: A Tower class instance.
+        sp: A Seqera Platform class instance.
         list_for_add_method: A list of blocks that need to be
         handled by the 'add' method.
         """
-        self.tw = tw
+        self.sp = sp
         self.list_for_add_method = list_for_add_method
         # Create an instance of Overwrite class
-        self.overwrite_method = overwrite.Overwrite(self.tw)
+        self.overwrite_method = overwrite.Overwrite(self.sp)
 
     def handle_block(self, block, args, destroy=False):
         # Check if delete is set to True, and call delete handler
@@ -85,8 +85,8 @@ class BlockParser:
             "participants": (helper.handle_participants),
             "compute-envs": (helper.handle_compute_envs),
             "pipelines": (helper.handle_pipelines),
-            "launch": lambda tw, args: helper.handle_generic_block(
-                tw, "launch", args, method_name=None
+            "launch": lambda sp, args: helper.handle_generic_block(
+                sp, "launch", args, method_name=None
             ),
         }
 
@@ -101,9 +101,9 @@ class BlockParser:
             self.overwrite_method.handle_overwrite(block, args["cmd_args"])
 
         if block in self.list_for_add_method:
-            helper.handle_generic_block(self.tw, block, args["cmd_args"])
+            helper.handle_generic_block(self.sp, block, args["cmd_args"])
         elif block in block_handler_map:
-            block_handler_map[block](self.tw, args["cmd_args"])
+            block_handler_map[block](self.sp, args["cmd_args"])
         else:
             logger.error(f"Unrecognized resource block in YAML: {block}")
 
@@ -115,10 +115,10 @@ def main():
     # Parse CLI arguments into a list
     cli_args_list = options.cli_args.split() if options.cli_args else []
 
-    tw = tower.Tower(cli_args=cli_args_list, dryrun=options.dryrun)
+    sp = seqeraplatform.SeqeraPlatform(cli_args=cli_args_list, dryrun=options.dryrun)
 
     block_manager = BlockParser(
-        tw,
+        sp,
         [
             "organizations",  # all use method.add
             "workspaces",

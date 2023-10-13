@@ -22,11 +22,11 @@ Follow the [Github flow](https://docs.github.com/en/get-started/quickstart/githu
 
 ### Developing Locally
 
-Install the dependencies locally before prior to development. You can use a virtual environment but we recommend using a conda environment as this can come with an appropriate version of the Tower CLI. To install, you can create and activate a conda environment using:
+Install the dependencies locally before prior to development. You can use a virtual environment but we recommend using a conda environment as this can come with an appropriate version of the Seqera Platform CLI. To install, you can create and activate a conda environment using:
 
 ```console
 conda env create -f environment.yml
-conda activate twkit
+conda activate seqerakit
 ```
 
 You can then install the local repository for development using the `pip -e` command which will install it in place without copying it to your `PYTHONPATH`. Using `--no-deps` will ignore dependencies which have already been installed via Conda. This assumes the current working directory is a clone of this repository.
@@ -55,7 +55,7 @@ You can debug in VSCode for stepping through code and monitoring errors. To do s
       "name": "Python: Current File",
       "type": "python",
       "request": "launch",
-      "program": "${workspaceFolder}/twkit/cli.py",
+      "program": "${workspaceFolder}/seqerakit/cli.py",
       "args": ["-l", "debug", "example.yml"], // Change to your specific commands you wish to run
       "cwd": "${workspaceFolder}"
     }
@@ -73,7 +73,7 @@ You may need additional settings based on your set-up. A more complete example m
       "name": "Python: Current File",
       "type": "python",
       "request": "launch",
-      "program": "${workspaceFolder}/twkit/cli.py",
+      "program": "${workspaceFolder}/seqerakit/cli.py",
       "console": "integratedTerminal",
       "purpose": ["debugging"],
       "justMyCode": true,

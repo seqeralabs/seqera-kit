@@ -4,7 +4,7 @@ Including handling methods for each block in the YAML file, and parsing
 methods for each block in the YAML file.
 """
 import yaml
-from twkit import utils
+from seqerakit import utils
 
 
 def parse_yaml_block(yaml_data, block_name):
@@ -237,29 +237,29 @@ def parse_launch_block(item):
     return cmd_args
 
 
-# Handlers to call the actual tower method,based on the block name.
+# Handlers to call the actual sp method,based on the block name.
 # Certain blocks required special handling and combination of methods.
 
 
-def handle_generic_block(tw, block, args, method_name="add"):
+def handle_generic_block(sp, block, args, method_name="add"):
     # Generic handler for most blocks, with optional method name
-    method = getattr(tw, block)
+    method = getattr(sp, block)
     if method_name is None:
         method(*args)
     else:
         method(method_name, *args)
 
 
-def handle_teams(tw, args):
+def handle_teams(sp, args):
     cmd_args, members_cmd_args = args
-    tw.teams("add", *cmd_args)
+    sp.teams("add", *cmd_args)
     for sublist in members_cmd_args:
-        tw.teams("members", *sublist)
+        sp.teams("members", *sublist)
 
 
-def handle_participants(tw, args):
+def handle_participants(sp, args):
     # Generic handler for blocks with a key to skip
-    method = getattr(tw, "participants")
+    method = getattr(sp, "participants")
     skip_key = "--role"
     new_args = [
         arg
@@ -270,10 +270,10 @@ def handle_participants(tw, args):
     method("update", *args)
 
 
-def handle_compute_envs(tw, args):
+def handle_compute_envs(sp, args):
     json_file = any(".json" in arg for arg in args)
 
-    method = getattr(tw, "compute_envs")
+    method = getattr(sp, "compute_envs")
 
     if json_file:
         method("import", *args)
@@ -281,8 +281,8 @@ def handle_compute_envs(tw, args):
         method("add", *args)
 
 
-def handle_pipelines(tw, args):
-    method = getattr(tw, "pipelines")
+def handle_pipelines(sp, args):
+    method = getattr(sp, "pipelines")
     for arg in args:
         # Check if arg is a url or a json file.
         # If it is, use the appropriate method and break.

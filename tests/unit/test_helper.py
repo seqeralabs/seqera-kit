@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import mock_open, patch
-from twkit import helper
+from seqerakit import helper
 
 mocked_yaml = """
 datasets:
