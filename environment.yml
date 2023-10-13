@@ -1,4 +1,4 @@
-name: twkit
+name: seqerakit
 channels:
   - conda-forge
   - bioconda
@@ -6,4 +6,4 @@ channels:
 dependencies:
   - conda-forge::python>=3.8
   - conda-forge::pyyaml=6.0
-  - bioconda::tower-cli=0.8.0
+  - bioconda::tower-cli=0.8.0 # TODO update

@@ -1,7 +1,7 @@
 name: e2e-testing
-run-name: Create all entities in Tower from end-to-end with twkit
+run-name: Create all entities in Seqera Platform from end-to-end with seqerakit
 # This workflow can be triggered manually with GitHub actions workflow dispatch button.
-# It will automate the end-to-end creation all of the following entities in Nextflow Tower.
+# It will automate the end-to-end creation all of the following entities in Seqera Platform.
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
 jobs:
   e2e-testing:
     name:
-    if: github.repository == 'seqeralabs/twkit'
+    if: github.repository == 'seqeralabs/seqera-kit'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -37,19 +37,19 @@ jobs:
           miniforge-variant: Mambaforge
           miniforge-version: latest
           python-version: '3.10'
-          activate-environment: twkit
+          activate-environment: seqerakit
           use-mamba: true
 
-      - name: Install pip & twkit
+      - name: Install pip & seqerakit
         run: |
           mamba install -y -c conda-forge pip
           pip install -e .
 
-      - name: Create all entities on Tower from end-to-end
+      - name: Create all entities on Seqera Platform from end-to-end
         run: |
           mamba init
           temp_file=$(mktemp -q)
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          twkit examples/yaml/twkit-e2e.yml
+          seqerakit examples/yaml/seqerakit-e2e.yml

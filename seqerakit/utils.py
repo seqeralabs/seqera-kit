@@ -46,7 +46,7 @@ def find_key_value_in_dict(data, target_key, target_value, return_key):
 def check_if_exists(json_data, namekey, namevalue):
     """
     Wrapper around find_key_value_in_dict() to validate that a resource was
-    created successfully in Tower by looking for the name and value.
+    created successfully in Seqera Platform by looking for the name and value.
     """
     if not json_data:
         return False

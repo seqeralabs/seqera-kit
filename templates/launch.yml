@@ -1,22 +1,22 @@
 ## To see the full list of options available run: "tw launch"
 ## The options will vary if you are launching a pipeline:
-##   1. Pre-configured in the Tower Launchpad where most options have already been specified
+##   1. Pre-configured in the Seqera Platform Launchpad where most options have already been specified
 ##   2. From source via a remote Git URL where you will need to explicitly specify all launch options
 ## Note: overwrite is not supported for "tw launch"
 
 launch:
-  - name: 'my_launchpad_launch'                         # required
-    workspace: 'my_organization/my_workspace'           # required
-    pipeline: 'my_launchpad_pipeline'                   # required
-    params:                                             # optional
+  - name: 'my_launchpad_launch' # required
+    workspace: 'my_organization/my_workspace' # required
+    pipeline: 'my_launchpad_pipeline' # required
+    params: # optional
       outdir: 's3://my_bucket/my_results'
-  - name: 'my_remote_launch'                            # required
-    workspace: 'my_organization/my_workspace'           # required
-    compute-env: 'my_aws_compute_environment'           # required
-    pipeline: 'https://github.com/my_username/my_repo'  # required
-    work-dir: 's3://my_bucket'                          # optional
-    profile: 'test'                                     # optional
-    revision: 'main'                                    # optional
-    params-file: './pipelines/my_params.yml'            # optional
-    config: './pipelines/my_nextflow.config'            # optional
-    pre-run: './pipelines/my_pre_run.txt'               # optional
+  - name: 'my_remote_launch' # required
+    workspace: 'my_organization/my_workspace' # required
+    compute-env: 'my_aws_compute_environment' # required
+    pipeline: 'https://github.com/my_username/my_repo' # required
+    work-dir: 's3://my_bucket' # optional
+    profile: 'test' # optional
+    revision: 'main' # optional
+    params-file: './pipelines/my_params.yml' # optional
+    config: './pipelines/my_nextflow.config' # optional
+    pre-run: './pipelines/my_pre_run.txt' # optional

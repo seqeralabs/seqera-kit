@@ -1,12 +1,12 @@
 import json
-from twkit import utils
-from twkit.tower import ResourceExistsError
+from seqerakit import utils
+from seqerakit.seqeraplatform import ResourceExistsError
 import logging
 
 
 class Overwrite:
     """
-    Manages overwrite functionality for Tower resources.
+    Manages overwrite functionality for Seqera Platform resources.
 
     # TODO: When overwrite functionality becomes native to CLI,
     we can remove this class.
@@ -22,20 +22,20 @@ class Overwrite:
         "pipelines",
     ]
 
-    def __init__(self, tw):
+    def __init__(self, sp):
         """
         Initializes an Overwrite instance.
 
         Args:
-        tw: A Tower class instance.
+        sp: A SeqeraPlatform class instance.
 
         Attributes:
-        tw: A Tower class instance used to execute Tower CLI commands.
+        sp: A SeqeraPlatform class instance used to execute CLI commands.
         cached_jsondata: A cached placeholder for JSON data. Default value is None.
         block_jsondata: A dictionary to store JSON data for each block.
         Key is the block name, and value is the corresponding JSON data.
         """
-        self.tw = tw
+        self.sp = sp
         self.cached_jsondata = None
         self.block_jsondata = {}  # New dict to hold JSON data per block
 
@@ -65,7 +65,7 @@ class Overwrite:
 
     def handle_overwrite(self, block, args, overwrite=False, destroy=False):
         """
-        Handles overwrite functionality for Tower resources and
+        Handles overwrite functionality for Seqera Platform resources and
         calling the 'tw delete' method with the correct args.
         """
         if block in Overwrite.generic_deletion:
@@ -78,27 +78,27 @@ class Overwrite:
         if block in self.block_operations:
             operation = self.block_operations[block]
             keys_to_get = operation["keys"]
-            self.cached_jsondata, tw_args = self._get_json_data(
+            self.cached_jsondata, sp_args = self._get_json_data(
                 block, args, keys_to_get
             )
 
             if block == "participants":
-                if tw_args.get("type") == "TEAM":
+                if sp_args.get("type") == "TEAM":
                     self.block_operations["participants"]["name_key"] = "teamName"
                 else:
                     self.block_operations["participants"]["name_key"] = "email"
 
-            if self.check_resource_exists(operation["name_key"], tw_args):
+            if self.check_resource_exists(operation["name_key"], sp_args):
                 # if resource exists and overwrite is true, delete
                 if overwrite:
                     logging.debug(
                         f" The attempted {block} resource already exists."
                         " Overwriting.\n"
                     )
-                    self.delete_resource(block, operation, tw_args)
+                    self.delete_resource(block, operation, sp_args)
                 elif destroy:
                     logging.debug(f" Deleting the {block} resource.")
-                    self.delete_resource(block, operation, tw_args)
+                    self.delete_resource(block, operation, sp_args)
                 else:  # return an error if resource exists, overwrite=False
                     raise ResourceExistsError(
                         f" The {block} resource already exists and"
@@ -120,7 +120,7 @@ class Overwrite:
         jsondata = self.block_jsondata.get("teams", None)
 
         if not jsondata:
-            json_method = getattr(self.tw, "-o json")
+            json_method = getattr(self.sp, "-o json")
             json_out = json_method("teams", "list", "-o", args["organization"])
             self.block_jsondata["teams"] = json_out
         else:
@@ -156,7 +156,7 @@ class Overwrite:
         method.
         """
         workspace_id = self._find_workspace_id(
-            json.loads(self.tw.workspaces.list("-o", "json")),
+            json.loads(self.sp.workspaces.list("-o", "json")),
             args["organization"],
             args["name"],
         )
@@ -180,53 +180,54 @@ class Overwrite:
         For the specified keys in the operations dictionary, get the values from
         the command line arguments and return a dictionary of values.
 
-        Also, gets json data from Tower by calling the list() method once and caches
-        the json data for that block in self.block_jsondata. If the block data already
-        exists, it will be retrieved from the dictionary instead of calling the list().
+        Also, gets json data from Seqera Platform by calling the list() method
+        once and caches the json data for that block in self.block_jsondata.
+        If the block data already exists, it will be retrieved from the dictionary
+        instead of calling the list().
 
         Returns a tuple of json data and a dictionary of values to run delete() on.
         """
-        json_method = getattr(self.tw, "-o json")
-        tw_args = []  # Default value for tw_args
+        json_method = getattr(self.sp, "-o json")
+        sp_args = []  # Default value for sp_args
 
         # Check if block data already exists
         if block in self.block_jsondata:
             self.cached_jsondata = self.block_jsondata[block]
-            tw_args = self._get_values_from_cmd_args(args, keys_to_get)
+            sp_args = self._get_values_from_cmd_args(args, keys_to_get)
         else:
             # Fetch the data if it does not exist
             if block == "teams":
-                tw_args = self._get_values_from_cmd_args(args[0], keys_to_get)
+                sp_args = self._get_values_from_cmd_args(args[0], keys_to_get)
                 self.cached_jsondata = json_method(
-                    block, "list", "-o", tw_args["organization"]
+                    block, "list", "-o", sp_args["organization"]
                 )
             elif block in Overwrite.generic_deletion or block == "participants":
-                tw_args = self._get_values_from_cmd_args(args, keys_to_get)
+                sp_args = self._get_values_from_cmd_args(args, keys_to_get)
                 self.cached_jsondata = json_method(
-                    block, "list", "-w", tw_args["workspace"]
+                    block, "list", "-w", sp_args["workspace"]
                 )
             else:
-                tw_args = self._get_values_from_cmd_args(args, keys_to_get)
+                sp_args = self._get_values_from_cmd_args(args, keys_to_get)
                 self.cached_jsondata = json_method(block, "list")
 
         # Store this data in the block_jsondata dict for later use
         self.block_jsondata[block] = self.cached_jsondata
-        return self.cached_jsondata, tw_args
+        return self.cached_jsondata, sp_args
 
-    def check_resource_exists(self, name_key, tw_args):
+    def check_resource_exists(self, name_key, sp_args):
         """
-        Check if a resource exists in Tower by looking for the name and value
+        Check if a resource exists in Seqera Platform by looking for the name and value
         in the json data generated from the list() method.
         """
-        return utils.check_if_exists(self.cached_jsondata, name_key, tw_args["name"])
+        return utils.check_if_exists(self.cached_jsondata, name_key, sp_args["name"])
 
-    def delete_resource(self, block, operation, tw_args):
+    def delete_resource(self, block, operation, sp_args):
         """
-        Delete a resource in Tower by calling the delete() method and
+        Delete a resource in Seqera Platform by calling the delete() method and
         arguments defined in the operation dictionary.
         """
-        method_args = operation["method_args"](tw_args)
-        method = getattr(self.tw, block)
+        method_args = operation["method_args"](sp_args)
+        method = getattr(self.sp, block)
         method(*method_args)
 
     def _get_values_from_cmd_args(self, cmd_args, keys):

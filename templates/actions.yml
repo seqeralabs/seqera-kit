@@ -1,25 +1,24 @@
 ## To see the full list of options available run: "tw actions add"
 actions:
-  - type: 'github'                                      # required               
-    name: 'my_github_action'                            # required
-    pipeline: 'https://github.com/my_username/my_repo'  # required
-    workspace: 'my_organization/my_workspace'           # required
-    compute-env: 'my_aws_compute_environment'           # required
-    work-dir: 's3://my_bucket'                          # required
-    revision: 'main'                                    # required
-    profile: 'test'                                     # optional
-    params:                                             # optional
+  - type: 'github' # required
+    name: 'my_github_action' # required
+    pipeline: 'https://github.com/my_username/my_repo' # required
+    workspace: 'my_organization/my_workspace' # required
+    compute-env: 'my_aws_compute_environment' # required
+    work-dir: 's3://my_bucket' # required
+    revision: 'main' # required
+    profile: 'test' # optional
+    params: # optional
       outdir: 's3://my_bucket/my_results'
-    overwrite: True                                     # optional
-  - type: 'tower'                                       # required
-    name: 'my_tower_action'                             # required
-    pipeline: 'https://github.com/my_username/my_repo'  # required
-    workspace: 'my_organization/my_workspace'           # required
-    compute-env: 'my_aws_compute_environment'           # required
-    work-dir: 's3://my_bucket'                          # required
-    revision: 'main'                                    # required
-    profile: 'test'                                     # optional
-    params:                                             # optional
+    overwrite: True # optional
+  - type: 'tower' # required # TODO
+    name: 'my_tower_action' # required
+    pipeline: 'https://github.com/my_username/my_repo' # required
+    workspace: 'my_organization/my_workspace' # required
+    compute-env: 'my_aws_compute_environment' # required
+    work-dir: 's3://my_bucket' # required
+    revision: 'main' # required
+    profile: 'test' # optional
+    params: # optional
       outdir: 's3://my_bucket/my_results'
-    overwrite: True                                     # optional
-    
+    overwrite: True # optional

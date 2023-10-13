@@ -1,13 +1,13 @@
 """
-Subclass of Tower class for overriding pipelines subcommand methods.
+Subclass of SeqeraPlatform class for overriding pipelines subcommand methods.
 """
 from pathlib import Path
-from twkit.tower import Tower
+from seqerakit.seqeraplatform import SeqeraPlatform
 
 
-class Pipelines(Tower):
+class Pipelines(SeqeraPlatform):
     """
-    Python wrapper for tw pipelines export command.
+    Python wrapper for 'tw pipelines export' command. # TODO update
     """
 
     def export_pipeline(self, name, *args, **kwargs):
@@ -34,5 +34,5 @@ class Pipelines(Tower):
             outfile,
         ]
 
-        # Pass the built command to the base class method in Tower
+        # Pass the built command to the base class method in SeqeraPlatform
         return self._tw_run(command, *args, **kwargs)
