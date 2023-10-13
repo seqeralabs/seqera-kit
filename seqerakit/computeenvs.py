@@ -1,11 +1,11 @@
 """
-Subclass of Tower class for overriding compute environments subcommand methods.
+Subclass of SeqeraPlatform class for overriding compute environments subcommand methods.
 """
 from pathlib import Path
-from twkit.tower import Tower
+from seqerakit.seqeraplatform import SeqeraPlatform
 
 
-class ComputeEnvs(Tower):
+class ComputeEnvs(SeqeraPlatform):
     """
     Python wrapper for tw compute-envs export command.
     """
@@ -34,5 +34,5 @@ class ComputeEnvs(Tower):
             str(outfile),
         ]
 
-        # Pass the built command to the base class method in Tower
+        # Pass the built command to the base class method in SeqeraPlatform
         return self._tw_run(command, *args, **kwargs, to_json=True)

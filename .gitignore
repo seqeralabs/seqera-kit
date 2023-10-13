@@ -13,7 +13,7 @@ build/lib/*
 node_modules/
 package-lock.json
 package.json
-twkit.egg-info/*
+seqerakit.egg-info/*
 build/*
 
 .DS_Store

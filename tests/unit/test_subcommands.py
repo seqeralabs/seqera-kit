@@ -1,26 +1,26 @@
 import unittest
 from unittest.mock import patch
-from twkit import tower
+from seqerakit import seqeraplatform
 
 
-class TestTowerSubcommands(unittest.TestCase):
+class TestSeqeraPlatformSubcommands(unittest.TestCase):
     """
-    Unit tests for the subcommands of the Tower base class.
-    These tests check that the subcommands of the Tower base class
+    Unit tests for the subcommands of the SeqeraPlatform base class.
+    These tests check that the subcommands of the SeqeraPlatform base class
     construct the proper commands to be passed to the _tw_run method of the base class
-    when dynamically called as methods of the Tower class.
+    when dynamically called as methods of the SeqeraPlatform class.
     """
 
     def setUp(self):
-        self.tw = tower.Tower()
-        self.patcher = patch.object(self.tw, "_tw_run")
+        self.sp = seqeraplatform.SeqeraPlatform()
+        self.patcher = patch.object(self.sp, "_tw_run")
         self.mock_tw_run = self.patcher.start()
         # Make the mock behave like a function
         self.mock_tw_run.side_effect = lambda *args, **kwargs: "mocked result"
 
     def subcommand_test(self, subcommand, args, expected_command, **kwargs):
         with self.subTest(subcommand=subcommand):
-            command = getattr(self.tw, subcommand)
+            command = getattr(self.sp, subcommand)
             result = command(*args, **kwargs)
             self.mock_tw_run.assert_called_once_with(expected_command, **kwargs)
             self.assertEqual(
@@ -30,7 +30,7 @@ class TestTowerSubcommands(unittest.TestCase):
 
     def test_list_command(self):
         """
-        Unit test for the list method of Tower base class.
+        Unit test for the list method of SeqeraPlatform base class.
         This test checks that the list method constructs the
         proper commands to be passed to the _tw_run method of the base class.
         """
@@ -98,7 +98,7 @@ class TestTowerSubcommands(unittest.TestCase):
 
     def test_add_compute_envs_command(self):
         """
-        Unit test for the add method of Compute Envs class, overriding the base class.
+        Unit test for the add method of ComputeEnvs class, overriding the base class.
         """
         add_command = [
             "compute-envs",
@@ -128,7 +128,7 @@ class TestTowerSubcommands(unittest.TestCase):
 
     def test_delete_command(self):
         """
-        Unit test for the delete method of Tower base class.
+        Unit test for the delete method of SeqeraPlatform base class.
         """
         delete_command = [
             "pipelines",
@@ -145,7 +145,7 @@ class TestTowerSubcommands(unittest.TestCase):
 
     def test_view_command(self):
         """
-        Unit test for the view method of Tower base class.
+        Unit test for the view method of SeqeraPlatform base class.
         """
         view_command = [
             "pipelines",
@@ -162,7 +162,7 @@ class TestTowerSubcommands(unittest.TestCase):
 
     def test_import_command(self):
         """
-        Unit test for the import method of Tower base class.
+        Unit test for the import method of SeqeraPlatform base class.
         """
         import_command = [
             "pipelines",

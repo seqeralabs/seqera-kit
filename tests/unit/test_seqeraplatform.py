@@ -1,13 +1,13 @@
 import unittest
 from unittest.mock import patch
-from twkit import tower
+from seqerakit import seqeraplatform
 import json
 import subprocess
 
 
-class TestTower(unittest.TestCase):
+class TestSeqeraPlatform(unittest.TestCase):
     def setUp(self):
-        self.tw = tower.Tower()
+        self.sp = seqeraplatform.SeqeraPlatform()
 
     @patch("subprocess.Popen")
     def test_run_with_jsonout_command(self, mock_subprocess):
@@ -31,7 +31,7 @@ class TestTower(unittest.TestCase):
         )
 
         # Dynamically get the pipelines command
-        command = getattr(self.tw, "pipelines")
+        command = getattr(self.sp, "pipelines")
 
         # Run the command with arguments
         result = command("view", "--name", "pipeline_name", to_json=True)
@@ -55,10 +55,10 @@ class TestTower(unittest.TestCase):
                 b"",
             )
 
-            command = getattr(self.tw, "pipelines")
+            command = getattr(self.sp, "pipelines")
 
             # Check that the error is raised
-            with self.assertRaises(tower.ResourceExistsError):
+            with self.assertRaises(seqeraplatform.ResourceExistsError):
                 command("arg1", "arg2")
 
     def test_resource_exists_error_alt_error(self):
@@ -69,10 +69,10 @@ class TestTower(unittest.TestCase):
                 b"",
             )
 
-            command = getattr(self.tw, "pipelines")
+            command = getattr(self.sp, "pipelines")
 
             # Check that the error is raised
-            with self.assertRaises(tower.ResourceExistsError):
+            with self.assertRaises(seqeraplatform.ResourceExistsError):
                 command("arg1", "arg2")
 
     def test_resource_creation_error(self):
@@ -83,10 +83,10 @@ class TestTower(unittest.TestCase):
                 b"",
             )
 
-            command = getattr(self.tw, "pipelines")
+            command = getattr(self.sp, "pipelines")
 
             # Check that the error is raised
-            with self.assertRaises(tower.ResourceCreationError):
+            with self.assertRaises(seqeraplatform.ResourceCreationError):
                 command("import", "my_pipeline.json", "--name", "pipeline_name")
 
     def test_json_parsing(self):
@@ -97,16 +97,16 @@ class TestTower(unittest.TestCase):
                 b"",
             )
 
-            command = getattr(self.tw, "pipelines")
+            command = getattr(self.sp, "pipelines")
 
             # Check that the JSON is parsed correctly
             self.assertEqual(command("arg1", "arg2", to_json=True), {"key": "value"})
 
 
-class TestTowerCLIArgs(unittest.TestCase):
+class TestSeqeraPlatformCLIArgs(unittest.TestCase):
     def setUp(self):
         self.cli_args = ["--url", "http://tower-api.com", "--insecure"]
-        self.tw = tower.Tower(cli_args=self.cli_args)
+        self.sp = seqeraplatform.SeqeraPlatform(cli_args=self.cli_args)
 
     @patch("subprocess.Popen")
     def test_cli_args_inclusion(self, mock_subprocess):
@@ -117,7 +117,7 @@ class TestTowerCLIArgs(unittest.TestCase):
         )
 
         # Call a method
-        self.tw.pipelines("view", "--name", "pipeline_name", to_json=True)
+        self.sp.pipelines("view", "--name", "pipeline_name", to_json=True)
 
         # Extract the command used to call Popen
         called_command = mock_subprocess.call_args[0][0]
@@ -131,8 +131,8 @@ class TestTowerCLIArgs(unittest.TestCase):
         # Add path to custom certs store to cli_args
         self.cli_args.append("-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts")
 
-        # Initialize Tower with cli_args
-        tower.Tower(cli_args=self.cli_args)
+        # Initialize SeqeraPlatform with cli_args
+        seqeraplatform.SeqeraPlatform(cli_args=self.cli_args)
 
         # Mock the stdout of the Popen process
         mock_subprocess.return_value.communicate.return_value = (
@@ -141,7 +141,7 @@ class TestTowerCLIArgs(unittest.TestCase):
         )
 
         # Call a method
-        self.tw.pipelines("view", "--name", "pipeline_name", to_json=True)
+        self.sp.pipelines("view", "--name", "pipeline_name", to_json=True)
 
         # Extract the command used to call Popen
         called_command = mock_subprocess.call_args[0][0]
@@ -155,20 +155,20 @@ class TestTowerCLIArgs(unittest.TestCase):
         # Add --verbose to cli_args
         verbose_args = ["--verbose"]
 
-        # Check if ValueError is raised when initializing Tower with --verbose
+        # Check if ValueError is raised when initializing SeqeraPlatform with --verbose
         with self.assertRaises(ValueError) as context:
-            tower.Tower(cli_args=verbose_args)
+            seqeraplatform.SeqeraPlatform(cli_args=verbose_args)
 
         # Check the error message
         self.assertEqual(
             str(context.exception),
-            "--verbose is not supported as a CLI argument to twkit.",
+            "--verbose is not supported as a CLI argument to seqerakit.",
         )
 
 
 class TestKitOptions(unittest.TestCase):
     def setUp(self):
-        self.dryrun_tw = tower.Tower(dryrun=True)
+        self.dryrun_tw = seqeraplatform.SeqeraPlatform(dryrun=True)
 
     @patch("subprocess.Popen")
     def test_dryrun_call(self, mock_subprocess):
