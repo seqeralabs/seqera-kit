@@ -140,11 +140,6 @@ pipelines:
     compute-env: 'seqera_azure_virginia'
     file-path: './examples/yaml/pipelines/nf-core-sarek_pipeline.json'
     overwrite: True
-  - name: 'nf-core-viralrecon-nanopore'
-    workspace: 'twkit-e2e/showcase'
-    compute-env: 'seqera_aws_virginia_fusionv2_nvme'
-    file-path: './examples/yaml/pipelines/nf_core_viralrecon_nanopore_pipeline.json'
-    overwrite: True
   - name: 'nf-core-viralrecon-illumina'
     url: 'https://github.com/nf-core/viralrecon'
     workspace: 'twkit-e2e/showcase'
@@ -181,9 +176,6 @@ launch:
     pipeline: 'nf-core-sarek'
     config: './examples/yaml/pipelines/nextflow.config'
     pre-run: './examples/yaml/pipelines/pre_run.txt'
-  - name: 'nf-core-viralrecon-nanopore'
-    workspace: 'twkit-e2e/showcase'
-    pipeline: 'nf-core-viralrecon-nanopore'
   - name: 'nf-core-viralrecon-illumina'
     workspace: 'twkit-e2e/showcase'
     pipeline: 'nf-core-viralrecon-illumina'
