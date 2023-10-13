@@ -157,7 +157,7 @@ Please see [`seqerakit-e2e.yml`](https://github.com/seqeralabs/seqera-kit/blob/m
 You can modify this YAML to similarly create Seqera Platform resources end-to-end for your setup. This YAML encodes environment variables to protect sensitive keys, usernames, and passwords that are required to create or add certain resources (i.e. credentials, compute environments). Prior to running it with `seqerakit examples/yaml/seqerakit-e2e.yml`, you will have to set the following environment variables:
 
 ```
-$SEQPLATFORM_GITHUB_PASSWORD
+$TOWER_GITHUB_PASSWORD
 $DOCKERHUB_PASSWORD
 $AWS_ACCESS_KEY_ID
 $AWS_SECRET_ACCESS_KEY
