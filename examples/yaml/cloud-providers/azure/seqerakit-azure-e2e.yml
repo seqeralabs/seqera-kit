@@ -58,12 +58,6 @@ compute-envs:
     fusion-v2: True
     wave: True
     wait: 'AVAILABLE'
-  # - name: '$AZURE_COMPUTE_ENV_NAME'
-  #   WORKSPACE: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
-  #   credentials: 'azure_credentials'
-  #   wait: 'AVAILABLE'
-  #   file-path: '../../compute-envs/seqera_azure_virginia.json'
-  #   overwrite: False
 pipelines:
   - name: '$PIPELINE_NAME_PREFIX-hello-world'
     url: 'https://github.com/nextflow-io/hello'
