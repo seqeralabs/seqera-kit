@@ -1,0 +1,65 @@
+organizations:
+  - name: '$SEQERA_ORGANIZATION_NAME'
+    full-name: '$SEQERA_ORGANIZATION_NAME'
+    description: 'Example of an organization'
+    overwrite: True
+teams:
+  - name: '$SEQERA_TEAM_NAME'
+    organization: '$SEQERA_ORGANIZATION_NAME'
+    description: 'Example of a team'
+    members:
+      - '$TEAM_MEMBER_EMAIL1'
+      - '$TEAM_MEMBER_EMAIL2'
+    overwrite: True
+workspaces:
+  - name: '$SEQERA_WORKSPACE_NAME'
+    full-name: '$SEQERA_WORKSPACE_NAME'
+    organization: '$SEQERA_ORGANIZATION_NAME'
+    visibility: 'PRIVATE'
+    overwrite: True
+participants:
+  - name: '$SEQERA_TEAM_NAME'
+    type: 'TEAM'
+    WORKSPACE: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    role: 'ADMIN'
+    overwrite: True
+credentials:
+  - type: 'github'
+    name: 'github_credentials'
+    WORKSPACE: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    username: '$GITHUB_USERNAME'
+    password: '$SEQERA_GITHUB_PASSWORD'
+    overwrite: False
+  - type: 'container-reg'
+    name: 'dockerhub_credentials'
+    WORKSPACE: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    username: '$DOCKERHUB_USERNAME'
+    password: '$DOCKERHUB_PASSWORD'
+    registry: 'docker.io'
+    overwrite: False
+  - type: 'azure'
+    name: 'azure_credentials'
+    WORKSPACE: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    batch-key: '$AZURE_BATCH_ACCOUNT_KEY'
+    batch-name: '$AZURE_BATCH_ACCOUNT_NAME'
+    storage-key: '$AZURE_STORAGE_ACCOUNT_KEY'
+    storage-name: '$AZURE_STORAGE_ACCOUNT_NAME'
+compute-envs:
+  - name: '$AZURE_COMPUTE_ENV_NAME'
+    WORKSPACE: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    credentials: 'azure_credentials'
+    wait: 'AVAILABLE'
+    file-path: '../../compute-envs/seqera_azure_virginia.json'
+    overwrite: False
+pipelines:
+  - name: '$PIPELINE_NAME_PREFIX-hello-world'
+    url: 'https://github.com/nextflow-io/hello'
+    WORKSPACE: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    description: 'Classic hello world script in Nextflow language.'
+    compute-env: '$AZURE_COMPUTE_ENV_NAME'
+    work-dir: '$SEQERA_WORK_DIR'
+    revision: 'master'
+launch:
+  - name: 'hello-world-seqerakit-$TIME'
+    WORKSPACE: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    pipeline: '$PIPELINE_NAME_PREFIX-hello-world'
