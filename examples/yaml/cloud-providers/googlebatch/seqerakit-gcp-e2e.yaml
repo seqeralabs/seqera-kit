@@ -1,53 +1,58 @@
-# organizations:
-#   - name: '$SEQERA_ORGANIZATION_NAME'
-#     full-name: '$SEQERA_ORGANIZATION_NAME'
-#     description: 'Example of an organization'
-#     overwrite: True
-# teams:
-#   - name: '$SEQERA_TEAM_NAME'
-#     organization: '$SEQERA_ORGANIZATION_NAME'
-#     description: 'Example of a team'
-#     members:
-#       - '$TEAM_MEMBER_EMAIL1'
-#       - '$TEAM_MEMBER_EMAIL2'
-#     overwrite: True
-# workspaces:
-#   - name: '$SEQERA_WORKSPACE_NAME'
-#     full-name: '$SEQERA_WORKSPACE_NAME'
-#     organization: '$SEQERA_ORGANIZATION_NAME'
-#     visibility: 'PRIVATE'
-#     overwrite: True
-# participants:
-#   - name: '$SEQERA_TEAM_NAME'
-#     type: 'TEAM'
-#     workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
-#     role: 'ADMIN'
-#     overwrite: True
-# credentials:
-#   - type: 'github'
-#     name: 'github_credentials'
-#     workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
-#     username: '$GITHUB_USERNAME'
-#     password: '$SEQERA_GITHUB_PASSWORD'
-#     overwrite: True
-#   - type: 'container-reg'
-#     name: 'dockerhub_credentials'
-#     workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
-#     username: '$DOCKERHUB_USERNAME'
-#     password: '$DOCKERHUB_PASSWORD'
-#     registry: 'docker.io'
-#     overwrite: True
-#   - type: 'google'
-#     name: 'google_credentials'
-#     workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
-#     key: '$GOOGLE_KEY'
-#     overwrite: True
+organizations:
+  - name: '$SEQERA_ORGANIZATION_NAME'
+    full-name: '$SEQERA_ORGANIZATION_NAME'
+    description: 'Example of an organization'
+    overwrite: True
+teams:
+  - name: '$SEQERA_TEAM_NAME'
+    organization: '$SEQERA_ORGANIZATION_NAME'
+    description: 'Example of a team'
+    members:
+      - '$TEAM_MEMBER_EMAIL1'
+      - '$TEAM_MEMBER_EMAIL2'
+    overwrite: True
+workspaces:
+  - name: '$SEQERA_WORKSPACE_NAME'
+    full-name: '$SEQERA_WORKSPACE_NAME'
+    organization: '$SEQERA_ORGANIZATION_NAME'
+    visibility: 'PRIVATE'
+    overwrite: True
+participants:
+  - name: '$SEQERA_TEAM_NAME'
+    type: 'TEAM'
+    workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    role: 'ADMIN'
+    overwrite: True
+credentials:
+  - type: 'github'
+    name: 'github_credentials'
+    workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    username: '$GITHUB_USERNAME'
+    password: '$SEQERA_GITHUB_PASSWORD'
+    overwrite: True
+  - type: 'container-reg'
+    name: 'dockerhub_credentials'
+    workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    username: '$DOCKERHUB_USERNAME'
+    password: '$DOCKERHUB_PASSWORD'
+    registry: 'docker.io'
+    overwrite: True
+  - type: 'google'
+    name: 'google_credentials'
+    workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    key: '$GOOGLE_KEY'
+    overwrite: True
 compute-envs:
-  - name: '$GCP_COMPUTE_ENV_NAME'
+  - type: 'google-batch'
+    name: '$GCP_COMPUTE_ENV_NAME'
     workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
     credentials: 'google_credentials'
-    file-path: '../../compute-envs/seqera_aws_ireland_fusionv2_nvme.json'
-    overwrite: False
+    location: '$GCP_LOCATION'
+    work-dir: '$SEQERA_WORK_DIR'
+    spot: True
+    fusion-v2: True
+    wave: True
+    wait: 'AVAILABLE'
 pipelines:
   - name: '$PIPELINE_NAME_PREFIX-hello-world'
     url: 'https://github.com/nextflow-io/hello'

@@ -45,12 +45,25 @@ credentials:
     storage-key: '$AZURE_STORAGE_ACCOUNT_KEY'
     storage-name: '$AZURE_STORAGE_ACCOUNT_NAME'
 compute-envs:
-  - name: '$AZURE_COMPUTE_ENV_NAME'
-    WORKSPACE: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+  - type: azure-batch
+    config-mode: forge
+    name: '$AZURE_COMPUTE_ENV_NAME'
+    workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
     credentials: 'azure_credentials'
+    location: '$AZURE_LOCATION'
+    work-dir: '$SEQERA_WORK_DIR'
+    vm-type: 'Standard_D16s_v3'
+    vm-count: '16'
+    preserve-resources: True
+    fusion-v2: True
+    wave: True
     wait: 'AVAILABLE'
-    file-path: '../../compute-envs/seqera_azure_virginia.json'
-    overwrite: False
+  # - name: '$AZURE_COMPUTE_ENV_NAME'
+  #   WORKSPACE: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+  #   credentials: 'azure_credentials'
+  #   wait: 'AVAILABLE'
+  #   file-path: '../../compute-envs/seqera_azure_virginia.json'
+  #   overwrite: False
 pipelines:
   - name: '$PIPELINE_NAME_PREFIX-hello-world'
     url: 'https://github.com/nextflow-io/hello'

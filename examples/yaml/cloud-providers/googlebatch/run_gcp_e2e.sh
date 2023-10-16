@@ -15,6 +15,7 @@ export DOCKERHUB_PASSWORD=''                # Your Docker password
 export GOOGLE_KEY=''                        # Your Google Service Account key to create Google credentials
 export GCP_COMPUTE_ENV_NAME=''              # Name of the Google Batch Compute Environment you want to create
 export SEQERA_WORK_DIR=''                   # Path to the desired Nextflow work directory when creating a compute env
+export GCP_LOCATION=''                      # Google region to create the compute environment resources in
 
 # Pipeline/launch specific variables
 export PIPELINE_NAME_PREFIX=''              # Prefix to add to the pipeline name added to Seqera Platform

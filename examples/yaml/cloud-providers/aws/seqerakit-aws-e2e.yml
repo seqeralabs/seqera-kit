@@ -45,12 +45,22 @@ credentials:
     assume-role-arn: '$AWS_ASSUME_ROLE_ARN'
     overwrite: True
 compute-envs:
-  - name: '$AWS_COMPUTE_ENV_NAME'
+  - type: aws-batch
+    config-mode: forge
+    name: '$AWS_COMPUTE_ENV_NAME'
     workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
     credentials: 'aws_credentials'
-    wait: 'AVAILABLE'
-    file-path: '../../compute-envs/seqera_aws_ireland_fusionv2_nvme.json'
-    overwrite: True
+    region: '$AWS_REGION'
+    work-dir: '$SEQERA_WORK_DIR'
+    provisioning-model: SPOT
+    fusion-v2: True
+    wave: True
+    fargate: True
+    fast-storage: True
+    instance-types: 'c6id,r6id,m6id'
+    no-ebs-auto-scale: True
+    max-cpus: 500
+    wait: AVAILABLE
 pipelines:
   - name: '$PIPELINE_NAME_PREFIX-hello-world'
     url: 'https://github.com/nextflow-io/hello'

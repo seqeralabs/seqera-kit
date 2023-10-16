@@ -16,6 +16,7 @@ export AWS_ACCESS_KEY_ID=''                 # Your AWS access key ID to add AWS 
 export AWS_SECRET_ACCESS_KEY=''             # Your AWS secret key, for example: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
 export AWS_ASSUME_ROLE_ARN=''               # IAM role to be assumed to access the AWS resources
 export AWS_COMPUTE_ENV_NAME=''              # Name of the AWS Batch Compute Environment you want to create
+export AWS_REGION=''                        # Region you want your Compute Environment resources to be created in
 export SEQERA_WORK_DIR=''                   # Path to the desired Nextflow work directory when creating a compute env
 
 # Pipeline/launch specific variables

@@ -17,6 +17,7 @@ export AZURE_BATCH_ACCOUNT_NAME=''          # Name of your Azure Batch account
 export AZURE_STORAGE_ACCOUNT_KEY=''         # Your Azure Storage account key
 export AZURE_STORAGE_ACCOUNT_NAME=''        # Name of your Azure Storage account
 export AZURE_COMPUTE_ENV_NAME=''            # Name of the Azure Compute Environment you want to create
+export AZURE_LOCATION=''                    # Azure region to create the compute environment in
 export SEQERA_WORK_DIR=''                   # Path to the desired Nextflow work directory when creating a compute env
 
 # Pipeline/launch specific variables
