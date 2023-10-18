@@ -102,7 +102,10 @@ def create_temp_yaml(params_dict):
         return dumper.represent_scalar("tag:yaml.org,2002:str", data, style='"')
 
     yaml.add_representer(quoted_str, quoted_str_representer)
-    params_dict = {k: os.path.expandvars(v) for k, v in params_dict.items()}
+    params_dict = {
+        k: quoted_str(os.path.expandvars(v)) if isinstance(v, str) else v
+        for k, v in params_dict.items()
+    }
 
     with tempfile.NamedTemporaryFile(
         mode="w", delete=False, suffix=".yaml"
