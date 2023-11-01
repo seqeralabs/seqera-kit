@@ -77,7 +77,7 @@ class SeqeraPlatform:
                 for env_var in re.findall(r"\$\{?[\w]+\}?", arg):
                     if env_var.replace("$", "") not in os.environ:
                         raise EnvironmentError(
-                            f" Environment variable '{env_var}' is not in environment."
+                            f" Environment variable '{env_var}' not found!"
                         )
             full_cmd_parts.append(shlex.quote(arg))
         return " ".join(full_cmd_parts)
