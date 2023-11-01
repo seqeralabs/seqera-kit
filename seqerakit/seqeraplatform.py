@@ -75,9 +75,9 @@ class SeqeraPlatform:
         for arg in command:
             if "$" in arg:
                 for env_var in re.findall(r"\$\{?[\w]+\}?", arg):
-                    if env_var.replace("$", "") not in os.environ:
+                    if re.sub(r"[${}]", "", env_var) not in os.environ:
                         raise EnvironmentError(
-                            f" Environment variable '{env_var}' not found!"
+                            f" Environment variable {env_var} not found!"
                         )
                 full_cmd_parts.append(arg)
             else:
