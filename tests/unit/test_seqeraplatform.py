@@ -208,16 +208,17 @@ class TestCheckEnvVars(unittest.TestCase):
 
     def test_error_raised_for_unset_env_vars(self):
         # Unset environment variables for this test
+        unset_var = "{UNSET_VAR}"
         if "UNSET_VAR" in os.environ:
             del os.environ["UNSET_VAR"]
 
-        command = ["tw", "pipelines", "list", "-w", "$UNSET_VAR"]
+        command = ["tw", "pipelines", "list", "-w", "${UNSET_VAR}"]
 
         # Assert that EnvironmentError is raised
         with self.assertRaises(EnvironmentError) as context:
             self.sp._check_env_vars(command)
-        self.assertIn(
-            " Environment variable '$UNSET_VAR' not found!", str(context.exception)
+        self.assertEqual(
+            str(context.exception), f" Environment variable ${unset_var} not found!"
         )
 
 
