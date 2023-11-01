@@ -79,7 +79,9 @@ class SeqeraPlatform:
                         raise EnvironmentError(
                             f" Environment variable '{env_var}' not found!"
                         )
-            full_cmd_parts.append(shlex.quote(arg))
+                full_cmd_parts.append(arg)
+            else:
+                full_cmd_parts.append(shlex.quote(arg))
         return " ".join(full_cmd_parts)
 
     # Executes a 'tw' command in a subprocess and returns the output.
