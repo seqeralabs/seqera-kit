@@ -73,12 +73,13 @@ class SeqeraPlatform:
     def _check_env_vars(self, command):
         full_cmd_parts = []
         for arg in command:
-            if arg.startswith("$"):
-                env_var = arg[1:]
-                if env_var not in os.environ:
-                    logging.error(f" Environment variable '{env_var}' is not set.")
-                    return None  # handle as desired
-                full_cmd_parts.append(os.environ[env_var])
+            if "$" in arg:
+                for env_var in re.findall(r"\$\{?[\w]+\}?", arg):
+                    if re.sub(r"[${}]", "", env_var) not in os.environ:
+                        raise EnvironmentError(
+                            f" Environment variable {env_var} not found!"
+                        )
+                full_cmd_parts.append(arg)
             else:
                 full_cmd_parts.append(shlex.quote(arg))
         return " ".join(full_cmd_parts)
