@@ -3,6 +3,7 @@ from unittest.mock import patch
 from seqerakit import seqeraplatform
 import json
 import subprocess
+import os
 
 
 class TestSeqeraPlatform(unittest.TestCase):
@@ -177,6 +178,47 @@ class TestKitOptions(unittest.TestCase):
 
         # Assert that subprocess.Popen is not called
         mock_subprocess.assert_not_called()
+
+
+class TestCheckEnvVars(unittest.TestCase):
+    def setUp(self):
+        self.sp = seqeraplatform.SeqeraPlatform()
+        self.original_environ = dict(os.environ)
+
+    def tearDown(self):
+        # Restore the original environment after each test
+        os.environ.clear()
+        os.environ.update(self.original_environ)
+
+    def test_with_set_env_vars(self):
+        # Set environment variables for the test
+        os.environ["VAR1"] = "value1"
+
+        command = ["tw", "pipelines", "list", "-w", "$VAR1"]
+        expected = "tw pipelines list -w $VAR1"
+        result = self.sp._check_env_vars(command)
+        self.assertEqual(result, expected)
+
+    def test_without_env_vars(self):
+        # Test case where there are no environment variables in the command
+        command = ["tw", "info"]
+        expected = "tw info"  # shlex.quote() will not alter these
+        result = self.sp._check_env_vars(command)
+        self.assertEqual(result, expected)
+
+    def test_error_raised_for_unset_env_vars(self):
+        # Unset environment variables for this test
+        if "UNSET_VAR" in os.environ:
+            del os.environ["UNSET_VAR"]
+
+        command = ["tw", "pipelines", "list", "-w", "$UNSET_VAR"]
+
+        # Assert that EnvironmentError is raised
+        with self.assertRaises(EnvironmentError) as context:
+            self.sp._check_env_vars(command)
+        self.assertIn(
+            " Environment variable '$UNSET_VAR' not found!", str(context.exception)
+        )
 
 
 if __name__ == "__main__":
