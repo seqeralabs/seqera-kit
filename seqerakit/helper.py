@@ -59,10 +59,12 @@ def parse_all_yaml(file_paths, destroy=False):
     for file_path in file_paths:
         with open(file_path, "r") as f:
             data = yaml.safe_load(f)
-            # Update merged_data with the content of this file
-            merged_data.update(data)
+            for key, value in data.items():
+                if key in merged_data:
+                    merged_data[key].extend(value)
+                else:
+                    merged_data[key] = value
 
-    # Get the names of all the blocks/resources to create in the merged data.
     block_names = list(merged_data.keys())
 
     # Define the order in which the resources should be created.
