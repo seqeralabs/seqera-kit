@@ -72,8 +72,11 @@ class SeqeraPlatform:
     # Checks environment variables to see that they are set accordingly
     def _check_env_vars(self, command):
         full_cmd_parts = []
+        shell_constructs = ["|", ">", "<", "$(", "&", "&&", "`"]
         for arg in command:
-            if "$" in arg:
+            if any(construct in arg for construct in shell_constructs):
+                full_cmd_parts.append(arg)
+            elif "$" in arg:
                 for env_var in re.findall(r"\$\{?[\w]+\}?", arg):
                     if re.sub(r"[${}]", "", env_var) not in os.environ:
                         raise EnvironmentError(
@@ -82,6 +85,7 @@ class SeqeraPlatform:
                 full_cmd_parts.append(arg)
             else:
                 full_cmd_parts.append(shlex.quote(arg))
+            # print(f"full_cmd_parts before join: {full_cmd_parts}")
         return " ".join(full_cmd_parts)
 
     # Executes a 'tw' command in a subprocess and returns the output.
