@@ -19,6 +19,7 @@ the required options for each resource based on the Seqera Platform CLI.
 """
 import argparse
 import logging
+import sys
 
 from pathlib import Path
 from seqerakit import seqeraplatform, helper, overwrite
@@ -122,7 +123,10 @@ class BlockParser:
             logger.error(f"Unrecognized resource block in YAML: {block}")
 
 
-def main():
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+
     options = parse_args()
     logging.basicConfig(level=options.log_level)
 
