@@ -85,7 +85,6 @@ class SeqeraPlatform:
                 full_cmd_parts.append(arg)
             else:
                 full_cmd_parts.append(shlex.quote(arg))
-            # print(f"full_cmd_parts before join: {full_cmd_parts}")
         return " ".join(full_cmd_parts)
 
     # Executes a 'tw' command in a subprocess and returns the output.
