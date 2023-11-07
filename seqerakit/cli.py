@@ -62,7 +62,7 @@ def parse_args(args=None):
         help="Additional arguments to pass to Seqera Platform"
         " CLI enclosed in double quotes (e.g. '--cli=\"--insecure\"')",
     )
-    return parser.parse_args(args if args is not None else sys.argv[1:])
+    return parser.parse_args(args)
 
 
 class BlockParser:
@@ -124,7 +124,7 @@ class BlockParser:
 
 
 def main(args=None):
-    options = parse_args(args)
+    options = parse_args(args if args is not None else sys.argv[1:])
     logging.basicConfig(level=options.log_level)
 
     # Parse CLI arguments into a list
