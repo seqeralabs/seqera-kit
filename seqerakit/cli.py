@@ -29,7 +29,7 @@ from seqerakit.seqeraplatform import ResourceExistsError
 logger = logging.getLogger(__name__)
 
 
-def parse_args():
+def parse_args(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-l",
@@ -62,7 +62,7 @@ def parse_args():
         help="Additional arguments to pass to Seqera Platform"
         " CLI enclosed in double quotes (e.g. '--cli=\"--insecure\"')",
     )
-    return parser.parse_args()
+    return parser.parse_args(args if args is not None else sys.argv[1:])
 
 
 class BlockParser:
@@ -124,10 +124,7 @@ class BlockParser:
 
 
 def main(args=None):
-    if args is None:
-        args = sys.argv[1:]
-
-    options = parse_args()
+    options = parse_args(args)
     logging.basicConfig(level=options.log_level)
 
     # Parse CLI arguments into a list
@@ -150,7 +147,6 @@ def main(args=None):
     # Parse the YAML file(s) by blocks
     # and get a dictionary of command line arguments
     cmd_args_dict = helper.parse_all_yaml(options.yaml, destroy=options.delete)
-
     for block, args_list in cmd_args_dict.items():
         for args in args_list:
             try:
