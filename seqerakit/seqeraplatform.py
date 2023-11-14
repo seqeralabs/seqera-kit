@@ -102,15 +102,20 @@ class SeqeraPlatform:
         return json.loads(stdout) if to_json else stdout
 
     def _handle_command_errors(self, stdout):
+        logging.error(stdout)
+
+        # Check for specific tw cli error patterns and raise custom exceptions
         if re.search(
             r"ERROR: .*already (exists|a participant)", stdout, flags=re.IGNORECASE
         ):
             raise ResourceExistsError(
                 " Resource already exists. Please delete first or set 'overwrite: true'"
             )
-        raise ResourceCreationError(
-            f"Resource creation failed: '{stdout}'. Check your config and try again."
-        )
+        else:
+            raise ResourceCreationError(
+                f" Resource creation failed: '{stdout}'. "
+                "Check your config and try again."
+            )
 
     def _tw_run(self, cmd, *args, **kwargs):
         full_cmd = self._construct_command(cmd, *args, **kwargs)
