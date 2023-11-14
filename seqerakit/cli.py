@@ -23,7 +23,7 @@ import sys
 
 from pathlib import Path
 from seqerakit import seqeraplatform, helper, overwrite
-from seqerakit.seqeraplatform import ResourceExistsError
+from seqerakit.seqeraplatform import ResourceExistsError, ResourceCreationError
 
 
 logger = logging.getLogger(__name__)
@@ -152,9 +152,9 @@ def main(args=None):
             try:
                 # Run the 'tw' methods for each block
                 block_manager.handle_block(block, args, destroy=options.delete)
-            except ResourceExistsError as e:
+            except (ResourceExistsError, ResourceCreationError) as e:
                 logging.error(e)
-                continue
+                sys.exit(1)
 
 
 if __name__ == "__main__":
