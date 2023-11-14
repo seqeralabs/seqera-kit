@@ -33,7 +33,7 @@ conda config --add channels conda-forge
 conda config --set channel_priority strict
 ```
 
-You can then create a conda environment with `seqerakit` installed like:
+You can then create a conda environment with `seqerakit` installed using the following:
 
 ```
 conda env create -n seqerakit seqerakit
