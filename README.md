@@ -12,7 +12,7 @@ The key features are:
 
 You will need to have an account on Seqera Platform (see [Plans and pricing](https://cloud.tower.nf/pricing/)).
 
-### 1. Dependencies
+## Installation
 
 `seqerakit` requires the following dependencies:
 
@@ -22,16 +22,28 @@ You will need to have an account on Seqera Platform (see [Plans and pricing](htt
 
 3. [PyYAML](https://pypi.org/project/PyYAML/)
 
-Alternatively, you can install the dependencies via Conda by downloading and using the [Conda environment file](https://github.com/seqeralabs/seqera-kit/blob/main/environment.yml) that has been supplied in this repository:
+### Conda
+
+You can install `seqerakit` and its dependencies via Conda. Ensure that you have the correct channels configured:
 
 ```console
-conda env create -f environment.yml
+conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+```
+
+You can then create a conda environment with `seqerakit` installed like:
+
+```
+conda env create -n seqerakit seqerakit
 conda activate seqerakit
 ```
 
-### 2. Installation
+### Pip
 
-The scripts in this repository are packaged and available on [PyPI](https://pypi.org/project/seqerakit/). They can be installed via `pip`:
+If you already have [Seqera Platform CLI](https://github.com/seqeralabs/tower-cli#1-installation) and Python installed on your system, you can install `seqerakit` directly from [PyPI](https://pypi.org/project/seqerakit/):
+
 
 ```
 pip install seqerakit
@@ -43,7 +55,7 @@ You can force overwrite the installation to use the latest changes with the comm
 pip install --upgrade --force-reinstall seqerakit
 ```
 
-### 3. Configuration
+## Configuration
 
 Create a Seqera Platform access token using the [Seqera Platform](https://tower.nf/) web interface via the **Your Tokens** page in your profile.
 
