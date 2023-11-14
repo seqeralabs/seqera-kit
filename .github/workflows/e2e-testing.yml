@@ -53,3 +53,8 @@ jobs:
           export GOOGLE_KEY=$temp_file
 
           seqerakit examples/yaml/seqerakit-e2e.yml
+
+      - name: Cleanup entities on Seqera Platform
+        run: |
+          mamba init
+          seqerakit examples/yaml/seqerakit-e2e.yml --delete
