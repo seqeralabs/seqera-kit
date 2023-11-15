@@ -40,7 +40,7 @@ jobs:
           python-version: '3.10'
       - name: Install seqerakit
         run: |
-          conda create -y -name seqerakit seqerakit tower-cli
+          conda create -y --name seqerakit seqerakit tower-cli
           source activate seqerakit
 
       - name: Create all entities on Seqera Platform from end-to-end
