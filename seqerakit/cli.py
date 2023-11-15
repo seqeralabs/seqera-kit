@@ -19,16 +19,17 @@ the required options for each resource based on the Seqera Platform CLI.
 """
 import argparse
 import logging
+import sys
 
 from pathlib import Path
 from seqerakit import seqeraplatform, helper, overwrite
-from seqerakit.seqeraplatform import ResourceExistsError
+from seqerakit.seqeraplatform import ResourceExistsError, ResourceCreationError
 
 
 logger = logging.getLogger(__name__)
 
 
-def parse_args():
+def parse_args(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-l",
@@ -61,7 +62,7 @@ def parse_args():
         help="Additional arguments to pass to Seqera Platform"
         " CLI enclosed in double quotes (e.g. '--cli=\"--insecure\"')",
     )
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 class BlockParser:
@@ -122,8 +123,8 @@ class BlockParser:
             logger.error(f"Unrecognized resource block in YAML: {block}")
 
 
-def main():
-    options = parse_args()
+def main(args=None):
+    options = parse_args(args if args is not None else sys.argv[1:])
     logging.basicConfig(level=options.log_level)
 
     # Parse CLI arguments into a list
@@ -146,15 +147,14 @@ def main():
     # Parse the YAML file(s) by blocks
     # and get a dictionary of command line arguments
     cmd_args_dict = helper.parse_all_yaml(options.yaml, destroy=options.delete)
-
     for block, args_list in cmd_args_dict.items():
         for args in args_list:
             try:
                 # Run the 'tw' methods for each block
                 block_manager.handle_block(block, args, destroy=options.delete)
-            except ResourceExistsError as e:
+            except (ResourceExistsError, ResourceCreationError) as e:
                 logging.error(e)
-                continue
+                sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -72,13 +72,17 @@ class SeqeraPlatform:
     # Checks environment variables to see that they are set accordingly
     def _check_env_vars(self, command):
         full_cmd_parts = []
+        shell_constructs = ["|", ">", "<", "$(", "&", "&&", "`"]
         for arg in command:
-            if arg.startswith("$"):
-                env_var = arg[1:]
-                if env_var not in os.environ:
-                    logging.error(f" Environment variable '{env_var}' is not set.")
-                    return None  # handle as desired
-                full_cmd_parts.append(os.environ[env_var])
+            if any(construct in arg for construct in shell_constructs):
+                full_cmd_parts.append(arg)
+            elif "$" in arg:
+                for env_var in re.findall(r"\$\{?[\w]+\}?", arg):
+                    if re.sub(r"[${}]", "", env_var) not in os.environ:
+                        raise EnvironmentError(
+                            f" Environment variable {env_var} not found!"
+                        )
+                full_cmd_parts.append(arg)
             else:
                 full_cmd_parts.append(shlex.quote(arg))
         return " ".join(full_cmd_parts)
@@ -98,15 +102,20 @@ class SeqeraPlatform:
         return json.loads(stdout) if to_json else stdout
 
     def _handle_command_errors(self, stdout):
+        logging.error(stdout)
+
+        # Check for specific tw cli error patterns and raise custom exceptions
         if re.search(
             r"ERROR: .*already (exists|a participant)", stdout, flags=re.IGNORECASE
         ):
             raise ResourceExistsError(
                 " Resource already exists. Please delete first or set 'overwrite: true'"
             )
-        raise ResourceCreationError(
-            f"Resource creation failed: '{stdout}'. Check your config and try again."
-        )
+        else:
+            raise ResourceCreationError(
+                f" Resource creation failed: '{stdout}'. "
+                "Check your config and try again."
+            )
 
     def _tw_run(self, cmd, *args, **kwargs):
         full_cmd = self._construct_command(cmd, *args, **kwargs)
