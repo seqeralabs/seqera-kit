@@ -44,7 +44,6 @@ jobs:
           conda activate seqerakit || true
       - name: Create all entities on Seqera Platform from end-to-end
         run: |
-          mamba init
           temp_file=$(mktemp -q)
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
