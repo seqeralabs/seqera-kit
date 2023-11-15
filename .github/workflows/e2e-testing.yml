@@ -41,11 +41,11 @@ jobs:
       - name: Install seqerakit
         run: |
           conda create -y --name seqerakit seqerakit tower-cli
-          source activate seqerakit
-
+          conda activate seqerakit
+          
       - name: Create all entities on Seqera Platform from end-to-end
         run: |
-          source activate seqerakit
+          conda activate seqerakit
           temp_file=$(mktemp -q)
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
