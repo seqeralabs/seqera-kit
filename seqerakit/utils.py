@@ -17,6 +17,7 @@ import tempfile
 import os
 import yaml
 from urllib.parse import urlparse
+import re
 
 
 def find_key_value_in_dict(data, target_key, target_value, return_key):
@@ -65,13 +66,11 @@ def check_if_exists(json_data, namekey, namevalue):
     if not json_data:
         return False
 
-    if namevalue.startswith("$"):
-        env_var_name = namevalue[1:]
-        resolved_value = os.getenv(env_var_name)
-        if resolved_value is None:
-            raise ValueError(f"Environment variable '{env_var_name}' not found")
-    else:
-        resolved_value = namevalue
+    # Regex pattern to match environment variables in the string
+    env_var_pattern = re.compile(r"\$\{?[\w]+\}?")
+
+    # Substitute environment variables in namevalue
+    resolved_value = env_var_pattern.sub(replace_env_var, namevalue)
 
     data = json.loads(json_data)
     if find_key_value_in_dict(data, namekey, resolved_value, return_key=None):
@@ -134,3 +133,11 @@ def create_temp_yaml(params_dict):
     ) as temp_file:
         yaml.dump(params_dict, temp_file)
         return temp_file.name
+
+
+def replace_env_var(match):
+    var_name = match.group().lstrip("$").strip("{}")
+    var_value = os.getenv(var_name)
+    if var_value is None:
+        raise EnvironmentError(f"Environment variable {var_name} not found")
+    return var_value
