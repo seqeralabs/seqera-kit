@@ -65,8 +65,16 @@ def check_if_exists(json_data, namekey, namevalue):
     if not json_data:
         return False
 
+    if namevalue.startswith("$"):
+        env_var_name = namevalue[1:]
+        resolved_value = os.getenv(env_var_name)
+        if resolved_value is None:
+            raise ValueError(f"Environment variable '{env_var_name}' not found")
+    else:
+        resolved_value = namevalue
+
     data = json.loads(json_data)
-    if find_key_value_in_dict(data, namekey, namevalue, return_key=None):
+    if find_key_value_in_dict(data, namekey, resolved_value, return_key=None):
         return True
 
 
