@@ -101,6 +101,11 @@ class SeqeraPlatform:
 
         return json.loads(stdout) if to_json else stdout
 
+    def _execute_info_command(self):
+        # Directly execute 'tw info' command
+        command = "tw info"
+        return self._execute_command(command)
+
     def _handle_command_errors(self, stdout):
         logging.error(stdout)
 
@@ -126,7 +131,10 @@ class SeqeraPlatform:
 
     # Allow any 'tw' subcommand to be called as a method.
     def __getattr__(self, cmd):
-        return self.TwCommand(self, cmd.replace("_", "-"))
+        if cmd == "info":
+            return self._execute_info_command
+        else:
+            return self.TwCommand(self, cmd.replace("_", "-"))
 
 
 class ResourceExistsError(Exception):
