@@ -111,10 +111,26 @@ def is_url(s):
         return False
 
 
-def create_temp_yaml(params_dict):
+def create_temp_yaml(params_dict, params_file=None):
     """
     Create a generic temporary yaml file given a dictionary
+    Optionally combine with contents from a JSON or YAML file if provided.
     """
+    combined_params = {}
+
+    def read_file(file_path):
+        with open(file_path, "r") as file:
+            if file_path.endswith(".json"):
+                return json.load(file)
+            else:
+                return yaml.safe_load(file)
+
+    # If a params_file is provided, update the dict
+    if params_file:
+        file_params = read_file(params_file)
+        combined_params.update(file_params)
+
+    combined_params.update(params_dict)
 
     class quoted_str(str):
         pass
@@ -123,15 +139,17 @@ def create_temp_yaml(params_dict):
         return dumper.represent_scalar("tag:yaml.org,2002:str", data, style='"')
 
     yaml.add_representer(quoted_str, quoted_str_representer)
+
+    # # Expand environment variables and quote strings
     params_dict = {
         k: quoted_str(os.path.expandvars(v)) if isinstance(v, str) else v
-        for k, v in params_dict.items()
+        for k, v in combined_params.items()
     }
 
     with tempfile.NamedTemporaryFile(
         mode="w", delete=False, suffix=".yaml"
     ) as temp_file:
-        yaml.dump(params_dict, temp_file)
+        yaml.dump(combined_params, temp_file, default_flow_style=False)
         return temp_file.name
 
 
