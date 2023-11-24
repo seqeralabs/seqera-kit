@@ -218,6 +218,7 @@ def parse_pipelines_block(item):
     cmd_args = []
     repo_args = []
     params_args = []
+    params_file_path = None
 
     for key, value in item.items():
         if key == "url":
@@ -248,6 +249,8 @@ def parse_launch_block(item):
     repo_args = []
     cmd_args = []
     params_args = []
+    params_file_path = None
+
     for key, value in item.items():
         if key == "pipeline" or key == "url":
             repo_args.extend([str(value)])
