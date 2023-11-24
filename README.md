@@ -163,12 +163,12 @@ You will need to have an account on Seqera Platform (see [Plans and pricing](htt
 
 1. Create a YAML file called `hello-world-config.yml` with the contents below, and customise the `<YOUR_WORKSPACE>` and `<YOUR_COMPUTE_ENVIRONMENT>` entries as required:
 
-   ```yaml
+   ```yaml # noqa
    launch:
-     - name: 'hello-world' # Workflow name
-       workspace: '<YOUR_WORKSPACE>' # Workspace name
-       compute-env: '<YOUR_COMPUTE_ENVIRONMENT>' # Compute environment
-       revision: 'master' # Pipeline revision
+     - name: 'hello-world'                              # Workflow name
+       workspace: '<YOUR_WORKSPACE>'                    # Workspace name
+       compute-env: '<YOUR_COMPUTE_ENVIRONMENT>'        # Compute environment
+       revision: 'master'                               # Pipeline revision
        pipeline: 'https://github.com/nextflow-io/hello' # Pipeline URL
    ```
 
