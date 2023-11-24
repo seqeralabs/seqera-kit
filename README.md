@@ -151,7 +151,7 @@ params:
   fasta: 's3://path/to/reference.fasta'
 ```
 
-If duplicate parameters are provided, the parameters in `params-file` will take precedence.
+**Note**: If duplicate parameters are provided, the parameters provided as key-value pairs inside the `params` nested dictionary of the YAML file will take precedence.
 
 ## Quick start
 
