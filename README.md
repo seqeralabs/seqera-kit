@@ -44,14 +44,13 @@ conda activate seqerakit
 
 If you already have [Seqera Platform CLI](https://github.com/seqeralabs/tower-cli#1-installation) and Python installed on your system, you can install `seqerakit` directly from [PyPI](https://pypi.org/project/seqerakit/):
 
-
-```
+```console
 pip install seqerakit
 ```
 
 You can force overwrite the installation to use the latest changes with the command below:
 
-```
+```console
 pip install --upgrade --force-reinstall seqerakit
 ```
 
@@ -69,7 +68,7 @@ export TOWER_ACCESS_TOKEN=<your access token>
 
 Use the -h or --help parameter to list the available commands and their associated options:
 
-```
+```bash
 seqerakit -h
 ```
 
@@ -77,7 +76,7 @@ seqerakit -h
 
 To print the commands that would executed with `tw` when using a YAML file, you can run `seqerakit` with the `--dryrun` flag:
 
-```
+```bash
 seqerakit file.yaml --dryrun
 ```
 
@@ -85,7 +84,7 @@ seqerakit file.yaml --dryrun
 
 Instead of adding or creating resources, you can recursively delete resources in your YAML file by specifying the `--delete` flag:
 
-```
+```bash
 seqerakit file.yaml --delete
 ```
 
@@ -95,7 +94,7 @@ For example, if you have a YAML file that defines an Organization -> Workspace -
 
 `tw` specific CLI options can be specified with the `--cli=` flag:
 
-```
+```bash
 seqerakit file.yaml --cli="--arg1 --arg2"
 ```
 
@@ -107,7 +106,7 @@ To use `tw` specific CLI options such as `--insecure`, use the `--cli=` flag, fo
 
 For example:
 
-```
+```bash
 seqerakit file.yaml --cli="--insecure"
 ```
 
@@ -115,11 +114,44 @@ To use an SSL certificate that is not accepted by the default Java certificate a
 
 For example:
 
-```
+```bash
 seqerakit hello-world-config.yml --cli="-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts"
 ```
 
 <b>Note</b>: Use of `--verbose` option for the `tw` CLI is currently not supported by `seqerakit`. Supplying `--cli="--verbose"` will raise an error.
+
+## YAML Configuration Options
+
+There are several options that can be provided in your YAML configuration file, that are handled specially by seqerakit and not `tw` specific CLI options.
+
+### 1. Pipeline parameters using `params` and `params-file`
+
+To specify pipeline parameters, you may either use `params:` to specify a list of parameters, or use `params-file:` to point to a parameters file.
+
+For example, to specify pipeline parameters within your YAML:
+
+```yaml
+params:
+  outdir: 's3://path/to/outdir'
+  fasta: 's3://path/to/reference.fasta'
+```
+
+Alternatively, to specify a file containing pipeline parameters:
+
+```yaml
+params-file: '/path/to/my/parameters.yaml'
+```
+
+Optionally, you may provide both:
+
+```yaml
+params-file: '/path/to/my/parameters.yaml'
+params:
+  outdir: 's3://path/to/outdir'
+  fasta: 's3://path/to/reference.fasta'
+```
+
+If duplicate parameters are provided, the parameters in `params-file` will take precedence.
 
 ## Quick start
 
@@ -131,18 +163,18 @@ You will need to have an account on Seqera Platform (see [Plans and pricing](htt
 
 1. Create a YAML file called `hello-world-config.yml` with the contents below, and customise the `<YOUR_WORKSPACE>` and `<YOUR_COMPUTE_ENVIRONMENT>` entries as required:
 
-   ```
+   ```yaml
    launch:
-     - name: 'hello-world'                               # Workflow name
-       workspace: '<YOUR_WORKSPACE>'                     # Workspace name
-       compute-env: '<YOUR_COMPUTE_ENVIRONMENT>'         # Compute environment
-       revision: 'master'                                # Pipeline revision
-       pipeline: 'https://github.com/nextflow-io/hello'  # Pipeline URL
+     - name: 'hello-world' # Workflow name
+       workspace: '<YOUR_WORKSPACE>' # Workspace name
+       compute-env: '<YOUR_COMPUTE_ENVIRONMENT>' # Compute environment
+       revision: 'master' # Pipeline revision
+       pipeline: 'https://github.com/nextflow-io/hello' # Pipeline URL
    ```
 
 2. Launch the pipeline with `seqerakit`:
 
-   ```
+   ```bash
    seqerakit hello-world-config.yml
    ```
 
@@ -156,9 +188,9 @@ You can also launch the same pipeline via a Python script. This will essentially
 
 2. Launch the pipeline with `seqerakit`:
 
-   ```
+```bash
    python launch_hello_world.py
-   ```
+```
 
 3. Login to your Seqera Platform instance and check the Runs page in the appropriate Workspace for the pipeline you just launched!
 
@@ -168,7 +200,7 @@ Please see [`seqerakit-e2e.yml`](https://github.com/seqeralabs/seqera-kit/blob/m
 
 You can modify this YAML to similarly create Seqera Platform resources end-to-end for your setup. This YAML encodes environment variables to protect sensitive keys, usernames, and passwords that are required to create or add certain resources (i.e. credentials, compute environments). Prior to running it with `seqerakit examples/yaml/seqerakit-e2e.yml`, you will have to set the following environment variables:
 
-```
+```console
 $TOWER_GITHUB_PASSWORD
 $DOCKERHUB_PASSWORD
 $AWS_ACCESS_KEY_ID
