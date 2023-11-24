@@ -3,6 +3,7 @@ from seqerakit import helper
 import yaml
 import pytest
 
+
 # Fixture to mock a YAML file
 @pytest.fixture
 def mock_yaml_file(mocker):
@@ -18,7 +19,6 @@ def mock_yaml_file(mocker):
 
 
 def test_create_mock_organization_yaml(mock_yaml_file):
-
     test_data = {
         "organizations": [
             {
@@ -57,7 +57,6 @@ def test_create_mock_organization_yaml(mock_yaml_file):
 
 
 def test_create_mock_workspace_yaml(mock_yaml_file):
-
     test_data = {
         "workspaces": [
             {
@@ -96,7 +95,6 @@ def test_create_mock_workspace_yaml(mock_yaml_file):
 
 
 def test_create_mock_dataset_yaml(mock_yaml_file):
-
     test_data = {
         "datasets": [
             {
@@ -133,7 +131,6 @@ def test_create_mock_dataset_yaml(mock_yaml_file):
 
 
 def test_create_mock_computeevs_yaml(mock_yaml_file):
-
     test_data = {
         "compute-envs": [
             {
@@ -172,7 +169,6 @@ def test_create_mock_computeevs_yaml(mock_yaml_file):
 
 
 def test_create_mock_pipeline_add_yaml(mock_yaml_file):
-
     test_data = {
         "pipelines": [
             {
