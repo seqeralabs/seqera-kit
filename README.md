@@ -66,10 +66,16 @@ export TOWER_ACCESS_TOKEN=<your access token>
 
 ## Usage
 
-Use the -h or --help parameter to list the available commands and their associated options:
+To confirm the installation of `seqerakit`, configuration of the Seqera Platform CLI and connection is working as expected:
 
 ```bash
-seqerakit -h
+seqerakit --info
+```
+
+Use the `-h` or `--help `parameter to list the available commands and their associated options:
+
+```bash
+seqerakit --help
 ```
 
 ### Dryrun
@@ -100,7 +106,7 @@ seqerakit file.yaml --cli="--arg1 --arg2"
 
 You can find the full list of options by running `tw -h`.
 
-The Seqera Platform CLI expects to connect to a Seqera Platform instance that is secured by a TLS certificate. If your Seqera Platform instance does not present a certificate, you will need to qualify and run your `tw` commands with the `--insecure` flag.
+The Seqera Platform CLI expects to connect to a Seqera Platform instance that is secured by a TLS certificate. If your Seqera Platform Enterprise instance does not present a certificate, you will need to qualify and run your `tw` commands with the `--insecure` flag.
 
 To use `tw` specific CLI options such as `--insecure`, use the `--cli=` flag, followed by the options you would like to use enclosed in double quotes.
 
@@ -110,7 +116,7 @@ For example:
 seqerakit file.yaml --cli="--insecure"
 ```
 
-To use an SSL certificate that is not accepted by the default Java certificate authorities and specify a custom `cacerts` store as accepted by the `tw` CLI, you can specify the `-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts` option enclosed in double quotes to `seqerakit` as you would to `tw`, preceded by `--cli=`.
+For Seqera Platform Enterprise, to use an SSL certificate that is not accepted by the default Java certificate authorities and specify a custom `cacerts` store as accepted by the `tw` CLI, you can specify the `-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts` option enclosed in double quotes to `seqerakit` as you would to `tw`, preceded by `--cli=`.
 
 For example:
 
@@ -122,7 +128,7 @@ seqerakit hello-world-config.yml --cli="-Djavax.net.ssl.trustStore=/absolute/pat
 
 ## YAML Configuration Options
 
-There are several options that can be provided in your YAML configuration file, that are handled specially by seqerakit and not `tw` specific CLI options.
+There are several options that can be provided in your YAML configuration file, that are handled specially by seqerakit and/or are not expoed as `tw` CLI options.
 
 ### 1. Pipeline parameters using `params` and `params-file`
 
@@ -151,7 +157,37 @@ params:
   fasta: 's3://path/to/reference.fasta'
 ```
 
-**Note**: If duplicate parameters are provided, the parameters provided as key-value pairs inside the `params` nested dictionary of the YAML file will take precedence.
+**Note**: If duplicate parameters are provided, the parameters provided as key-value pairs inside the `params` nested dictionary of the YAML file will take precedence **over** values in the provided `params-file`.
+
+### 2. `overwrite` Functionality
+For every entity defined in your YAML file, you can specify `overwrite: True` to overwrite any existing entities in Seqera Platform of the same name. 
+
+`seqerakit` will first check to see if the name of the entity exists, if so, it will invoke a `tw <subcommand> delete` command before attempting to create it based on the options defined in the YAML file.
+
+```console
+DEBUG:root: Overwrite is set to 'True' for organizations
+
+DEBUG:root: Running command: tw -o json organizations list
+DEBUG:root: The attempted organizations resource already exists. Overwriting.
+
+DEBUG:root: Running command: tw organizations delete --name $SEQERA_ORGANIZATION_NAME
+DEBUG:root: Running command: tw organizations add --name $SEQERA_ORGANIZATION_NAME --full-name $SEQERA_ORGANIZATION_NAME --description 'Example of an organization'
+```
+### 3. Specifying JSON configuration files with `file-path`
+The Seqera Platform CLI allows export and import of entities through JSON configuration files for pipelines and compute environments. To use these files to add a pipeline or compute environment to a workspace, use the `file-path` key to specify a path to a JSON configuration file.
+
+An example of the `file-path` option is provided in the [compute-envs.yml](templates/compute-envs.yml) template:
+
+```yaml
+compute-envs:
+  - name: 'my_aws_compute_environment'                              # required
+    workspace: 'my_organization/my_workspace'                       # required
+    credentials: 'my_aws_credentials'                               # required
+    wait: 'AVAILABLE'                                               # optional
+    file-path: './compute-envs/my_aws_compute_environment.json'     # required
+    overwrite: True
+```
+
 
 ## Quick start
 
