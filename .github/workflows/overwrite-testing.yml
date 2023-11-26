@@ -5,13 +5,16 @@ run-name: Create all entities in Seqera Platform from end-to-end with seqerakit,
 
 on:
   workflow_dispatch:
+  push:
+      branches:
+        - 'feature/name-of-feature-branch'
 
 jobs:
   test-overwrite:
     if: github.repository == 'seqeralabs/seqera-kit'
     runs-on: ubuntu-latest
     container:
-      image: quay.io/biocontainers/seqerakit:latest
+      image: quay.io/biocontainers/seqerakit:0.4.2--pyhdfd78af_0
     env:
       SEQERA_ORGANIZATION_NAME: ${{ secrets.SEQERA_ORGANIZATION_NAME }}
       SEQERA_TEAM_NAME: ${{ secrets.SEQERA_TEAM_NAME }}
