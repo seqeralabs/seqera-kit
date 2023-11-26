@@ -3,21 +3,21 @@
 ##   1. Explicitly in this file
 ##   2. Via a JSON file exported from Seqera Platform with the "tw compute-envs export" command
 compute-envs:
-  - name: 'my_aws_compute_environment' # required
-    workspace: 'my_organization/my_workspace' # required
-    credentials: 'my_aws_credentials' # required
-    wait: 'AVAILABLE' # optional
-    file-path: './compute-envs/my_aws_compute_environment.json' # required
-    overwrite: True # optional
-  - name: 'my_azure_compute_environment' # required
-    workspace: 'my_organization/my_workspace' # required
-    credentials: 'my_azure_credentials' # required
-    wait: 'AVAILABLE' # optional
-    file-path: './compute-envs/my_azure_compute_environment.json' # required
-    overwrite: True # optional
-  - name: 'my_google_compute_environment' # required
-    workspace: 'my_organization/my_workspace' # required
-    credentials: 'my_google_credentials' # required
-    wait: 'AVAILABLE' # optional
-    file-path: './compute-envs/my_google_compute_environment.json' # required
-    overwrite: True # optional
+  - name: 'my_aws_compute_environment'                              # required
+    workspace: 'my_organization/my_workspace'                       # required
+    credentials: 'my_aws_credentials'                               # required
+    wait: 'AVAILABLE'                                               # optional
+    file-path: './compute-envs/my_aws_compute_environment.json'     # required
+    overwrite: True                                                 # optional
+  - name: 'my_azure_compute_environment'                            # required
+    workspace: 'my_organization/my_workspace'                       # required
+    credentials: 'my_azure_credentials'                             # required
+    wait: 'AVAILABLE'                                               # optional
+    file-path: './compute-envs/my_azure_compute_environment.json'   # required
+    overwrite: True                                                 # optional
+  - name: 'my_google_compute_environment'                           # required
+    workspace: 'my_organization/my_workspace'                       # required
+    credentials: 'my_google_credentials'                            # required
+    wait: 'AVAILABLE'                                               # optional
+    file-path: './compute-envs/my_google_compute_environment.json'  # required
+    overwrite: True                                                 # optional
