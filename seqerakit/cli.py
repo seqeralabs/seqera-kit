@@ -40,6 +40,11 @@ def parse_args(args=None):
         type=str.upper,
     )
     parser.add_argument(
+        "--info",
+        action="store_true",
+        help="Display information about the Seqera Platform and exit",
+    )
+    parser.add_argument(
         "--dryrun",
         action="store_true",
         help="Print the commands that would be executed without running them.",
@@ -47,7 +52,7 @@ def parse_args(args=None):
     parser.add_argument(
         "yaml",
         type=Path,
-        nargs="+",  # allow multiple YAML paths
+        nargs="*",  # allow multiple YAML paths
         help="One or more YAML files with Seqera Platform resources to create",
     )
     parser.add_argument(
@@ -126,6 +131,18 @@ class BlockParser:
 def main(args=None):
     options = parse_args(args if args is not None else sys.argv[1:])
     logging.basicConfig(level=options.log_level)
+
+    # If the info flag is set, run 'tw info'
+    if options.info:
+        sp = seqeraplatform.SeqeraPlatform()
+        print(sp.info())
+        return
+
+    if not options.yaml:
+        logging.error(
+            " No YAML(s) provided. Please provide atleast one YAML configuration file."
+        )
+        sys.exit(1)
 
     # Parse CLI arguments into a list
     cli_args_list = options.cli_args.split() if options.cli_args else []

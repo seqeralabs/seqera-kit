@@ -1,0 +1,84 @@
+# Test overwrite of all entities
+organizations:
+  - name: '$SEQERA_ORGANIZATION_NAME'
+    full-name: '$SEQERA_ORGANIZATION_NAME'
+    description: 'Example of an organization'
+    overwrite: True
+teams:
+  - name: '$SEQERA_TEAM_NAME'
+    organization: '$SEQERA_ORGANIZATION_NAME'
+    description: 'Example of a team'
+    members:
+      - '$TEAM_MEMBER_EMAIL1'
+    overwrite: True
+workspaces:
+  - name: '$SEQERA_WORKSPACE_NAME'
+    full-name: '$SEQERA_WORKSPACE_NAME'
+    organization: '$SEQERA_ORGANIZATION_NAME'
+    visibility: 'PRIVATE'
+    overwrite: True
+participants:
+  - name: '$SEQERA_TEAM_NAME'
+    type: 'TEAM'
+    workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    role: 'ADMIN'
+    overwrite: True
+credentials:
+  - type: 'github'
+    name: 'github_credentials'
+    workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    username: '$SEQERA_GITHUB_USERNAME'
+    password: '$SEQERA_GITHUB_PASSWORD'
+    overwrite: True
+  - type: 'container-reg'
+    name: 'dockerhub_credentials'
+    workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    username: '$DOCKERHUB_USERNAME'
+    password: '$DOCKERHUB_PASSWORD'
+    registry: 'docker.io'
+    overwrite: True
+  - type: 'aws'
+    name: 'aws_credentials'
+    workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    access-key: '$AWS_ACCESS_KEY_ID'
+    secret-key: '$AWS_SECRET_ACCESS_KEY'
+    assume-role-arn: '$AWS_ASSUME_ROLE_ARN'
+    overwrite: True
+secrets:
+  - name: 'SENTIEON_LICENSE_BASE64'
+    workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    value: '$SENTIEON_LICENSE_BASE64'
+    overwrite: True
+compute-envs:
+  - type: aws-batch
+    config-mode: forge
+    name: '$AWS_COMPUTE_ENV_NAME'
+    workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    credentials: 'aws_credentials'
+    region: '$AWS_REGION'
+    work-dir: '$SEQERA_WORK_DIR'
+    provisioning-model: SPOT
+    fusion-v2: True
+    wave: True
+    fast-storage: True
+    instance-types: 'c6id.2xlarge'
+    no-ebs-auto-scale: True
+    max-cpus: 500
+    wait: AVAILABLE
+    overwrite: True
+datasets:
+  - name: '$DATASET_NAME_PREFIX-rnaseq-samples'
+    description: 'Samplesheet to run the nf-core/rnaseq pipeline from end-to-end'
+    header: true
+    workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    file-path: './examples/yaml/datasets/rnaseq_samples.csv'
+    overwrite: True
+pipelines:
+  - name: '$PIPELINE_NAME_PREFIX-hello-world'
+    url: 'https://github.com/nextflow-io/hello'
+    workspace: '$SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME'
+    description: 'Classic hello world script in Nextflow language.'
+    compute-env: '$AWS_COMPUTE_ENV_NAME'
+    work-dir: '$SEQERA_WORK_DIR'
+    revision: 'master'
+    overwrite: True
