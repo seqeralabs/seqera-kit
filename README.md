@@ -128,7 +128,7 @@ seqerakit hello-world-config.yml --cli="-Djavax.net.ssl.trustStore=/absolute/pat
 
 ## YAML Configuration Options
 
-There are several options that can be provided in your YAML configuration file, that are handled specially by seqerakit and/or are not expoed as `tw` CLI options.
+There are several options that can be provided in your YAML configuration file, that are handled specially by seqerakit and/or are not exposed as `tw` CLI options.
 
 ### 1. Pipeline parameters using `params` and `params-file`
 
