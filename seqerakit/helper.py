@@ -241,6 +241,9 @@ def parse_pipelines_block(item):
         )
         params_args.extend(["--params-file", temp_file_name])
 
+    if params_file_path and "params" not in item:
+        params_args.extend(["--params-file", params_file_path])
+
     combined_args = cmd_args + repo_args + params_args
     return combined_args
 
@@ -266,6 +269,9 @@ def parse_launch_block(item):
             params_dict, params_file=params_file_path
         )
         params_args.extend(["--params-file", temp_file_name])
+
+    if params_file_path and "params" not in item:
+        params_args.extend(["--params-file", params_file_path])
 
     cmd_args = cmd_args + repo_args + params_args
     return cmd_args

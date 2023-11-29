@@ -211,6 +211,8 @@ def test_create_mock_pipeline_add_yaml(mock_yaml_file):
                 "--workspace",
                 "my_organization/my_workspace",
                 "https://github.com/nf-core/test_pipeline1",
+                "--params-file",
+                "./examples/yaml/pipelines/test_pipeline1/params.yaml",
             ],
             "overwrite": True,
         }
