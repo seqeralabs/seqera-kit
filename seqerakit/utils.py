@@ -111,40 +111,41 @@ def is_url(s):
         return False
 
 
+class quoted_str(str):
+    pass
+
+
+def quoted_str_representer(dumper, data):
+    return dumper.represent_scalar("tag:yaml.org,2002:str", data, style='"')
+
+
+yaml.add_representer(quoted_str, quoted_str_representer)
+
+
 def create_temp_yaml(params_dict, params_file=None):
     """
-    Create a generic temporary yaml file given a dictionary
+    Create a temporary YAML file given a dictionary.
     Optionally combine with contents from a JSON or YAML file if provided.
     """
-    combined_params = {}
 
     def read_file(file_path):
         with open(file_path, "r") as file:
-            if file_path.endswith(".json"):
-                return json.load(file)
-            else:
-                return yaml.safe_load(file)
+            return (
+                json.load(file) if file_path.endswith(".json") else yaml.safe_load(file)
+            )
 
-    # If a params_file is provided, update the dict
+    combined_params = {}
+
     if params_file:
         file_params = read_file(params_file)
         combined_params.update(file_params)
 
     combined_params.update(params_dict)
 
-    class quoted_str(str):
-        pass
-
-    def quoted_str_representer(dumper, data):
-        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style='"')
-
-    yaml.add_representer(quoted_str, quoted_str_representer)
-
-    # # Expand environment variables and quote strings
-    params_dict = {
-        k: quoted_str(os.path.expandvars(v)) if isinstance(v, str) else v
-        for k, v in combined_params.items()
-    }
+    for key, value in combined_params.items():
+        if isinstance(value, str):
+            expanded_value = re.sub(r"\$\{?\w+\}?", replace_env_var, value)
+            combined_params[key] = quoted_str(expanded_value)
 
     with tempfile.NamedTemporaryFile(
         mode="w", delete=False, suffix=".yaml"
