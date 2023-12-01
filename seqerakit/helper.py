@@ -136,6 +136,9 @@ def parse_credentials_block(item):
     for key, value in item.items():
         if key == "type":
             cmd_args.append(str(value))
+        elif isinstance(value, bool):
+            if value:
+                cmd_args.append(f"--{key}")
         else:
             cmd_args.extend([f"--{key}", str(value)])
     return cmd_args
@@ -146,8 +149,9 @@ def parse_compute_envs_block(item):
     for key, value in item.items():
         if key == "file-path" or key == "type" or key == "config-mode":
             cmd_args.append(str(value))
-        elif isinstance(value, bool) and value:
-            cmd_args.append(f"--{key}")
+        elif isinstance(value, bool):
+            if value:
+                cmd_args.append(f"--{key}")
         else:
             cmd_args.extend([f"--{key}", str(value)])
     return cmd_args
@@ -229,8 +233,9 @@ def parse_pipelines_block(item):
             params_file_path = str(value)
         elif key == "file-path":
             repo_args.extend([str(value)])
-        elif isinstance(value, bool) and value:
-            cmd_args.append(f"--{key}")
+        elif isinstance(value, bool):
+            if value:
+                cmd_args.append(f"--{key}")
         else:
             cmd_args.extend([f"--{key}", str(value)])
 
@@ -261,6 +266,9 @@ def parse_launch_block(item):
             params_dict = value
         elif key == "params-file":
             params_file_path = str(value)
+        elif isinstance(value, bool):
+            if value:
+                cmd_args.append(f"--{key}")
         else:
             cmd_args.extend([f"--{key}", str(value)])
 
