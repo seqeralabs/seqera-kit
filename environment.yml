@@ -1,0 +1,10 @@
+name: seqerakit
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - pip=23.3.1
+  - python=3.12
+  - yaml=0.2.5
+  - pyyaml=6.0.1
