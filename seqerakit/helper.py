@@ -60,13 +60,14 @@ def parse_all_yaml(file_paths, destroy=False):
         with open(file_path, "r") as f:
             data = yaml.safe_load(f)
             for key, value in data.items():
-                print(merged_data[key])
                 if key in merged_data:
+                    print(merged_data[key])
                     try:
                         merged_data[key].extend(value)
                     except AttributeError:
                         merged_data[key] = [merged_data[key], value]
                 else:
+                    print(value)
                     merged_data[key] = value
 
     block_names = list(merged_data.keys())
