@@ -51,7 +51,7 @@ jobs:
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          seqerakit --delete examples/yaml/*/*.yml
+          seqerakit --delete examples/yaml/seqerakit-e2e.yml
 
       - name: dryrun
         if: success() || failure()
@@ -61,7 +61,7 @@ jobs:
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          seqerakit --dryrun examples/yaml/*/*.yml
+          seqerakit --dryrun examples/yaml/seqerakit-e2e.yml
 
       - name: create
         run: |
@@ -70,7 +70,7 @@ jobs:
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          seqerakit examples/yaml/*/*.yml
+          seqerakit examples/yaml/seqerakit-e2e.yml
 
       - name: teardown
         run: |
@@ -79,4 +79,4 @@ jobs:
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          seqerakit --delete examples/yaml/*/*.yml
+          seqerakit --delete examples/yaml/seqerakit-e2e.yml
