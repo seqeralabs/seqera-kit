@@ -1,17 +1,10 @@
-name: e2e-testing
-run-name: Create all entities in Seqera Platform from end-to-end with seqerakit
+name: teardown
+run-name: Destroy all entities in Seqera Platform from end-to-end with seqerakit
 # This workflow can be triggered manually with GitHub actions workflow dispatch button.
-# It will automate the end-to-end creation all of the following entities in Seqera Platform.
+# It will automate removing the e2e testing workspace.
 
 on:
   workflow_dispatch:
-    inputs:
-      Clearup:
-        description: 'Clearup all entities in Seqera Platform after testing'
-        required: false
-        type: boolean
-        default: true
-
 jobs:
   e2e-testing:
     name:
@@ -31,6 +24,7 @@ jobs:
       AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
       GOOGLE_KEY: ${{ secrets.GOOGLE_KEY }}
       SENTIEON_LICENSE_BASE64: ${{ secrets.SENTIEON_LICENSE_BASE64 }}
+
     steps:
       - name: Check out source-code repository
         uses: actions/checkout@v3
@@ -50,35 +44,7 @@ jobs:
         run: |
           pip install -e .
 
-      # - name: pre-clear
-      #   run: |
-      #     mamba init
-      #     temp_file=$(mktemp -q)
-      #     echo $GOOGLE_KEY | base64 -d > $temp_file
-      #     export GOOGLE_KEY=$temp_file
-
-      #     seqerakit --delete examples/yaml/seqerakit-e2e.yml
-
-      - name: dryrun
-        run: |
-          mamba init
-          temp_file=$(mktemp -q)
-          echo $GOOGLE_KEY | base64 -d > $temp_file
-          export GOOGLE_KEY=$temp_file
-
-          seqerakit --dryrun examples/yaml/seqerakit-e2e.yml
-
-      - name: create
-        run: |
-          mamba init
-          temp_file=$(mktemp -q)
-          echo $GOOGLE_KEY | base64 -d > $temp_file
-          export GOOGLE_KEY=$temp_file
-
-          seqerakit examples/yaml/seqerakit-e2e.yml
-
       - name: teardown
-        if: ( success() || failure() ) && ( github.event_name != 'workflow_dispatch' || inputs.profiletest )
         run: |
           mamba init
           temp_file=$(mktemp -q)
