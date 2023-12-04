@@ -67,7 +67,6 @@ def parse_all_yaml(file_paths, destroy=False):
                     except AttributeError:
                         merged_data[key] = [merged_data[key], value]
                 else:
-                    print(value)
                     merged_data[key] = value
 
     block_names = list(merged_data.keys())
