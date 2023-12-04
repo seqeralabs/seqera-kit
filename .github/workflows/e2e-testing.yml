@@ -45,11 +45,29 @@ jobs:
           mamba install -y -c conda-forge pip
           pip install -e .
 
-      - name: Create all entities on Seqera Platform from end-to-end
+      - name: dryrun
         run: |
           mamba init
           temp_file=$(mktemp -q)
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          seqerakit examples/yaml/seqerakit-e2e.yml
+          seqerakit -dryrun examples/yaml/*/*.yml
+
+      - name: create
+        run: |
+          mamba init
+          temp_file=$(mktemp -q)
+          echo $GOOGLE_KEY | base64 -d > $temp_file
+          export GOOGLE_KEY=$temp_file
+
+          seqerakit examples/yaml/*/*.yml
+
+      - name: teardown
+        run: |
+          mamba init
+          temp_file=$(mktemp -q)
+          echo $GOOGLE_KEY | base64 -d > $temp_file
+          export GOOGLE_KEY=$temp_file
+
+          seqerakit --delete examples/yaml/*/*.yml
