@@ -50,14 +50,14 @@ jobs:
         run: |
           pip install -e .
 
-      # - name: pre-clear
-      #   run: |
-      #     mamba init
-      #     temp_file=$(mktemp -q)
-      #     echo $GOOGLE_KEY | base64 -d > $temp_file
-      #     export GOOGLE_KEY=$temp_file
+      - name: pre-clear
+        run: |
+          mamba init
+          temp_file=$(mktemp -q)
+          echo $GOOGLE_KEY | base64 -d > $temp_file
+          export GOOGLE_KEY=$temp_file
 
-      #     seqerakit --delete examples/yaml/seqerakit-e2e.yml
+          seqerakit examples/yaml/seqerakit-e2e.yml --delete
 
       - name: dryrun
         run: |
@@ -66,7 +66,7 @@ jobs:
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          seqerakit --dryrun examples/yaml/seqerakit-e2e.yml
+          seqerakit examples/yaml/seqerakit-e2e.yml --dryrun
 
       - name: create
         run: |
@@ -85,4 +85,4 @@ jobs:
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          seqerakit --delete examples/yaml/seqerakit-e2e.yml
+          seqerakit examples/yaml/seqerakit-e2e.yml --delete
