@@ -51,6 +51,12 @@ jobs:
           activate-environment: seqerakit
           use-mamba: true
 
+      - name: Install Tower CLI v0.9.1
+        run: |
+          wget https://github.com/seqeralabs/tower-cli/releases/download/v0.9.1/tw-linux-x86_64 \
+          && chmod +x tw-linux-x86_64 \
+          && sudo mv tw-linux-x86_64 /usr/local/bin/tw
+
       - name: Install pip & seqerakit
         run: |
           pip install -e .
