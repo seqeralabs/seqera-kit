@@ -42,19 +42,8 @@ jobs:
       - name: Check out source-code repository
         uses: actions/checkout@v3
 
-      - name: Cache conda
-        uses: actions/cache@v3
-        id: cache
-        env:
-          # Increase this value to reset cache if etc/example-environment.yml has not changed
-          CACHE_NUMBER: 0
-        with:
-          path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}
-
       - name: Setup conda
         uses: conda-incubator/setup-miniconda@v3
-        if: steps.cache.outputs.cache-hit != 'true'
         with:
           auto-update-conda: true
           environment-file: environment.yml
@@ -63,7 +52,6 @@ jobs:
           channels: conda-forge,bioconda,defaults
           activate-environment: seqerakit
           use-mamba: true
-          use-only-tar-bz2: true
 
       - name: Install Tower CLI v0.9.1
         run: |
