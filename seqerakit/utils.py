@@ -71,7 +71,7 @@ def check_if_exists(json_data, namekey, namevalue):
 
     # Substitute environment variables in namevalue
     resolved_value = env_var_pattern.sub(replace_env_var, namevalue)
-    
+
     data = json.loads(json_data)
     if find_key_value_in_dict(data, namekey, resolved_value, return_key=None):
         return True
