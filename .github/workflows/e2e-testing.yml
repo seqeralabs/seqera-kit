@@ -5,8 +5,7 @@ run-name: Create all entities in Seqera Platform from end-to-end with seqerakit
 
 on:
   pull_request:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
     inputs:
       pre_delete:
