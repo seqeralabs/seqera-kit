@@ -1,0 +1,7 @@
+organizations:
+  - name: 'seqerakit-e2e'
+    full-name: 'seqerakit-e2e'
+    description: 'Organization created E2E with seqerakit CLI scripting'
+    location: 'Global'
+    website: 'https://seqera.io/'
+    overwrite: True

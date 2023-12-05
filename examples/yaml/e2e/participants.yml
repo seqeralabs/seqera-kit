@@ -1,0 +1,11 @@
+participants:
+  - name: 'scidev_team'
+    type: 'TEAM'
+    workspace: 'seqerakit-e2e/showcase'
+    role: 'ADMIN'
+    overwrite: True
+  - name: 'adam.talbot@seqera.io'
+    type: 'MEMBER'
+    workspace: 'seqerakit-e2e/showcase'
+    role: 'LAUNCH'
+    overwrite: True

@@ -1,0 +1,9 @@
+teams:
+  - name: 'scidev_team'
+    organization: 'seqerakit-e2e'
+    description: 'Scientific Development team @ Seqera Labs'
+    members:
+      - 'esha.joshi@seqera.io'
+      - 'adam.talbot@seqera.io'
+      - 'drpatelhh@gmail.com'
+    overwrite: True

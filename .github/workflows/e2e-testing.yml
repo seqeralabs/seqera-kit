@@ -38,6 +38,7 @@ jobs:
       AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
       GOOGLE_KEY: ${{ secrets.GOOGLE_KEY }}
       SENTIEON_LICENSE_BASE64: ${{ secrets.SENTIEON_LICENSE_BASE64 }}
+
     steps:
       - name: Check out source-code repository
         uses: actions/checkout@v3
@@ -72,7 +73,7 @@ jobs:
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          seqerakit examples/yaml/seqerakit-e2e.yml --delete || true
+          seqerakit examples/yaml/e2e/*.yml --delete || true
 
       - name: dryrun
         run: |
@@ -81,7 +82,7 @@ jobs:
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          seqerakit examples/yaml/seqerakit-e2e.yml --dryrun
+          seqerakit examples/yaml/e2e/*.yml --dryrun
 
       - name: create
         run: |
@@ -90,7 +91,7 @@ jobs:
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          seqerakit examples/yaml/seqerakit-e2e.yml
+          seqerakit examples/yaml/e2e/*.yml
 
       - name: teardown
         if: ( success() || failure() ) && ( github.event_name != 'workflow_dispatch' || inputs.clearup )
@@ -100,4 +101,4 @@ jobs:
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          seqerakit examples/yaml/seqerakit-e2e.yml --delete
+          seqerakit examples/yaml/e2e/*.yml --delete

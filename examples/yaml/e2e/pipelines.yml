@@ -1,0 +1,36 @@
+pipelines:
+  - name: 'nf-core-rnaseq'
+    url: 'https://github.com/nf-core/rnaseq'
+    workspace: 'seqerakit-e2e/showcase'
+    description: 'RNA sequencing analysis pipeline using STAR, RSEM, HISAT2 or Salmon with gene/isoform counts and extensive quality control.'
+    compute-env: 'seqera_aws_virginia_fusionv2_nvme'
+    work-dir: 's3://seqeralabs-showcase'
+    profile: 'test'
+    revision: '3.12.0'
+    params:
+      outdir: 's3://seqeralabs-showcase/nf-core-rnaseq/results'
+    config: './examples/yaml/pipelines/nextflow.config'
+    pre-run: './examples/yaml/pipelines/pre_run.txt'
+    overwrite: True
+  - name: 'nf-core-sarek'
+    workspace: 'seqerakit-e2e/showcase'
+    compute-env: 'seqera_azure_virginia'
+    file-path: './examples/yaml/pipelines/nf-core-sarek_pipeline.json'
+    overwrite: True
+  - name: 'nf-core-viralrecon-illumina'
+    url: 'https://github.com/nf-core/viralrecon'
+    workspace: 'seqerakit-e2e/showcase'
+    description: 'Pipeline for assembly and intrahost/low-frequency variant calling for viral samples.'
+    compute-env: 'seqera_gcp_finland'
+    work-dir: 'gs://seqeralabs-showcase-eu-north-1'
+    profile: 'test'
+    revision: '2.6.0'
+    params-file: './examples/yaml/pipelines/nf_core_viralrecon_illumina_params.yml'
+    config: './examples/yaml/pipelines/nextflow.config'
+    pre-run: './examples/yaml/pipelines/pre_run.txt'
+    overwrite: True
+  - name: 'nf-sentieon'
+    workspace: 'seqerakit-e2e/showcase'
+    compute-env: 'seqera_aws_virginia_fusionv2_nvme'
+    file-path: './examples/yaml/pipelines/nf_sentieon_pipeline.json'
+    overwrite: True
