@@ -1,76 +1,76 @@
-# organizations:
-#   - name: 'seqerakit-e2e'
-#     full-name: 'seqerakit-e2e'
-#     description: 'Organization created E2E with seqerakit CLI scripting'
-#     location: 'Global'
-#     website: 'https://seqera.io/'
-#     overwrite: True
-# teams:
-#   - name: 'scidev_team'
-#     organization: 'seqerakit-e2e'
-#     description: 'Scientific Development team @ Seqera Labs'
-#     members:
-#       - 'esha.joshi@seqera.io'
-#       - 'adam.talbot@seqera.io'
-#       - 'drpatelhh@gmail.com'
-#     overwrite: True
-# workspaces:
-#   - name: 'showcase'
-#     full-name: 'showcase'
-#     organization: 'seqerakit-e2e'
-#     description: 'Workspace created E2E with seqerakit CLI scripting'
-#     visibility: 'PRIVATE'
-#     overwrite: True
-# participants:
-#   - name: 'scidev_team'
-#     type: 'TEAM'
-#     workspace: 'seqerakit-e2e/showcase'
-#     role: 'ADMIN'
-#     overwrite: True
-#   - name: 'adam.talbot@seqera.io'
-#     type: 'MEMBER'
-#     workspace: 'seqerakit-e2e/showcase'
-#     role: 'LAUNCH'
-#     overwrite: True
-# credentials:
-#   - type: 'github'
-#     name: 'github_credentials'
-#     workspace: 'seqerakit-e2e/showcase'
-#     username: 'ejseqera'
-#     password: '$TOWER_GITHUB_PASSWORD'
-#     overwrite: True
-#   - type: 'container-reg'
-#     name: 'dockerhub_credentials'
-#     workspace: 'seqerakit-e2e/showcase'
-#     username: 'eshajoshi'
-#     password: '$DOCKERHUB_PASSWORD'
-#     registry: 'docker.io'
-#     overwrite: True
-#   - type: 'aws'
-#     name: 'aws_credentials'
-#     workspace: 'seqerakit-e2e/showcase'
-#     access-key: '$AWS_ACCESS_KEY_ID'
-#     secret-key: '$AWS_SECRET_ACCESS_KEY'
-#     assume-role-arn: '$AWS_ASSUME_ROLE_ARN'
-#     overwrite: True
-#   - type: 'azure'
-#     name: 'azure_credentials'
-#     workspace: 'seqerakit-e2e/showcase'
-#     batch-key: '$AZURE_BATCH_KEY'
-#     batch-name: 'seqeralabs'
-#     storage-key: '$AZURE_STORAGE_KEY'
-#     storage-name: 'seqeralabs'
-#     overwrite: True
-#   - type: 'google'
-#     name: 'google_credentials'
-#     workspace: 'seqerakit-e2e/showcase'
-#     key: '$GOOGLE_KEY'
-#     overwrite: True
-# secrets:
-#   - name: 'SENTIEON_LICENSE_BASE64'
-#     workspace: 'seqerakit-e2e/showcase'
-#     value: '$SENTIEON_LICENSE_BASE64'
-#     overwrite: True
+organizations:
+  - name: 'seqerakit-e2e'
+    full-name: 'seqerakit-e2e'
+    description: 'Organization created E2E with seqerakit CLI scripting'
+    location: 'Global'
+    website: 'https://seqera.io/'
+    overwrite: True
+teams:
+  - name: 'scidev_team'
+    organization: 'seqerakit-e2e'
+    description: 'Scientific Development team @ Seqera Labs'
+    members:
+      - 'esha.joshi@seqera.io'
+      - 'adam.talbot@seqera.io'
+      - 'drpatelhh@gmail.com'
+    overwrite: True
+workspaces:
+  - name: 'showcase'
+    full-name: 'showcase'
+    organization: 'seqerakit-e2e'
+    description: 'Workspace created E2E with seqerakit CLI scripting'
+    visibility: 'PRIVATE'
+    overwrite: True
+participants:
+  - name: 'scidev_team'
+    type: 'TEAM'
+    workspace: 'seqerakit-e2e/showcase'
+    role: 'ADMIN'
+    overwrite: True
+  - name: 'adam.talbot@seqera.io'
+    type: 'MEMBER'
+    workspace: 'seqerakit-e2e/showcase'
+    role: 'LAUNCH'
+    overwrite: True
+credentials:
+  - type: 'github'
+    name: 'github_credentials'
+    workspace: 'seqerakit-e2e/showcase'
+    username: 'ejseqera'
+    password: '$TOWER_GITHUB_PASSWORD'
+    overwrite: True
+  - type: 'container-reg'
+    name: 'dockerhub_credentials'
+    workspace: 'seqerakit-e2e/showcase'
+    username: 'eshajoshi'
+    password: '$DOCKERHUB_PASSWORD'
+    registry: 'docker.io'
+    overwrite: True
+  - type: 'aws'
+    name: 'aws_credentials'
+    workspace: 'seqerakit-e2e/showcase'
+    access-key: '$AWS_ACCESS_KEY_ID'
+    secret-key: '$AWS_SECRET_ACCESS_KEY'
+    assume-role-arn: '$AWS_ASSUME_ROLE_ARN'
+    overwrite: True
+  - type: 'azure'
+    name: 'azure_credentials'
+    workspace: 'seqerakit-e2e/showcase'
+    batch-key: '$AZURE_BATCH_KEY'
+    batch-name: 'seqeralabs'
+    storage-key: '$AZURE_STORAGE_KEY'
+    storage-name: 'seqeralabs'
+    overwrite: True
+  - type: 'google'
+    name: 'google_credentials'
+    workspace: 'seqerakit-e2e/showcase'
+    key: '$GOOGLE_KEY'
+    overwrite: True
+secrets:
+  - name: 'SENTIEON_LICENSE_BASE64'
+    workspace: 'seqerakit-e2e/showcase'
+    value: '$SENTIEON_LICENSE_BASE64'
+    overwrite: True
 compute-envs:
   - name: 'seqera_aws_virginia_fusionv2_nvme'
     workspace: 'seqerakit-e2e/showcase'
