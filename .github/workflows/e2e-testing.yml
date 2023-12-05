@@ -4,9 +4,12 @@ run-name: Create all entities in Seqera Platform from end-to-end with seqerakit
 # It will automate the end-to-end creation all of the following entities in Seqera Platform.
 
 on:
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
-      pre-delete:
+      pre_delete:
         description: 'Delete all entities in the yaml before testing'
         required: false
         type: boolean
@@ -62,7 +65,7 @@ jobs:
           pip install -e .
 
       - name: pre-clear
-        if: ( success() || failure() ) && ( github.event_name != 'workflow_dispatch' || inputs.pre-delete == 'true' )
+        if: ( success() || failure() ) && ( github.event_name != 'workflow_dispatch' || inputs.pre_delete )
         run: |
           mamba init
           temp_file=$(mktemp -q)
@@ -90,7 +93,7 @@ jobs:
           seqerakit examples/yaml/seqerakit-e2e.yml
 
       - name: teardown
-        if: ( success() || failure() ) && ( github.event_name != 'workflow_dispatch' || inputs.clearup == 'true')
+        if: ( success() || failure() ) && ( github.event_name != 'workflow_dispatch' || inputs.clearup )
         run: |
           mamba init
           temp_file=$(mktemp -q)
