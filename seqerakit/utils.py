@@ -65,13 +65,13 @@ def check_if_exists(json_data, namekey, namevalue):
     """
     if not json_data:
         return False
-
+    print(f"Checking if {namekey} {namevalue} exists in Seqera Platform...")
     # Regex pattern to match environment variables in the string
     env_var_pattern = re.compile(r"\$\{?[\w]+\}?")
 
     # Substitute environment variables in namevalue
     resolved_value = env_var_pattern.sub(replace_env_var, namevalue)
-
+    
     data = json.loads(json_data)
     if find_key_value_in_dict(data, namekey, resolved_value, return_key=None):
         return True
