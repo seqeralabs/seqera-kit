@@ -160,7 +160,7 @@ params:
 **Note**: If duplicate parameters are provided, the parameters provided as key-value pairs inside the `params` nested dictionary of the YAML file will take precedence **over** values in the provided `params-file`.
 
 ### 2. `overwrite` Functionality
-For every entity defined in your YAML file, you can specify `overwrite: True` to overwrite any existing entities in Seqera Platform of the same name. 
+For every entity defined in your YAML file, you can specify `overwrite: True` to overwrite any existing entities in Seqera Platform of the same name.
 
 `seqerakit` will first check to see if the name of the entity exists, if so, it will invoke a `tw <subcommand> delete` command before attempting to create it based on the options defined in the YAML file.
 
@@ -232,9 +232,9 @@ You can also launch the same pipeline via a Python script. This will essentially
 
 ## Real world example
 
-Please see [`seqerakit-e2e.yml`](https://github.com/seqeralabs/seqera-kit/blob/main/examples/yaml/seqerakit-e2e.yml) for an end-to-end example that highlights how you can use `seqerakit` to create everything sequentially in Seqera Platform all the way from creating a new Organization to launching a pipeline.
+Please see [`seqerakit-e2e.yml`](./examples/yaml/e2e/seqerakit-e2e.yml) for an end-to-end example that highlights how you can use `seqerakit` to create everything sequentially in Seqera Platform all the way from creating a new Organization to launching a pipeline.
 
-You can modify this YAML to similarly create Seqera Platform resources end-to-end for your setup. This YAML encodes environment variables to protect sensitive keys, usernames, and passwords that are required to create or add certain resources (i.e. credentials, compute environments). Prior to running it with `seqerakit examples/yaml/seqerakit-e2e.yml`, you will have to set the following environment variables:
+You can modify this YAML to similarly create Seqera Platform resources end-to-end for your setup. This YAML encodes environment variables to protect sensitive keys, usernames, and passwords that are required to create or add certain resources (i.e. credentials, compute environments). Prior to running it with `seqerakit examples/yaml/e2e/seqerakit-e2e.yml`, you will have to set the following environment variables:
 
 ```console
 $TOWER_GITHUB_PASSWORD
