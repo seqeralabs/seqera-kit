@@ -61,7 +61,6 @@ def parse_all_yaml(file_paths, destroy=False):
             data = yaml.safe_load(f)
             for key, value in data.items():
                 if key in merged_data:
-                    print(merged_data[key])
                     try:
                         merged_data[key].extend(value)
                     except AttributeError:
