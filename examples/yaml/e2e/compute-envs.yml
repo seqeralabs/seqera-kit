@@ -1,0 +1,19 @@
+compute-envs:
+  - name: 'seqera_aws_virginia_fusionv2_nvme'
+    workspace: 'seqerakit-e2e/showcase'
+    credentials: 'aws_credentials'
+    wait: 'AVAILABLE'
+    file-path: './examples/yaml/compute-envs/seqera_aws_virginia_fusionv2_nvme.json'
+    overwrite: True
+  - name: 'seqera_azure_virginia'
+    workspace: 'seqerakit-e2e/showcase'
+    credentials: 'azure_credentials'
+    wait: 'AVAILABLE'
+    file-path: './examples/yaml/compute-envs/seqera_azure_virginia.json'
+    overwrite: True
+  - name: 'seqera_gcp_finland'
+    workspace: 'seqerakit-e2e/showcase'
+    credentials: 'google_credentials'
+    wait: 'AVAILABLE'
+    file-path: './examples/yaml/compute-envs/seqera_gcp_finland.json'
+    overwrite: True
