@@ -54,6 +54,27 @@ You can force overwrite the installation to use the latest changes with the comm
 pip install --upgrade --force-reinstall seqerakit
 ```
 
+### Local development installation
+You can install the development branch of `seqerakit` on your local machine to test feature updates of the tool. Before proceeding, ensure that you have [Python](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads) installed on your system.
+
+1. To install directly from pip:
+```bash
+pip install git+https://github.com/seqeralabs/seqera-kit.git@dev
+```
+
+2. Alternatively, you may clone the repository locally and install manually:
+```bash
+git clone https://github.com/seqeralabs/seqera-kit.git
+cd seqera-kit
+git checkout dev
+pip install .
+```
+
+You can verify your installation with:
+```bash
+pip show seqerakit
+```
+
 ## Configuration
 
 Create a Seqera Platform access token using the [Seqera Platform](https://tower.nf/) web interface via the **Your Tokens** page in your profile.
@@ -263,6 +284,25 @@ We have provided template YAML files for each of the entities that can be create
 - [datasets.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/datasets.yml)
 - [pipelines.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/pipelines.yml)
 - [launch.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/launch.yml)
+
+
+All possible options to provide as definitions in your YAML file can be determined by running the Seqera Platform CLI help command for your desired entity. For example,to determine how to define options to add a Pipeline to the Launchpad, run:
+
+```console
+$ tw pipelines add -h
+
+Usage: tw pipelines add [OPTIONS] PIPELINE_URL
+
+Add a workspace pipeline.
+
+Parameters:
+*     PIPELINE_URL                         Nextflow pipeline URL.
+
+Options:
+* -n, --name=<name>                        Pipeline name.
+  -w, --workspace=<workspace>              Workspace numeric identifier (TOWER_WORKSPACE_ID as default) or workspace reference as OrganizationName/WorkspaceName
+  ...
+```
 
 ## Contributions and Support
 
