@@ -251,23 +251,65 @@ You can also launch the same pipeline via a Python script. This will essentially
 
 3. Login to your Seqera Platform instance and check the Runs page in the appropriate Workspace for the pipeline you just launched!
 
-## Real world example
+## Defining your YAML file using CLI options
 
-Please see [`seqerakit-e2e.yml`](./examples/yaml/seqerakit-e2e.yml) for an end-to-end example that highlights how you can use `seqerakit` to create everything sequentially in Seqera Platform all the way from creating a new Organization to launching a pipeline.
+All available options to provide as definitions in your YAML file can be determined by running the Seqera Platform CLI help command for your desired entity.
 
-You can modify this YAML to similarly create Seqera Platform resources end-to-end for your setup. This YAML encodes environment variables to protect sensitive keys, usernames, and passwords that are required to create or add certain resources (i.e. credentials, compute environments). Prior to running it with `seqerakit examples/yaml/seqerakit-e2e.yml`, you will have to set the following environment variables:
+1. Retrieve CLI Options
+
+To obtain a list of available CLI options for defining your YAML file, use the help command of the Seqera Platform CLI. For instance, if you want to configure a pipeline to be added to the Launchpad, you can view the options as follows:
 
 ```console
-$TOWER_GITHUB_PASSWORD
-$DOCKERHUB_PASSWORD
-$AWS_ACCESS_KEY_ID
-$AWS_SECRET_ACCESS_KEY
-$AWS_ASSUME_ROLE_ARN
-$AZURE_BATCH_KEY
-$AZURE_STORAGE_KEY
-$GOOGLE_KEY
-$SENTIEON_LICENSE_BASE64
+$ tw pipelines add -h
+
+Usage: tw pipelines add [OPTIONS] PIPELINE_URL
+
+Add a workspace pipeline.
+
+Parameters:
+*     PIPELINE_URL                         Nextflow pipeline URL.
+
+Options:
+* -n, --name=<name>                        Pipeline name.
+  -w, --workspace=<workspace>              Workspace numeric identifier (TOWER_WORKSPACE_ID as default) or workspace reference as OrganizationName/WorkspaceName
+  -d, --description=<description>          Pipeline description.
+      --labels=<labels>[,<labels>...]      List of labels seperated by coma.
+  -c, --compute-env=<computeEnv>           Compute environment name.
+      --work-dir=<workDir>                 Path where the pipeline scratch data is stored.
+  -p, --profile=<profile>[,<profile>...]   Comma-separated list of one or more configuration profile names you want to use for this pipeline execution.
+      --params-file=<paramsFile>           Pipeline parameters in either JSON or YML format.
+      --revision=<revision>                A valid repository commit Id, tag or branch name.
+  ...
 ```
+2. Define Key-Value Pairs in YAML
+
+Translate each CLI option into a key-value pair in the YAML file. The structure of your YAML file should reflect the hierarchy and format of the CLI options. For instance:
+
+```yaml
+pipelines:
+  - name: 'my_first_pipeline'
+    url: 'https://github.com/username/my_pipeline'
+    workspace: 'my_organization/my_workspace'
+    description: 'My test pipeline'
+    labels: 'yeast,test_data'
+    compute-env: 'my_compute_environment'
+    work-dir: 's3://my_bucket'
+    profile: 'test'
+    params-file: '/path/to/params.yaml'
+    revision: '1.0'
+```
+
+In this example:
+
+- `name`, `url`, `workspace`, etc., are the keys derived from the CLI options.
+- The corresponding values are user-defined
+
+### Best Practices:
+- Ensure that the indentation and structure of the YAML file are correct - YAML is sensitive to formatting.
+- Use quotes around strings that contain special characters or spaces.
+- When listing multiple values (`labels`, `instance-types`, `allow-buckets`, etc), separate them with commas as shown above.
+- For complex configurations, refer to the [Templates](/templates/) provided in this repository.
+
 
 ## Templates
 
@@ -285,23 +327,22 @@ We have provided template YAML files for each of the entities that can be create
 - [pipelines.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/pipelines.yml)
 - [launch.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/launch.yml)
 
+## Real world example
 
-All possible options to provide as definitions in your YAML file can be determined by running the Seqera Platform CLI help command for your desired entity. For example,to determine how to define options to add a Pipeline to the Launchpad, run:
+Please see [`seqerakit-e2e.yml`](./examples/yaml/seqerakit-e2e.yml) for an end-to-end example that highlights how you can use `seqerakit` to create everything sequentially in Seqera Platform all the way from creating a new Organization to launching a pipeline.
+
+You can modify this YAML to similarly create Seqera Platform resources end-to-end for your setup. This YAML encodes environment variables to protect sensitive keys, usernames, and passwords that are required to create or add certain resources (i.e. credentials, compute environments). Prior to running it with `seqerakit examples/yaml/seqerakit-e2e.yml`, you will have to set the following environment variables:
 
 ```console
-$ tw pipelines add -h
-
-Usage: tw pipelines add [OPTIONS] PIPELINE_URL
-
-Add a workspace pipeline.
-
-Parameters:
-*     PIPELINE_URL                         Nextflow pipeline URL.
-
-Options:
-* -n, --name=<name>                        Pipeline name.
-  -w, --workspace=<workspace>              Workspace numeric identifier (TOWER_WORKSPACE_ID as default) or workspace reference as OrganizationName/WorkspaceName
-  ...
+$TOWER_GITHUB_PASSWORD
+$DOCKERHUB_PASSWORD
+$AWS_ACCESS_KEY_ID
+$AWS_SECRET_ACCESS_KEY
+$AWS_ASSUME_ROLE_ARN
+$AZURE_BATCH_KEY
+$AZURE_STORAGE_KEY
+$GOOGLE_KEY
+$SENTIEON_LICENSE_BASE64
 ```
 
 ## Contributions and Support
