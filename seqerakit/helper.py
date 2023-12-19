@@ -59,6 +59,11 @@ def parse_all_yaml(file_paths, destroy=False):
     for file_path in file_paths:
         with open(file_path, "r") as f:
             data = yaml.safe_load(f)
+
+            # Check if the YAML file is empty or contains no valid data
+            if data is None or not data:
+                raise ValueError(f" The YAML file '{file_path}' is empty or does not contain valid data.")
+            
             for key, value in data.items():
                 if key in merged_data:
                     try:

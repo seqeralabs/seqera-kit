@@ -163,16 +163,19 @@ def main(args=None):
 
     # Parse the YAML file(s) by blocks
     # and get a dictionary of command line arguments
-    cmd_args_dict = helper.parse_all_yaml(options.yaml, destroy=options.delete)
-    for block, args_list in cmd_args_dict.items():
-        for args in args_list:
-            try:
-                # Run the 'tw' methods for each block
-                block_manager.handle_block(block, args, destroy=options.delete)
-            except (ResourceExistsError, ResourceCreationError) as e:
-                logging.error(e)
-                sys.exit(1)
-
+    try:
+        cmd_args_dict = helper.parse_all_yaml(options.yaml, destroy=options.delete)
+        for block, args_list in cmd_args_dict.items():
+            for args in args_list:
+                try:
+                    # Run the 'tw' methods for each block
+                    block_manager.handle_block(block, args, destroy=options.delete)
+                except (ResourceExistsError, ResourceCreationError) as e:
+                    logging.error(e)
+                    sys.exit(1)
+    except ValueError as e:
+        logging.error(e)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
