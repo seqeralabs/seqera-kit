@@ -237,6 +237,6 @@ def test_empty_yaml_file(mock_yaml_file):
     with pytest.raises(ValueError) as e:
         helper.parse_all_yaml([file_path])
     assert (
-        f"The YAML file '{file_path}' is empty or does not contain valid data."
+        f"The file '{file_path}' is empty or does not contain valid data."
         in str(e.value)
     )
