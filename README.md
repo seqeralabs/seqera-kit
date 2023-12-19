@@ -54,6 +54,27 @@ You can force overwrite the installation to use the latest changes with the comm
 pip install --upgrade --force-reinstall seqerakit
 ```
 
+### Local development installation
+You can install the development branch of `seqerakit` on your local machine to test feature updates of the tool. Before proceeding, ensure that you have [Python](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads) installed on your system.
+
+1. To install directly from pip:
+```bash
+pip install git+https://github.com/seqeralabs/seqera-kit.git@dev
+```
+
+2. Alternatively, you may clone the repository locally and install manually:
+```bash
+git clone https://github.com/seqeralabs/seqera-kit.git
+cd seqera-kit
+git checkout dev
+pip install .
+```
+
+You can verify your installation with:
+```bash
+pip show seqerakit
+```
+
 ## Configuration
 
 Create a Seqera Platform access token using the [Seqera Platform](https://tower.nf/) web interface via the **Your Tokens** page in your profile.
@@ -230,6 +251,82 @@ You can also launch the same pipeline via a Python script. This will essentially
 
 3. Login to your Seqera Platform instance and check the Runs page in the appropriate Workspace for the pipeline you just launched!
 
+## Defining your YAML file using CLI options
+
+All available options to provide as definitions in your YAML file can be determined by running the Seqera Platform CLI help command for your desired entity.
+
+1. Retrieve CLI Options
+
+To obtain a list of available CLI options for defining your YAML file, use the help command of the Seqera Platform CLI. For instance, if you want to configure a pipeline to be added to the Launchpad, you can view the options as follows:
+
+```console
+$ tw pipelines add -h
+
+Usage: tw pipelines add [OPTIONS] PIPELINE_URL
+
+Add a workspace pipeline.
+
+Parameters:
+*     PIPELINE_URL                         Nextflow pipeline URL.
+
+Options:
+* -n, --name=<name>                        Pipeline name.
+  -w, --workspace=<workspace>              Workspace numeric identifier (TOWER_WORKSPACE_ID as default) or workspace reference as OrganizationName/WorkspaceName
+  -d, --description=<description>          Pipeline description.
+      --labels=<labels>[,<labels>...]      List of labels seperated by coma.
+  -c, --compute-env=<computeEnv>           Compute environment name.
+      --work-dir=<workDir>                 Path where the pipeline scratch data is stored.
+  -p, --profile=<profile>[,<profile>...]   Comma-separated list of one or more configuration profile names you want to use for this pipeline execution.
+      --params-file=<paramsFile>           Pipeline parameters in either JSON or YML format.
+      --revision=<revision>                A valid repository commit Id, tag or branch name.
+  ...
+```
+2. Define Key-Value Pairs in YAML
+
+Translate each CLI option into a key-value pair in the YAML file. The structure of your YAML file should reflect the hierarchy and format of the CLI options. For instance:
+
+```yaml
+pipelines:
+  - name: 'my_first_pipeline'
+    url: 'https://github.com/username/my_pipeline'
+    workspace: 'my_organization/my_workspace'
+    description: 'My test pipeline'
+    labels: 'yeast,test_data'
+    compute-env: 'my_compute_environment'
+    work-dir: 's3://my_bucket'
+    profile: 'test'
+    params-file: '/path/to/params.yaml'
+    revision: '1.0'
+```
+
+In this example:
+
+- `name`, `url`, `workspace`, etc., are the keys derived from the CLI options.
+- The corresponding values are user-defined
+
+### Best Practices:
+- Ensure that the indentation and structure of the YAML file are correct - YAML is sensitive to formatting.
+- Use quotes around strings that contain special characters or spaces.
+- When listing multiple values (`labels`, `instance-types`, `allow-buckets`, etc), separate them with commas as shown above.
+- For complex configurations, refer to the [Templates](/templates/) provided in this repository.
+
+
+## Templates
+
+We have provided template YAML files for each of the entities that can be created on Seqera Platform. These can be found in the [`templates/`](https://github.com/seqeralabs/blob/main/seqera-kit/templates) directory and should form a good starting point for you to add your own customization:
+
+- [organizations.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/organizations.yml)
+- [teams.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/teams.yml)
+- [workspaces.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/workspaces.yml)
+- [participants.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/participants.yml)
+- [credentials.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/credentials.yml)
+- [secrets.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/secrets.yml)
+- [compute-envs.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/compute-envs.yml)
+- [actions.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/actions.yml)
+- [datasets.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/datasets.yml)
+- [pipelines.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/pipelines.yml)
+- [launch.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/launch.yml)
+
 ## Real world example
 
 Please see [`seqerakit-e2e.yml`](./examples/yaml/seqerakit-e2e.yml) for an end-to-end example that highlights how you can use `seqerakit` to create everything sequentially in Seqera Platform all the way from creating a new Organization to launching a pipeline.
@@ -247,22 +344,6 @@ $AZURE_STORAGE_KEY
 $GOOGLE_KEY
 $SENTIEON_LICENSE_BASE64
 ```
-
-## Templates
-
-We have provided template YAML files for each of the entities that can be created on Seqera Platform. These can be found in the [`templates/`](https://github.com/seqeralabs/blob/main/seqera-kit/templates) directory and should form a good starting point for you to add your own customization:
-
-- [organizations.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/organizations.yml)
-- [teams.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/teams.yml)
-- [workspaces.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/workspaces.yml)
-- [participants.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/participants.yml)
-- [credentials.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/credentials.yml)
-- [secrets.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/secrets.yml)
-- [compute-envs.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/compute-envs.yml)
-- [actions.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/actions.yml)
-- [datasets.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/datasets.yml)
-- [pipelines.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/pipelines.yml)
-- [launch.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/launch.yml)
 
 ## Contributions and Support
 
