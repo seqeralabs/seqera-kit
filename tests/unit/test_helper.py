@@ -139,6 +139,8 @@ def test_create_mock_computeevs_yaml(mock_yaml_file):
                 "credentials": "my_credentials",
                 "file-path": "./examples/yaml/computeenvs/computeenvs.yaml",
                 "wait": "AVAILABLE",
+                "fusion-v2": True,
+                "fargate": False,
                 "overwrite": True,
             }
         ],
@@ -150,6 +152,7 @@ def test_create_mock_computeevs_yaml(mock_yaml_file):
                 "--credentials",
                 "my_credentials",
                 "./examples/yaml/computeenvs/computeenvs.yaml",
+                "--fusion-v2",
                 "--name",
                 "test_computeenv",
                 "--wait",
@@ -184,6 +187,7 @@ def test_create_mock_pipeline_add_yaml(mock_yaml_file):
                 "pre-run": "./examples/yaml/pipelines/test_pipeline1/pre_run.sh",
                 "revision": "master",
                 "overwrite": True,
+                "stub-run": True,
             }
         ]
     }
@@ -206,6 +210,7 @@ def test_create_mock_pipeline_add_yaml(mock_yaml_file):
                 "test",
                 "--revision",
                 "master",
+                "--stub-run",
                 "--work-dir",
                 "s3://work",
                 "--workspace",
@@ -223,3 +228,14 @@ def test_create_mock_pipeline_add_yaml(mock_yaml_file):
 
     assert "pipelines" in result
     assert result["pipelines"] == expected_block_output
+
+
+def test_empty_yaml_file(mock_yaml_file):
+    test_data = {}
+    file_path = mock_yaml_file(test_data)
+
+    with pytest.raises(ValueError) as e:
+        helper.parse_all_yaml([file_path])
+    assert f"The file '{file_path}' is empty or does not contain valid data." in str(
+        e.value
+    )
