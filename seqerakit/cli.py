@@ -22,7 +22,7 @@ import logging
 import sys
 
 from pathlib import Path
-from seqerakit import seqeraplatform, helper, overwrite
+from seqerakit import seqeraplatform, helper, overwrite, dump
 from seqerakit.seqeraplatform import ResourceExistsError, ResourceCreationError
 
 
@@ -66,6 +66,25 @@ def parse_args(args=None):
         type=str,
         help="Additional arguments to pass to Seqera Platform"
         " CLI enclosed in double quotes (e.g. '--cli=\"--insecure\"')",
+    )
+    parser.add_argument(
+        "dump",
+        help="Dump definitions for entities in the workspace to YAML file(s)",
+    )
+    parser.add_argument(
+        "--workspace",
+        "-w",
+        dest="workspace",
+        type=str,
+        help="Name of the workspace to dump YAML definitions for",
+    )
+    parser.add_argument(
+        "--prefix",
+        "-p",
+        dest="prefix",
+        type=str,
+        help="Prefix to use for outputting YAML definition files (optional)\n"
+        "If not provided, the workspace name will be used as the prefix",
     )
     return parser.parse_args(args)
 
@@ -138,11 +157,25 @@ def main(args=None):
         print(sp.info())
         return
 
-    if not options.yaml:
+    if not options.yaml and not options.dump:
         logging.error(
             " No YAML(s) provided. Please provide atleast one YAML configuration file."
         )
         sys.exit(1)
+
+    if options.dump:
+        if not options.workspace:
+            logging.error(
+                " Please provide a workspace name or ID to dump YAML definitions for."
+            )
+            sys.exit(1)
+        else:
+            sp = seqeraplatform.SeqeraPlatform()
+            dp = dump.DumpYaml(sp, options.workspace)
+            if options.prefix:
+                dp.generate_yaml_dump(options.prefix)
+            else:
+                dp.generate_yaml_dump(options.workspace)
 
     # Parse CLI arguments into a list
     cli_args_list = options.cli_args.split() if options.cli_args else []
