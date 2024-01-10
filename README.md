@@ -87,16 +87,20 @@ export TOWER_ACCESS_TOKEN=<your access token>
 
 ## Usage
 
-To confirm the installation of `seqerakit`, configuration of the Seqera Platform CLI and connection is working as expected:
+To confirm the installation of `seqerakit`, configuration of the Seqera Platform CLI and connection is working as expected. This will run the `tw info` command under the hood:
 
 ```bash
 seqerakit --info
 ```
 
-Use the `-h` or `--help `parameter to list the available commands and their associated options:
-
+Use the `--help` or `-h` parameter to list the available commands and their associated options:
 ```bash
 seqerakit --help
+```
+
+Use `--version` or `-v` to retrieve the current version of your seqerakit installation:
+```bash
+seqerakit --version
 ```
 
 ### Dryrun
