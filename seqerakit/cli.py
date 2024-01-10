@@ -24,6 +24,7 @@ import sys
 from pathlib import Path
 from seqerakit import seqeraplatform, helper, overwrite, dump
 from seqerakit.seqeraplatform import ResourceExistsError, ResourceCreationError
+from seqerakit import __version__
 
 
 logger = logging.getLogger(__name__)
@@ -85,6 +86,13 @@ def parse_args(args=None):
         type=str,
         help="Prefix to use for outputting YAML definition files (optional)\n"
         "If not provided, the workspace name will be used as the prefix",
+    )
+    parser.add_argument(
+        "--version",
+        "-v",
+        action="version",
+        version=f"%(prog)s v{__version__}",
+        help="Show the current version number and exit",
     )
     return parser.parse_args(args)
 
@@ -162,7 +170,6 @@ def main(args=None):
             " No YAML(s) provided. Please provide atleast one YAML configuration file."
         )
         sys.exit(1)
-
     if options.dump:
         if not options.workspace:
             logging.error(
