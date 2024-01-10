@@ -59,9 +59,19 @@ def parse_all_yaml(file_paths, destroy=False):
     for file_path in file_paths:
         with open(file_path, "r") as f:
             data = yaml.safe_load(f)
+
+            # Check if the YAML file is empty or contains no valid data
+            if data is None or not data:
+                raise ValueError(
+                    f" The file '{file_path}' is empty or does not contain valid data."
+                )
+
             for key, value in data.items():
                 if key in merged_data:
-                    merged_data[key].extend(value)
+                    try:
+                        merged_data[key].extend(value)
+                    except AttributeError:
+                        merged_data[key] = [merged_data[key], value]
                 else:
                     merged_data[key] = value
 
@@ -136,6 +146,9 @@ def parse_credentials_block(item):
     for key, value in item.items():
         if key == "type":
             cmd_args.append(str(value))
+        elif isinstance(value, bool):
+            if value:
+                cmd_args.append(f"--{key}")
         else:
             cmd_args.extend([f"--{key}", str(value)])
     return cmd_args
@@ -146,8 +159,9 @@ def parse_compute_envs_block(item):
     for key, value in item.items():
         if key == "file-path" or key == "type" or key == "config-mode":
             cmd_args.append(str(value))
-        elif isinstance(value, bool) and value:
-            cmd_args.append(f"--{key}")
+        elif isinstance(value, bool):
+            if value:
+                cmd_args.append(f"--{key}")
         else:
             cmd_args.extend([f"--{key}", str(value)])
     return cmd_args
@@ -218,38 +232,66 @@ def parse_pipelines_block(item):
     cmd_args = []
     repo_args = []
     params_args = []
+    params_file_path = None
 
     for key, value in item.items():
         if key == "url":
             repo_args.extend([str(value)])
         elif key == "params":
-            temp_file_name = utils.create_temp_yaml(value)
-            params_args.extend(["--params-file", temp_file_name])
+            params_dict = value
+        elif key == "params-file":
+            params_file_path = str(value)
         elif key == "file-path":
             repo_args.extend([str(value)])
-        elif isinstance(value, bool) and value:
-            cmd_args.append(f"--{key}")
+        elif isinstance(value, bool):
+            if value:
+                cmd_args.append(f"--{key}")
         else:
             cmd_args.extend([f"--{key}", str(value)])
 
-    # First append the url related arguments then append the remaining ones
-    cmd_args = repo_args + params_args + cmd_args
-    return cmd_args
+    # Create the temporary YAML file after processing all items
+    if "params" in item:
+        temp_file_name = utils.create_temp_yaml(
+            params_dict, params_file=params_file_path
+        )
+        params_args.extend(["--params-file", temp_file_name])
+
+    if params_file_path and "params" not in item:
+        params_args.extend(["--params-file", params_file_path])
+
+    combined_args = cmd_args + repo_args + params_args
+    return combined_args
 
 
 def parse_launch_block(item):
     repo_args = []
     cmd_args = []
+    params_args = []
+    params_file_path = None
+
     for key, value in item.items():
         if key == "pipeline" or key == "url":
             repo_args.extend([str(value)])
         elif key == "params":
-            temp_file_name = utils.create_temp_yaml(value)
-            cmd_args.extend(["--params-file", temp_file_name])
+            params_dict = value
+        elif key == "params-file":
+            params_file_path = str(value)
+        elif isinstance(value, bool):
+            if value:
+                cmd_args.append(f"--{key}")
         else:
             cmd_args.extend([f"--{key}", str(value)])
-    cmd_args = repo_args + cmd_args
 
+    if "params" in item:
+        temp_file_name = utils.create_temp_yaml(
+            params_dict, params_file=params_file_path
+        )
+        params_args.extend(["--params-file", temp_file_name])
+
+    if params_file_path and "params" not in item:
+        params_args.extend(["--params-file", params_file_path])
+
+    cmd_args = cmd_args + repo_args + params_args
     return cmd_args
 
 
