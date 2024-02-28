@@ -130,14 +130,14 @@ def test_create_mock_dataset_yaml(mock_yaml_file):
     assert result["datasets"] == expected_block_output
 
 
-def test_create_mock_computeevs_yaml(mock_yaml_file):
+def test_create_mock_computeevs_source_yaml(mock_yaml_file):
     test_data = {
         "compute-envs": [
             {
                 "name": "test_computeenv",
                 "workspace": "my_organization/my_workspace",
                 "credentials": "my_credentials",
-                "file-path": "./examples/yaml/computeenvs/computeenvs.yaml",
+                "file-path": "./computeenvs/computeenv.json",
                 "wait": "AVAILABLE",
                 "fusion-v2": True,
                 "fargate": False,
@@ -149,9 +149,9 @@ def test_create_mock_computeevs_yaml(mock_yaml_file):
     expected_block_output = [
         {
             "cmd_args": [
+                "./computeenvs/computeenv.json",
                 "--credentials",
                 "my_credentials",
-                "./examples/yaml/computeenvs/computeenvs.yaml",
                 "--fusion-v2",
                 "--name",
                 "test_computeenv",
@@ -167,6 +167,43 @@ def test_create_mock_computeevs_yaml(mock_yaml_file):
     file_path = mock_yaml_file(test_data)
     result = helper.parse_all_yaml([file_path])
 
+    assert "compute-envs" in result
+    assert result["compute-envs"] == expected_block_output
+
+
+def test_create_mock_computeevs_cli_yaml(mock_yaml_file):
+    test_data = {
+        "compute-envs": [
+            {
+                "name": "test_computeenv",
+                "workspace": "my_organization/my_workspace",
+                "credentials": "my_credentials",
+                "type": "aws-batch",
+                "config-mode": "forge",
+                "wait": "AVAILABLE",
+            }
+        ],
+    }
+
+    expected_block_output = [
+        {
+            "cmd_args": [
+                "aws-batch",
+                "forge",
+                "--credentials",
+                "my_credentials",
+                "--name",
+                "test_computeenv",
+                "--wait",
+                "AVAILABLE",
+                "--workspace",
+                "my_organization/my_workspace",
+            ],
+            "overwrite": False,
+        }
+    ]
+    file_path = mock_yaml_file(test_data)
+    result = helper.parse_all_yaml([file_path])
     assert "compute-envs" in result
     assert result["compute-envs"] == expected_block_output
 
@@ -191,7 +228,6 @@ def test_create_mock_pipeline_add_yaml(mock_yaml_file):
             }
         ]
     }
-
     # params file cmds parsed separately
     expected_block_output = [
         {
@@ -238,4 +274,25 @@ def test_empty_yaml_file(mock_yaml_file):
         helper.parse_all_yaml([file_path])
     assert f"The file '{file_path}' is empty or does not contain valid data." in str(
         e.value
+    )
+
+
+def test_error_type_yaml_file(mock_yaml_file):
+    test_data = {
+        "compute-envs": [
+            {
+                "name": "test_computeenv",
+                "workspace": "my_organization/my_workspace",
+                "credentials": "my_credentials",
+                "wait": "AVAILABLE",
+            }
+        ],
+    }
+    file_path = mock_yaml_file(test_data)
+
+    with pytest.raises(ValueError) as e:
+        helper.parse_all_yaml([file_path])
+    assert (
+        "Please specify at least 'type' or 'file-path' for creating the resource."
+        in str(e.value)
     )
