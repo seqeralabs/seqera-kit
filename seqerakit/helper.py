@@ -113,10 +113,10 @@ def parse_all_yaml(file_paths, destroy=False):
 def parse_block(block_name, item):
     # Define the mapping from block names to functions.
     block_to_function = {
-        "credentials": parse_credentials_block,
-        "compute-envs": parse_compute_envs_block,
+        "credentials": parse_type_block,
+        "compute-envs": parse_type_block,
+        "actions": parse_type_block,
         "teams": parse_teams_block,
-        "actions": parse_actions_block,
         "datasets": parse_datasets_block,
         "pipelines": parse_pipelines_block,
         "launch": parse_launch_block,
@@ -141,27 +141,28 @@ def parse_generic_block(item):
     return cmd_args
 
 
-def parse_credentials_block(item):
+def parse_type_block(item, priority_keys=["type", "config-mode", "file-path"]):
     cmd_args = []
+
+    # Ensure at least one of 'type' or 'file-path' is present
+    if not any(key in item for key in ["type", "file-path"]):
+        raise ValueError(
+            "Please specify at least 'type' or 'file-path' for creating the resource."
+        )
+
+    # Process priority keys first
+    for key in priority_keys:
+        if key in item:
+            cmd_args.append(str(item[key]))
+            del item[key]  # Remove the key to avoid repeating in args
+
     for key, value in item.items():
-        if key == "type":
-            cmd_args.append(str(value))
-        elif isinstance(value, bool):
+        if isinstance(value, bool):
             if value:
                 cmd_args.append(f"--{key}")
-        else:
-            cmd_args.extend([f"--{key}", str(value)])
-    return cmd_args
-
-
-def parse_compute_envs_block(item):
-    cmd_args = []
-    for key, value in item.items():
-        if key == "file-path" or key == "type" or key == "config-mode":
-            cmd_args.append(str(value))
-        elif isinstance(value, bool):
-            if value:
-                cmd_args.append(f"--{key}")
+        elif key == "params":
+            temp_file_name = utils.create_temp_yaml(value)
+            cmd_args.extend(["--params-file", temp_file_name])
         else:
             cmd_args.extend([f"--{key}", str(value)])
     return cmd_args
@@ -192,20 +193,6 @@ def parse_teams_block(item):
                     ]
                 )
     return (cmd_args, members_cmd_args)
-
-
-def parse_actions_block(item):
-    cmd_args = []
-    temp_file_name = None
-    for key, value in item.items():
-        if key == "type":
-            cmd_args.append(str(value))
-        elif key == "params":
-            temp_file_name = utils.create_temp_yaml(value)
-            cmd_args.extend(["--params-file", temp_file_name])
-        else:
-            cmd_args.extend([f"--{key}", str(value)])
-    return cmd_args
 
 
 def parse_datasets_block(item):
