@@ -19,6 +19,7 @@ methods for each block in the YAML file.
 """
 import yaml
 from seqerakit import utils
+import sys
 
 
 def parse_yaml_block(yaml_data, block_name):
@@ -56,24 +57,41 @@ def parse_all_yaml(file_paths, destroy=False):
     # If multiple yamls, merge them into one dictionary
     merged_data = {}
 
+    # Special handling for stdin represented by "-"
+    if not file_paths or "-" in file_paths:
+        # Read YAML directly from stdin
+        data = yaml.safe_load(sys.stdin)
+        if data is None or not data:
+            raise ValueError(
+                " The input from stdin is empty or does not contain valid YAML data."
+            )
+
+        merged_data.update(data)
+
     for file_path in file_paths:
-        with open(file_path, "r") as f:
-            data = yaml.safe_load(f)
+        if file_path == "-":
+            continue
+        try:
+            with open(file_path, "r") as f:
+                data = yaml.safe_load(f)
+                if data is None or not data:
+                    raise ValueError(
+                        f" The file '{file_path}' is empty or "
+                        "does not contain valid data."
+                    )
+                merged_data.update(data)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found.")
+            sys.exit(1)
 
-            # Check if the YAML file is empty or contains no valid data
-            if data is None or not data:
-                raise ValueError(
-                    f" The file '{file_path}' is empty or does not contain valid data."
-                )
-
-            for key, value in data.items():
-                if key in merged_data:
-                    try:
-                        merged_data[key].extend(value)
-                    except AttributeError:
-                        merged_data[key] = [merged_data[key], value]
-                else:
-                    merged_data[key] = value
+        for key, value in data.items():
+            if key in merged_data:
+                try:
+                    merged_data[key].extend(value)
+                except AttributeError:
+                    merged_data[key] = [merged_data[key], value]
+            else:
+                merged_data[key] = value
 
     block_names = list(merged_data.keys())
 
