@@ -73,7 +73,7 @@ class Overwrite:
             "workspaces": {
                 "keys": ["name", "organization"],
                 "method_args": self._get_workspace_args,
-                "name_key": "workspaceId",
+                "name_key": "workspaceName",
             },
         }
 
@@ -101,7 +101,6 @@ class Overwrite:
                     self.block_operations["participants"]["name_key"] = "teamName"
                 else:
                     self.block_operations["participants"]["name_key"] = "email"
-
             if self.check_resource_exists(operation["name_key"], sp_args):
                 # if resource exists and overwrite is true, delete
                 if overwrite:
@@ -169,11 +168,7 @@ class Overwrite:
         workspaceId used to delete will be retrieved using the _find_workspace_id()
         method.
         """
-        workspace_id = self._find_workspace_id(
-            json.loads(self.sp.workspaces.list("-o", "json")),
-            args["organization"],
-            args["name"],
-        )
+        workspace_id = self._find_workspace_id(args["organization"], args["name"])
         return ("delete", "--id", str(workspace_id))
 
     def _get_generic_deletion_args(self, args):
@@ -267,12 +262,12 @@ class Overwrite:
         organization name and workspace name. This ID will be used to delete the
         workspace.
         """
-        if "workspaces" in self.cached_jsondata:
-            workspaces = self.cached_jsondata["workspaces"]
-            for workspace in workspaces:
-                if (
-                    workspace.get("orgName") == organization
-                    and workspace.get("workspaceName") == workspace_name
-                ):
-                    return workspace.get("workspaceId")
+        jsondata = json.loads(self.cached_jsondata)
+        workspaces = jsondata["workspaces"]
+        for workspace in workspaces:
+            if (
+                workspace.get("orgName") == organization
+                and workspace.get("workspaceName") == workspace_name
+            ):
+                return workspace.get("workspaceId")
         return None
