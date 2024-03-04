@@ -22,51 +22,89 @@ import logging
 import sys
 
 from pathlib import Path
-from seqerakit import seqeraplatform, helper, overwrite
+from seqerakit import seqeraplatform, helper, overwrite, dump
 from seqerakit.seqeraplatform import ResourceExistsError, ResourceCreationError
+from seqerakit import __version__
 
 
 logger = logging.getLogger(__name__)
 
 
 def parse_args(args=None):
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
+    parser = argparse.ArgumentParser(
+        description="Seqerakit: Python wrapper for the Seqera Platform CLI"
+    )
+
+    # General options
+    general = parser.add_argument_group("General Options")
+    general.add_argument(
         "-l",
         "--log_level",
         default="INFO",
         choices=("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"),
-        help="The desired log level (default: INFO).",
-        type=str.upper,
+        help="Set the logging level.",
     )
-    parser.add_argument(
+    general.add_argument(
         "--info",
+        "-i",
         action="store_true",
-        help="Display information about the Seqera Platform and exit",
+        help="Display Seqera Platform information and exit.",
     )
-    parser.add_argument(
+    general.add_argument(
         "--dryrun",
+        "-d",
         action="store_true",
-        help="Print the commands that would be executed without running them.",
+        help="Print the commands that would be executed.",
     )
-    parser.add_argument(
+    general.add_argument(
+        "--version",
+        "-v",
+        action="version",
+        version=f"%(prog)s {__version__}",
+        help="Show version number and exit.",
+    )
+
+    # YAML processing options
+    yaml_processing = parser.add_argument_group("YAML Processing Options")
+    yaml_processing.add_argument(
         "yaml",
         type=Path,
-        nargs="*",  # allow multiple YAML paths
-        help="One or more YAML files with Seqera Platform resources to create",
+        nargs="*",
+        help="One or more YAML files with Seqera Platform resource definitions.",
     )
-    parser.add_argument(
+    yaml_processing.add_argument(
         "--delete",
         action="store_true",
-        help="Recursively delete all resources defined in the YAML file(s)",
+        help="Recursively delete resources defined in the YAML files.",
     )
-    parser.add_argument(
+    yaml_processing.add_argument(
         "--cli",
         dest="cli_args",
         type=str,
         help="Additional arguments to pass to Seqera Platform"
         " CLI enclosed in double quotes (e.g. '--cli=\"--insecure\"')",
     )
+
+    # YAML dumping options
+    yaml_dumping = parser.add_argument_group("YAML Dumping Options")
+    yaml_dumping.add_argument(
+        "--dump", help="Dump Seqera Platform entity definitions to YAML."
+    )
+    yaml_dumping.add_argument(
+        "--workspace",
+        "-w",
+        dest="workspace",
+        type=str,
+        help="Name/ID of the workspace to dump YAML definitions for",
+    )
+    yaml_dumping.add_argument(
+        "--prefix",
+        "-p",
+        dest="prefix",
+        type=str,
+        help="Prefix for output YAML files (defaults to workspace name).",
+    )
+
     return parser.parse_args(args)
 
 
@@ -138,11 +176,24 @@ def main(args=None):
         print(sp.info())
         return
 
-    if not options.yaml:
+    if not options.yaml and not options.dump:
         logging.error(
             " No YAML(s) provided. Please provide atleast one YAML configuration file."
         )
         sys.exit(1)
+    if options.dump:
+        if not options.workspace:
+            logging.error(
+                " Please provide a workspace name or ID to dump YAML definitions for."
+            )
+            sys.exit(1)
+        else:
+            sp = seqeraplatform.SeqeraPlatform()
+            dp = dump.DumpYaml(sp, options.workspace)
+            if options.prefix:
+                dp.generate_yaml_dump(options.prefix)
+            else:
+                dp.generate_yaml_dump(options.workspace)
 
     # Parse CLI arguments into a list
     cli_args_list = options.cli_args.split() if options.cli_args else []

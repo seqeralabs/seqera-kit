@@ -87,16 +87,20 @@ export TOWER_ACCESS_TOKEN=<your access token>
 
 ## Usage
 
-To confirm the installation of `seqerakit`, configuration of the Seqera Platform CLI and connection is working as expected:
+To confirm the installation of `seqerakit`, configuration of the Seqera Platform CLI and connection is working as expected. This will run the `tw info` command under the hood:
 
 ```bash
 seqerakit --info
 ```
 
-Use the `-h` or `--help `parameter to list the available commands and their associated options:
-
+Use the `--help` or `-h` parameter to list the available commands and their associated options:
 ```bash
 seqerakit --help
+```
+
+Use `--version` or `-v` to retrieve the current version of your seqerakit installation:
+```bash
+seqerakit --version
 ```
 
 ### Dryrun
@@ -208,7 +212,18 @@ compute-envs:
     file-path: './compute-envs/my_aws_compute_environment.json'     # required
     overwrite: True
 ```
+## YAML Dump Feature
+**Note: This is an experimental feature and is under active development. It may not be fully stable is subject to further change and improvements in future releases. If you encounter issues using this feature or want to provide feedback, please feel free to contribute via [GitHub Issues](https://github.com/seqeralabs/seqera-kit/issues) or [Pull Requests](https://github.com/seqeralabs/seqera-kit/pulls).**
 
+To generate definitions for objects and entities that exist within a Workspace on Seqera Platform in YAML format, you can use the `seqerakit dump` command.
+
+To use this feature, specify the Workspace name or ID for which you want to generate YAML files for, and optionally, a prefix for your YAML filenames (this defaults to the Workspace):
+```bash
+seqerakit dump --workspace <workspace_name/ID> --prefix <optional_prefix>
+```
+This command will generate YAML definitions for entities (i.e. Pipelines, Compute Environments) in the specified Workspace. These definitions can be used to compare to YAML files initially used to create entities and analyze changes, or to maintain provenance and IaC of the current state of objects in the Platform.
+
+*Note*: This feature currently only supports emitting YAML definitions for Compute Environments and Pipelines.
 
 ## Quick start
 
