@@ -16,7 +16,7 @@ You will need to have an account on Seqera Platform (see [Plans and pricing](htt
 
 `seqerakit` requires the following dependencies:
 
-1. [Seqera Platform CLI](https://github.com/seqeralabs/tower-cli#1-installation)
+1. [Seqera Platform CLI (`>=0.9.2`)](https://github.com/seqeralabs/tower-cli#1-installation)
 
 2. [Python (`>=3.8`)](https://www.python.org/downloads/)
 
@@ -87,16 +87,20 @@ export TOWER_ACCESS_TOKEN=<your access token>
 
 ## Usage
 
-To confirm the installation of `seqerakit`, configuration of the Seqera Platform CLI and connection is working as expected:
+To confirm the installation of `seqerakit`, configuration of the Seqera Platform CLI and connection to the Platform is working as expected. This will run the `tw info` command under the hood:
 
 ```bash
 seqerakit --info
 ```
 
-Use the `-h` or `--help `parameter to list the available commands and their associated options:
-
+Use the `--help` or `-h` parameter to list the available commands and their associated options:
 ```bash
 seqerakit --help
+```
+
+Use `--version` or `-v` to retrieve the current version of your seqerakit installation:
+```bash
+seqerakit --version
 ```
 
 ### Dryrun
