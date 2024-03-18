@@ -202,7 +202,10 @@ class Overwrite:
         # Check if block data already exists
         if block in self.block_jsondata:
             self.cached_jsondata = self.block_jsondata[block]
-            sp_args = self._get_values_from_cmd_args(args, keys_to_get)
+            if block == "teams":
+                sp_args = self._get_values_from_cmd_args(args[0], keys_to_get)
+            else:
+                sp_args = self._get_values_from_cmd_args(args, keys_to_get)
         else:
             # Fetch the data if it does not exist
             if block == "teams":
