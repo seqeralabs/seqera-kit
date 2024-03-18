@@ -21,7 +21,6 @@ import argparse
 import logging
 import sys
 
-from pathlib import Path
 from seqerakit import seqeraplatform, helper, overwrite
 from seqerakit.seqeraplatform import ResourceExistsError, ResourceCreationError
 from seqerakit import __version__
@@ -66,7 +65,6 @@ def parse_args(args=None):
     yaml_processing = parser.add_argument_group("YAML Processing Options")
     yaml_processing.add_argument(
         "yaml",
-        type=Path,
         nargs="*",
         help="One or more YAML files with Seqera Platform resource definitions.",
     )
@@ -154,10 +152,14 @@ def main(args=None):
         return
 
     if not options.yaml:
-        logging.error(
-            " No YAML(s) provided. Please provide atleast one YAML configuration file."
-        )
-        sys.exit(1)
+        if sys.stdin.isatty():
+            logging.error(
+                " No YAML(s) provided and no input from stdin. Please provide "
+                "at least one YAML configuration file or pipe input from stdin."
+            )
+            sys.exit(1)
+        else:
+            options.yaml = [sys.stdin]
 
     # Parse CLI arguments into a list
     cli_args_list = options.cli_args.split() if options.cli_args else []
