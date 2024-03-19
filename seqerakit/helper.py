@@ -341,10 +341,19 @@ def handle_pipelines(sp, args):
 
 def find_name(cmd_args):
     """
-    Find and return the value associated with --name in the cmd_args list.
+    Find and return the value associated with --name in cmd_args, where cmd_args
+    can be a list, a tuple of lists, or nested lists/tuples.
     """
-    args_list = cmd_args.get("cmd_args", [])
-    for i in range(len(args_list) - 1):
-        if args_list[i] == "--name":
-            return args_list[i + 1]
-    return None
+
+    def search(args):
+        it = iter(args)
+        for arg in it:
+            if arg == "--name":
+                return next(it, None)
+            elif isinstance(arg, (list, tuple)):
+                result = search(arg)
+                if result is not None:
+                    return result
+        return None
+
+    return search(cmd_args.get("cmd_args", []))

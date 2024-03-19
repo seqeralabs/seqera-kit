@@ -266,6 +266,52 @@ def test_create_mock_pipeline_add_yaml(mock_yaml_file):
     assert result["pipelines"] == expected_block_output
 
 
+def test_mock_teams_yaml(mock_yaml_file):
+    test_data = {
+        "teams": [
+            {
+                "name": "test_team1",
+                "organization": "my_organization",
+                "description": "My test team 1",
+                "members": ["user1@org.io"],
+                "overwrite": True,
+            },
+        ]
+    }
+    expected_block_output = [
+        {
+            "cmd_args": (
+                [
+                    "--description",
+                    "My test team 1",
+                    "--name",
+                    "test_team1",
+                    "--organization",
+                    "my_organization",
+                ],
+                [
+                    [
+                        "--team",
+                        "test_team1",
+                        "--organization",
+                        "my_organization",
+                        "add",
+                        "--member",
+                        "user1@org.io",
+                    ]
+                ],
+            ),
+            "overwrite": True,
+        }
+    ]
+
+    file_path = mock_yaml_file(test_data)
+    result = helper.parse_all_yaml([file_path])
+
+    assert "teams" in result
+    assert result["teams"] == expected_block_output
+
+
 def test_empty_yaml_file(mock_yaml_file):
     test_data = {}
     file_path = mock_yaml_file(test_data)
