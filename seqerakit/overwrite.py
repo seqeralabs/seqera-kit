@@ -60,6 +60,11 @@ class Overwrite:
                 "method_args": self._get_organization_args,
                 "name_key": "orgName",
             },
+            "labels": {
+                "keys": ["name", "value", "workspace"],
+                "method_args": self._get_label_args,
+                "name_key": "name",
+            },
             "teams": {
                 "keys": ["name", "organization"],
                 "method_args": self._get_team_args,
@@ -171,6 +176,15 @@ class Overwrite:
         workspace_id = self._find_workspace_id(args["organization"], args["name"])
         return ("delete", "--id", str(workspace_id))
 
+    def _get_label_args(self, args):
+        """
+        Returns a list of arguments for the delete() method for labels. The
+        label_id used to delete will be retrieved using the _find_label_id()
+        method.
+        """
+        label_id = self._find_label_id(args["name"], args["value"])
+        return ("delete", "--id", str(label_id), "-w", args["workspace"])
+
     def _get_generic_deletion_args(self, args):
         """
         Returns a list of arguments for the delete() method for resources that
@@ -210,7 +224,10 @@ class Overwrite:
                 self.cached_jsondata = json_method(
                     block, "list", "-o", sp_args["organization"]
                 )
-            elif block in Overwrite.generic_deletion or block == "participants":
+            elif block in Overwrite.generic_deletion or block in {
+                "participants",
+                "labels",
+            }:
                 sp_args = self._get_values_from_cmd_args(args, keys_to_get)
                 self.cached_jsondata = json_method(
                     block, "list", "-w", sp_args["workspace"]
@@ -270,4 +287,16 @@ class Overwrite:
                 and workspace.get("workspaceName") == workspace_name
             ):
                 return workspace.get("workspaceId")
+        return None
+
+    def _find_label_id(self, label_name, label_value):
+        """
+        Custom method to find a label ID in a nested dictionary with a given
+        workspace name. This ID will be used to delete the label.
+        """
+        jsondata = json.loads(self.cached_jsondata)
+        labels = jsondata["labels"]
+        for label in labels:
+            if label.get("name") == label_name and label.get("value") == label_value:
+                return label.get("id")
         return None
