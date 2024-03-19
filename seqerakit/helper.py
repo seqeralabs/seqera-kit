@@ -82,6 +82,7 @@ def parse_all_yaml(file_paths, destroy=False):
         "organizations",
         "teams",
         "workspaces",
+        "labels",
         "participants",
         "credentials",
         "compute-envs",
