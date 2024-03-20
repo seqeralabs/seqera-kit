@@ -170,6 +170,7 @@ def main(args=None):
             "organizations",  # all use method.add
             "workspaces",
             "labels",
+            "members",
             "credentials",
             "secrets",
             "actions",
