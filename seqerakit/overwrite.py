@@ -65,6 +65,11 @@ class Overwrite:
                 "method_args": self._get_label_args,
                 "name_key": "name",
             },
+            "members": {
+                "keys": ["user", "organization"],
+                "method_args": self._get_members_args,
+                "name_key": "email",
+            },
             "teams": {
                 "keys": ["name", "organization"],
                 "method_args": self._get_team_args,
@@ -106,6 +111,9 @@ class Overwrite:
                     self.block_operations["participants"]["name_key"] = "teamName"
                 else:
                     self.block_operations["participants"]["name_key"] = "email"
+            elif block == "members":
+                # Rename the user key to name to correctly index JSON data
+                sp_args["name"] = sp_args.pop("user")
             if self.check_resource_exists(operation["name_key"], sp_args):
                 # if resource exists and overwrite is true, delete
                 if overwrite:
@@ -149,6 +157,18 @@ class Overwrite:
             json.loads(json_out), "name", args["name"], "teamId"
         )
         return ("delete", "--id", str(team_id), "--organization", args["organization"])
+
+    def _get_members_args(self, args):
+        """
+        Returns a list of arguments for the delete() method for members.
+        """
+        return (
+            "delete",
+            "--user",
+            args["name"],
+            "--organization",
+            args["organization"],
+        )
 
     def _get_participant_args(self, args):
         """
@@ -234,6 +254,11 @@ class Overwrite:
                 sp_args = self._get_values_from_cmd_args(args, keys_to_get)
                 self.cached_jsondata = json_method(
                     block, "list", "-w", sp_args["workspace"]
+                )
+            elif block == "members":  # TODO
+                sp_args = self._get_values_from_cmd_args(args, keys_to_get)
+                self.cached_jsondata = json_method(
+                    block, "list", "-o", sp_args["organization"]
                 )
             else:
                 sp_args = self._get_values_from_cmd_args(args, keys_to_get)

@@ -1,0 +1,5 @@
+## To see the full list of options available run: "tw members add"
+participants:
+  - user: 'bob@myorg.io'                           # required
+    organization: 'myorg'                          # required
+    overwrite: True                                # optional
