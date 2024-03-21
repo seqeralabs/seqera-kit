@@ -362,3 +362,35 @@ def test_error_type_yaml_file(mock_yaml_file):
         "Please specify at least 'type' or 'file-path' for creating the resource."
         in str(e.value)
     )
+
+
+def test_error_duplicate_name_yaml_file(mock_yaml_file):
+    test_data = {
+        "compute-envs": [
+            {
+                "name": "test_computeenv",
+                "workspace": "my_organization/my_workspace",
+                "credentials": "my_credentials",
+                "type": "aws-batch",
+                "config-mode": "forge",
+                "wait": "AVAILABLE",
+            },
+            {
+                "name": "test_computeenv",
+                "workspace": "my_organization/my_workspace",
+                "credentials": "my_credentials",
+                "type": "aws-batch",
+                "config-mode": "forge",
+                "wait": "AVAILABLE",
+            },
+        ],
+    }
+    file_path = mock_yaml_file(test_data)
+
+    with pytest.raises(ValueError) as e:
+        helper.parse_all_yaml([file_path])
+    assert (
+        "Duplicate name key specified in config file for "
+        "compute-envs: test_computeenv. Please specify "
+        "a unique value." in str(e.value)
+    )

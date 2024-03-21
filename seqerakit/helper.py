@@ -36,13 +36,14 @@ def parse_yaml_block(yaml_data, block_name):
     name_values = set()
 
     # Iterate over each item in the block.
+    # TODO: fix for resources that can be duplicate named in an org
     for item in block:
         cmd_args = parse_block(block_name, item)
         name = find_name(cmd_args)
         if name in name_values:
             raise ValueError(
-                f" Duplicate 'name' specified in config file"
-                f" for {block_name}: {name}. Please specify a unique name."
+                f" Duplicate name key specified in config file"
+                f" for {block_name}: {name}. Please specify a unique value."
             )
         name_values.add(name)
 
@@ -344,12 +345,22 @@ def find_name(cmd_args):
     """
     Find and return the value associated with --name in cmd_args, where cmd_args
     can be a list, a tuple of lists, or nested lists/tuples.
+
+    The function searches for the following keys: --name, --user, --email.
+
+    Parameters:
+    - cmd_args: The command arguments (list, tuple, or nested structures).
+
+    Returns:
+    - The value associated with the first key found, or None if none are found.
     """
+    # Predefined list of keys to search for
+    keys = {"--name", "--user", "--email"}
 
     def search(args):
         it = iter(args)
         for arg in it:
-            if arg == "--name":
+            if isinstance(arg, str) and arg in keys:
                 return next(it, None)
             elif isinstance(arg, (list, tuple)):
                 result = search(arg)
