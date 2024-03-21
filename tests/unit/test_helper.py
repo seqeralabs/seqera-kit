@@ -390,7 +390,7 @@ def test_error_duplicate_name_yaml_file(mock_yaml_file):
     with pytest.raises(ValueError) as e:
         helper.parse_all_yaml([file_path])
     assert (
-        "Duplicate name key specified in config file for " 
+        "Duplicate name key specified in config file for "
         "compute-envs: test_computeenv. Please specify "
         "a unique value." in str(e.value)
     )
