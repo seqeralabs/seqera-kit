@@ -10,7 +10,7 @@ The key features are:
 
 ## Prerequisites
 
-You will need to have an account on Seqera Platform (see [Plans and pricing](https://cloud.tower.nf/pricing/)).
+You will need to have an account on Seqera Platform (see [Plans and pricing](https://seqera.io/pricing/)).
 
 ## Installation
 
@@ -77,7 +77,7 @@ pip show seqerakit
 
 ## Configuration
 
-Create a Seqera Platform access token using the [Seqera Platform](https://tower.nf/) web interface via the **Your Tokens** page in your profile.
+Create a Seqera Platform access token using the [Seqera Platform](https://seqera.io/) web interface via the **Your Tokens** page in your profile.
 
 `seqerakit` reads this token from the environment variable `TOWER_ACCESS_TOKEN`. Please export it into your terminal as shown below:
 
@@ -89,7 +89,7 @@ For Enterprise installations of Seqera Platform, you will also need to configure
 ```bash
 export TOWER_API_ENDPOINT=<Tower API URL>
 ```
-By default, this is set to `https://api.tower.nf` to connect to Seqera Platform Cloud.
+By default, this is set to `https://api.cloud.seqera.io` to connect to Seqera Platform Cloud.
 
 
 ## Usage
@@ -225,7 +225,7 @@ compute-envs:
 
 You must provide a YAML file that defines the options for each of the entities you would like to create in Seqera Platform.
 
-You will need to have an account on Seqera Platform (see [Plans and pricing](https://cloud.tower.nf/pricing/)). You will also need access to a Workspace and a pre-defined Compute Environment where you can launch a pipeline.
+You will need to have an account on Seqera Platform (see [Plans and pricing](https://seqera.io/pricing/)). You will also need access to a Workspace and a pre-defined Compute Environment where you can launch a pipeline.
 
 ### Launch via YAML
 
