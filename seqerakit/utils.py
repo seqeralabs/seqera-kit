@@ -19,6 +19,7 @@ import os
 import yaml
 from urllib.parse import urlparse
 import re
+from seqerakit import seqeraplatform
 
 
 def find_key_value_in_dict(data, target_key, target_value, return_key):
@@ -161,3 +162,34 @@ def replace_env_var(match):
     if var_value is None:
         raise EnvironmentError(f"Environment variable {var_name} not found")
     return var_value
+
+
+def get_dataset_url(sp, *args):
+    """
+    Get the dataset URL from the dataset name
+    """
+    sp = seqeraplatform.SeqeraPlatform()
+    datasets = sp.datasets("url", *args, to_json=True)
+    return datasets["datasetUrl"]
+
+
+def update_dataset_params(sp, args):
+    """
+    Update the input parameter in params file with dataset URL
+    """
+    if "--params-file" in args and "--workspace" in args:
+        params_file_path = args[args.index("--params-file") + 1]
+        workspace = args[args.index("--workspace") + 1]
+
+        with open(params_file_path, "r") as file:
+            params = yaml.safe_load(file)
+            if "input" in params and "://" not in params["input"]:
+                dataset_url = get_dataset_url(
+                    sp, "--name", params["input"], "--workspace", workspace
+                )
+                params["input"] = dataset_url
+
+                # Return updated params file path
+                temp_file_name = create_temp_yaml(params, params_file_path)
+                args[args.index("--params-file") + 1] = temp_file_name
+    return args
