@@ -120,9 +120,7 @@ class BlockParser:
             "participants": (helper.handle_participants),
             "compute-envs": (helper.handle_compute_envs),
             "pipelines": (helper.handle_pipelines),
-            "launch": lambda sp, args: helper.handle_generic_block(
-                sp, "launch", args, method_name=None
-            ),
+            "launch": (helper.handle_launch),
         }
 
         # Check if overwrite is set to True, and call overwrite handler
