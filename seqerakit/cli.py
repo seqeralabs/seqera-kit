@@ -103,7 +103,7 @@ class BlockParser:
         # Create an instance of Overwrite class
         self.overwrite_method = overwrite.Overwrite(self.sp)
 
-    def handle_block(self, block, args, destroy=False):
+    def handle_block(self, block, args, destroy=False, dryrun=False):
         # Check if delete is set to True, and call delete handler
         if destroy:
             logging.debug(" The '--delete' flag has been specified.\n")
@@ -125,12 +125,12 @@ class BlockParser:
 
         # Check if overwrite is set to True, and call overwrite handler
         overwrite_option = args.get("overwrite", False)
-        if overwrite_option:
+        if overwrite_option and dryrun is False:
             logging.debug(f" Overwrite is set to 'True' for {block}\n")
             self.overwrite_method.handle_overwrite(
                 block, args["cmd_args"], overwrite_option
             )
-        else:
+        elif dryrun is False:
             self.overwrite_method.handle_overwrite(block, args["cmd_args"])
 
         if block in self.list_for_add_method:
@@ -171,6 +171,8 @@ def main(args=None):
         [
             "organizations",  # all use method.add
             "workspaces",
+            "labels",
+            "members",
             "credentials",
             "secrets",
             "actions",
@@ -186,7 +188,9 @@ def main(args=None):
             for args in args_list:
                 try:
                     # Run the 'tw' methods for each block
-                    block_manager.handle_block(block, args, destroy=options.delete)
+                    block_manager.handle_block(
+                        block, args, destroy=options.delete, dryrun=options.dryrun
+                    )
                 except (ResourceExistsError, ResourceCreationError) as e:
                     logging.error(e)
                     sys.exit(1)

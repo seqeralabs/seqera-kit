@@ -82,8 +82,15 @@ Create a Seqera Platform access token using the [Seqera Platform](https://tower.
 `seqerakit` reads this token from the environment variable `TOWER_ACCESS_TOKEN`. Please export it into your terminal as shown below:
 
 ```bash
-export TOWER_ACCESS_TOKEN=<your access token>
+export TOWER_ACCESS_TOKEN=<Your access token>
 ```
+
+For Enterprise installations of Seqera Platform, you will also need to configure the API endpoint that will be used to connect to the Platform. You can do so by exporting the following environment variable:
+```bash
+export TOWER_API_ENDPOINT=<Tower API URL>
+```
+By default, this is set to `https://api.tower.nf` to connect to Seqera Platform Cloud.
+
 
 ## Usage
 
