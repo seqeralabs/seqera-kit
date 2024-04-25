@@ -97,28 +97,9 @@ def parse_all_yaml(file_paths, destroy=False):
                         merged_data[key] = new_value
                 else:
                     merged_data[key] = new_value
-
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found.")
             sys.exit(1)
-
-        for key, value in data.items():
-            if key in merged_data:
-                try:
-                    merged_data[key].extend(value)
-                except AttributeError:
-                    merged_data[key] = [merged_data[key], value]
-            else:
-                merged_data[key] = value
-
-        for key, value in data.items():
-            if key in merged_data:
-                try:
-                    merged_data[key].extend(value)
-                except AttributeError:
-                    merged_data[key] = [merged_data[key], value]
-            else:
-                merged_data[key] = value
 
     block_names = list(merged_data.keys())
 
