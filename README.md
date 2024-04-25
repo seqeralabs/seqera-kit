@@ -109,6 +109,18 @@ Use `--version` or `-v` to retrieve the current version of your seqerakit instal
 ```bash
 seqerakit --version
 ```
+### Input
+`seqerakit` supports input through either file paths to YAMLs or directly from standard input (stdin).
+
+#### Using File Path
+```bash
+seqerakit /path/to/file.yaml
+```
+#### Using stdin
+```console
+$ cat file.yaml | seqerakit -
+```
+See the [Defining your YAML file using CLI options](#defining-your-yaml-file-using-cli-options) section for guidance on formatting your input YAML file(s).
 
 ### Dryrun
 
