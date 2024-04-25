@@ -97,7 +97,7 @@ class SeqeraPlatform:
         stdout = stdout.decode("utf-8").strip()
 
         if "ERROR: " in stdout or process.returncode != 0:
-            self._handle_command_errors(stdout)
+            self._handle_command_errors(str(stdout))
 
         return json.loads(stdout) if to_json else stdout
 

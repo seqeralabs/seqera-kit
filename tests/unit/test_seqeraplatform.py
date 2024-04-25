@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 from seqerakit import seqeraplatform
 import json
 import subprocess
@@ -26,6 +26,7 @@ class TestSeqeraPlatform(unittest.TestCase):
             "dateCreated": "2023-02-15T13:14:30Z",
         }
         # Mock the stdout of the Popen process
+        mock_subprocess.return_value = MagicMock(returncode=0)
         mock_subprocess.return_value.communicate.return_value = (
             json.dumps(mock_pipelines_json).encode(),
             b"",
@@ -93,6 +94,7 @@ class TestSeqeraPlatform(unittest.TestCase):
     def test_json_parsing(self):
         with patch("subprocess.Popen") as mock_subprocess:
             # Mock the stdout of the Popen process to return JSON
+            mock_subprocess.return_value = MagicMock(returncode=0)
             mock_subprocess.return_value.communicate.return_value = (
                 b'{"key": "value"}',
                 b"",
@@ -112,6 +114,7 @@ class TestSeqeraPlatformCLIArgs(unittest.TestCase):
     @patch("subprocess.Popen")
     def test_cli_args_inclusion(self, mock_subprocess):
         # Mock the stdout of the Popen process
+        mock_subprocess.return_value = MagicMock(returncode=0)
         mock_subprocess.return_value.communicate.return_value = (
             json.dumps({"key": "value"}).encode(),
             b"",
@@ -136,6 +139,7 @@ class TestSeqeraPlatformCLIArgs(unittest.TestCase):
         seqeraplatform.SeqeraPlatform(cli_args=self.cli_args)
 
         # Mock the stdout of the Popen process
+        mock_subprocess.return_value = MagicMock(returncode=0)
         mock_subprocess.return_value.communicate.return_value = (
             json.dumps({"key": "value"}).encode(),
             b"",
