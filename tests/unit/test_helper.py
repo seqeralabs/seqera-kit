@@ -4,6 +4,7 @@ import yaml
 import pytest
 from io import StringIO
 
+
 # Fixture to mock a YAML file
 @pytest.fixture
 def mock_yaml_file(mocker):
