@@ -19,6 +19,7 @@ methods for each block in the YAML file.
 """
 import yaml
 from seqerakit import utils
+import sys
 
 
 def parse_yaml_block(yaml_data, block_name):
@@ -57,24 +58,48 @@ def parse_all_yaml(file_paths, destroy=False):
     # If multiple yamls, merge them into one dictionary
     merged_data = {}
 
+    # Special handling for stdin represented by "-"
+    if not file_paths or "-" in file_paths:
+        # Read YAML directly from stdin
+        data = yaml.safe_load(sys.stdin)
+        if not data:
+            raise ValueError(
+                " The input from stdin is empty or does not contain valid YAML data."
+            )
+        merged_data.update(data)
+
     for file_path in file_paths:
-        with open(file_path, "r") as f:
-            data = yaml.safe_load(f)
+        if file_path == "-":
+            continue
+        try:
+            with open(file_path, "r") as f:
+                data = yaml.safe_load(f)
+                if not data:
+                    raise ValueError(
+                        f" The file '{file_path}' is empty or "
+                        "does not contain valid data."
+                    )
 
-            # Check if the YAML file is empty or contains no valid data
-            if data is None or not data:
-                raise ValueError(
-                    f" The file '{file_path}' is empty or does not contain valid data."
-                )
-
-            for key, value in data.items():
+            for key, new_value in data.items():
                 if key in merged_data:
-                    try:
-                        merged_data[key].extend(value)
-                    except AttributeError:
-                        merged_data[key] = [merged_data[key], value]
+                    if isinstance(new_value, list) and all(
+                        isinstance(i, dict) for i in new_value
+                    ):
+                        # Handle list of dictionaries & merge without duplication
+                        existing_items = {
+                            tuple(sorted(d.items())) for d in merged_data[key]
+                        }
+                        for item in new_value:
+                            if tuple(sorted(item.items())) not in existing_items:
+                                merged_data[key].append(item)
+                    else:
+                        # override if not list of dictionaries
+                        merged_data[key] = new_value
                 else:
-                    merged_data[key] = value
+                    merged_data[key] = new_value
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found.")
+            sys.exit(1)
 
     block_names = list(merged_data.keys())
 
@@ -95,7 +120,7 @@ def parse_all_yaml(file_paths, destroy=False):
         "launch",
     ]
 
-    # Reverse the order of resources if destroy is True
+    # Reverse the order of resources to delete if destroy is True
     if destroy:
         resource_order = resource_order[:-1][::-1]
 
