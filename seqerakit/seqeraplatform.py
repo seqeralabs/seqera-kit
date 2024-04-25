@@ -96,7 +96,7 @@ class SeqeraPlatform:
         stdout, _ = process.communicate()
         stdout = stdout.decode("utf-8").strip()
 
-        if "ERROR: " in stdout:
+        if "ERROR: " in stdout or process.returncode != 0:
             self._handle_command_errors(stdout)
 
         return json.loads(stdout) if to_json else stdout
@@ -114,11 +114,11 @@ class SeqeraPlatform:
             r"ERROR: .*already (exists|a participant)", stdout, flags=re.IGNORECASE
         ):
             raise ResourceExistsError(
-                " Resource already exists. Please delete first or set 'overwrite: true'"
+                "Resource already exists. Please delete first or set 'overwrite: true'"
             )
         else:
             raise ResourceCreationError(
-                f" Resource creation failed: '{stdout}'. "
+                f"Resource creation failed: '{stdout}'. "
                 "Check your config and try again."
             )
 
