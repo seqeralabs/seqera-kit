@@ -1,4 +1,8 @@
-# <img src="https://raw.githubusercontent.com/seqeralabs/seqera-kit/main/assets/seqerakit.svg" width=50 alt="seqerakit logo"> seqerakit
+<div align="center">
+    <img src="https://raw.githubusercontent.com/seqeralabs/seqera-kit/main/assets/seqerakit.svg" width="50" alt="seqerakit logo" style="vertical-align: middle; margin-right: 10px">
+    <span style="vertical-align: middle; font-size: 40px;">seqerakit</span>
+</div>
+<br>
 
 `seqerakit` is a Python wrapper for the [Seqera Platform CLI](https://github.com/seqeralabs/tower-cli). It can be leveraged to automate the creation of all of the entities in Seqera Platform via a simple configuration file in YAML format.
 
@@ -220,7 +224,7 @@ DEBUG:root: Running command: tw organizations add --name $SEQERA_ORGANIZATION_NA
 ### 3. Specifying JSON configuration files with `file-path`
 The Seqera Platform CLI allows export and import of entities through JSON configuration files for pipelines and compute environments. To use these files to add a pipeline or compute environment to a workspace, use the `file-path` key to specify a path to a JSON configuration file.
 
-An example of the `file-path` option is provided in the [compute-envs.yml](templates/compute-envs.yml) template:
+An example of the `file-path` option is provided in the [compute-envs.yml](./templates/compute-envs.yml) template:
 
 ```yaml
 compute-envs:
@@ -264,7 +268,7 @@ You will need to have an account on Seqera Platform (see [Plans and pricing](htt
 
 You can also launch the same pipeline via a Python script. This will essentially allow you to extend the functionality on offer within the Seqera Platform CLI by leveraging the flexibility and customisation options available in Python.
 
-1. Download the [`launch_hello_world.py`](https://github.com/seqeralabs/seqera-kit/blob/main/examples/python/launch_hello_world.py) Python script and customise the `<YOUR_WORKSPACE>` and `<YOUR_COMPUTE_ENVIRONMENT>` entries as required.
+1. Download the [`launch_hello_world.py`](./examples/python/launch_hello_world.py) Python script and customise the `<YOUR_WORKSPACE>` and `<YOUR_COMPUTE_ENVIRONMENT>` entries as required.
 
 2. Launch the pipeline with `seqerakit`:
 
@@ -331,24 +335,25 @@ In this example:
 - Ensure that the indentation and structure of the YAML file are correct - YAML is sensitive to formatting.
 - Use quotes around strings that contain special characters or spaces.
 - When listing multiple values (`labels`, `instance-types`, `allow-buckets`, etc), separate them with commas as shown above.
-- For complex configurations, refer to the [Templates](/templates/) provided in this repository.
+- For complex configurations, refer to the [Templates](./templates/) provided in this repository.
 
 
 ## Templates
 
 We have provided template YAML files for each of the entities that can be created on Seqera Platform. These can be found in the [`templates/`](https://github.com/seqeralabs/blob/main/seqera-kit/templates) directory and should form a good starting point for you to add your own customization:
 
-- [organizations.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/organizations.yml)
-- [teams.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/teams.yml)
-- [workspaces.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/workspaces.yml)
-- [participants.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/participants.yml)
-- [credentials.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/credentials.yml)
-- [secrets.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/secrets.yml)
-- [compute-envs.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/compute-envs.yml)
-- [actions.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/actions.yml)
-- [datasets.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/datasets.yml)
-- [pipelines.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/pipelines.yml)
-- [launch.yml](https://github.com/seqeralabs/seqera-kit/blob/main/templates/launch.yml)
+- [organizations.yml](./templates/organizations.yml)
+- [teams.yml](./templates/teams.yml)
+- [workspaces.yml](./templates/workspaces.yml)
+- [participants.yml](./templates/participants.yml)
+- [credentials.yml](./templates/credentials.yml)
+- [secrets.yml](./templates/secrets.yml)
+- [compute-envs.yml](./templates/compute-envs.yml)
+- [actions.yml](./templates/actions.yml)
+- [datasets.yml](./templates/datasets.yml)
+- [labels.yml](./templates/labels.yml)
+- [pipelines.yml](./templates/pipelines.yml)
+- [launch.yml](./templates/launch.yml)
 
 ## Real world example
 
@@ -370,7 +375,7 @@ $SENTIEON_LICENSE_BASE64
 
 ## Contributions and Support
 
-If you would like to contribute to `seqerakit`, please see the [contributing guidelines](https://github.com/seqeralabs/seqera-kit/blob/main/.github/CONTRIBUTING.md).
+If you would like to contribute to `seqerakit`, please see the [contributing guidelines](./.github/CONTRIBUTING.md).
 
 For further information or help, please don't hesitate to create an [issue](https://github.com/seqeralabs/seqera-kit/issues) in this repository.
 
