@@ -1,0 +1,4 @@
+members:
+   - user: 'laramie.lindsey+owner@seqera.io'
+     organization: 'seqerakit-e2e'
+     overwrite: False

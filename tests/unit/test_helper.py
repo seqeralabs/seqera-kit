@@ -1,7 +1,8 @@
-from unittest.mock import mock_open
+from unittest.mock import patch, mock_open
 from seqerakit import helper
 import yaml
 import pytest
+from io import StringIO
 
 
 # Fixture to mock a YAML file
@@ -48,8 +49,8 @@ def test_create_mock_organization_yaml(mock_yaml_file):
             "overwrite": True,
         }
     ]
-
     file_path = mock_yaml_file(test_data)
+    print(f"debug - file_path: {file_path}")
     result = helper.parse_all_yaml([file_path])
 
     assert "organizations" in result
@@ -266,6 +267,72 @@ def test_create_mock_pipeline_add_yaml(mock_yaml_file):
     assert result["pipelines"] == expected_block_output
 
 
+def test_create_mock_teams_yaml(mock_yaml_file):
+    test_data = {
+        "teams": [
+            {
+                "name": "test_team1",
+                "organization": "my_organization",
+                "description": "My test team 1",
+                "members": ["user1@org.io"],
+                "overwrite": True,
+            },
+        ]
+    }
+    expected_block_output = [
+        {
+            "cmd_args": (
+                [
+                    "--description",
+                    "My test team 1",
+                    "--name",
+                    "test_team1",
+                    "--organization",
+                    "my_organization",
+                ],
+                [
+                    [
+                        "--team",
+                        "test_team1",
+                        "--organization",
+                        "my_organization",
+                        "add",
+                        "--member",
+                        "user1@org.io",
+                    ]
+                ],
+            ),
+            "overwrite": True,
+        }
+    ]
+
+    file_path = mock_yaml_file(test_data)
+    result = helper.parse_all_yaml([file_path])
+
+    assert "teams" in result
+    assert result["teams"] == expected_block_output
+
+
+def test_create_mock_members_yaml(mock_yaml_file):
+    test_data = {"members": [{"user": "bob@myorg.io", "organization": "myorg"}]}
+    expected_block_output = [
+        {
+            "cmd_args": [
+                "--organization",
+                "myorg",
+                "--user",
+                "bob@myorg.io",
+            ],
+            "overwrite": False,
+        }
+    ]
+    file_path = mock_yaml_file(test_data)
+    result = helper.parse_all_yaml([file_path])
+
+    assert "members" in result
+    assert result["members"] == expected_block_output
+
+
 def test_empty_yaml_file(mock_yaml_file):
     test_data = {}
     file_path = mock_yaml_file(test_data)
@@ -275,6 +342,53 @@ def test_empty_yaml_file(mock_yaml_file):
     assert f"The file '{file_path}' is empty or does not contain valid data." in str(
         e.value
     )
+
+
+def test_empty_stdin_file():
+    # Prepare the mock to simulate empty stdin
+    with patch("sys.stdin", StringIO("")):
+        # Use '-' to indicate that stdin should be read
+        with pytest.raises(ValueError) as e:
+            helper.parse_all_yaml(["-"])
+        assert (
+            "The input from stdin is empty or does not contain valid YAML data."
+            in str(e.value)
+        )
+
+
+def test_stdin_yaml_file():
+    # Prepare the mock to simulate stdin
+    yaml_data = """
+compute-envs:
+  - name: test_computeenv
+    config-mode: forge
+    workspace: my_organization/my_workspace
+    credentials: my_credentials
+    type: aws-batch
+    wait: AVAILABLE
+        """
+    with patch("sys.stdin", StringIO(yaml_data)):
+        result = helper.parse_all_yaml(["-"])
+
+    expected_block_output = [
+        {
+            "cmd_args": [
+                "aws-batch",
+                "forge",
+                "--name",
+                "test_computeenv",
+                "--workspace",
+                "my_organization/my_workspace",
+                "--credentials",
+                "my_credentials",
+                "--wait",
+                "AVAILABLE",
+            ],
+            "overwrite": False,
+        }
+    ]
+    assert "compute-envs" in result
+    assert result["compute-envs"] == expected_block_output
 
 
 def test_error_type_yaml_file(mock_yaml_file):
@@ -295,4 +409,36 @@ def test_error_type_yaml_file(mock_yaml_file):
     assert (
         "Please specify at least 'type' or 'file-path' for creating the resource."
         in str(e.value)
+    )
+
+
+def test_error_duplicate_name_yaml_file(mock_yaml_file):
+    test_data = {
+        "compute-envs": [
+            {
+                "name": "test_computeenv",
+                "workspace": "my_organization/my_workspace",
+                "credentials": "my_credentials",
+                "type": "aws-batch",
+                "config-mode": "forge",
+                "wait": "AVAILABLE",
+            },
+            {
+                "name": "test_computeenv",
+                "workspace": "my_organization/my_workspace",
+                "credentials": "my_credentials",
+                "type": "aws-batch",
+                "config-mode": "forge",
+                "wait": "AVAILABLE",
+            },
+        ],
+    }
+    file_path = mock_yaml_file(test_data)
+
+    with pytest.raises(ValueError) as e:
+        helper.parse_all_yaml([file_path])
+    assert (
+        "Duplicate name key specified in config file for "
+        "compute-envs: test_computeenv. Please specify "
+        "a unique value." in str(e.value)
     )

@@ -1,0 +1,6 @@
+## To see the full list of options available run: "tw labels add"
+labels:
+  - name: 'label_name'                          # required
+    value: 'label_value'                        # required
+    workspace: 'my_organization/my_workspace'   # required
+    overwrite: True                             # optional

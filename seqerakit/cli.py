@@ -21,7 +21,6 @@ import argparse
 import logging
 import sys
 
-from pathlib import Path
 from seqerakit import seqeraplatform, helper, overwrite
 from seqerakit.seqeraplatform import ResourceExistsError, ResourceCreationError
 from seqerakit import __version__
@@ -66,7 +65,6 @@ def parse_args(args=None):
     yaml_processing = parser.add_argument_group("YAML Processing Options")
     yaml_processing.add_argument(
         "yaml",
-        type=Path,
         nargs="*",
         help="One or more YAML files with Seqera Platform resource definitions.",
     )
@@ -105,7 +103,7 @@ class BlockParser:
         # Create an instance of Overwrite class
         self.overwrite_method = overwrite.Overwrite(self.sp)
 
-    def handle_block(self, block, args, destroy=False):
+    def handle_block(self, block, args, destroy=False, dryrun=False):
         # Check if delete is set to True, and call delete handler
         if destroy:
             logging.debug(" The '--delete' flag has been specified.\n")
@@ -127,12 +125,12 @@ class BlockParser:
 
         # Check if overwrite is set to True, and call overwrite handler
         overwrite_option = args.get("overwrite", False)
-        if overwrite_option:
+        if overwrite_option and dryrun is False:
             logging.debug(f" Overwrite is set to 'True' for {block}\n")
             self.overwrite_method.handle_overwrite(
                 block, args["cmd_args"], overwrite_option
             )
-        else:
+        elif dryrun is False:
             self.overwrite_method.handle_overwrite(block, args["cmd_args"])
 
         if block in self.list_for_add_method:
@@ -154,10 +152,14 @@ def main(args=None):
         return
 
     if not options.yaml:
-        logging.error(
-            " No YAML(s) provided. Please provide atleast one YAML configuration file."
-        )
-        sys.exit(1)
+        if sys.stdin.isatty():
+            logging.error(
+                " No YAML(s) provided and no input from stdin. Please provide "
+                "at least one YAML configuration file or pipe input from stdin."
+            )
+            sys.exit(1)
+        else:
+            options.yaml = [sys.stdin]
 
     # Parse CLI arguments into a list
     cli_args_list = options.cli_args.split() if options.cli_args else []
@@ -169,6 +171,8 @@ def main(args=None):
         [
             "organizations",  # all use method.add
             "workspaces",
+            "labels",
+            "members",
             "credentials",
             "secrets",
             "actions",
@@ -184,7 +188,9 @@ def main(args=None):
             for args in args_list:
                 try:
                     # Run the 'tw' methods for each block
-                    block_manager.handle_block(block, args, destroy=options.delete)
+                    block_manager.handle_block(
+                        block, args, destroy=options.delete, dryrun=options.dryrun
+                    )
                 except (ResourceExistsError, ResourceCreationError) as e:
                     logging.error(e)
                     sys.exit(1)
