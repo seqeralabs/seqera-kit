@@ -1,4 +1,4 @@
-# <img src="docs/assets/seqerakit.svg" width=50 alt="seqerakit logo"> seqerakit
+# <img src="assets/seqerakit.svg" width=50 alt="seqerakit logo"> seqerakit
 
 `seqerakit` is a Python wrapper for the [Seqera Platform CLI](https://github.com/seqeralabs/tower-cli). It can be leveraged to automate the creation of all of the entities in Seqera Platform via a simple configuration file in YAML format.
 
