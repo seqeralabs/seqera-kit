@@ -66,7 +66,7 @@ def check_if_exists(json_data, namekey, namevalue):
     """
     if not json_data:
         return False
-    logging.info(f"Checking if {namekey} {namevalue} exists in Seqera Platform...")
+    logging.info(f" Checking if {namekey} {namevalue} exists in Seqera Platform...")
     # Regex pattern to match environment variables in the string
     env_var_pattern = re.compile(r"\$\{?[\w]+\}?")
 

@@ -255,7 +255,7 @@ class Overwrite:
                 self.cached_jsondata = json_method(
                     block, "list", "-w", sp_args["workspace"]
                 )
-            elif block == "members":  # TODO
+            elif block == "members" or block == "workspaces":  # TODO
                 sp_args = self._get_values_from_cmd_args(args, keys_to_get)
                 self.cached_jsondata = json_method(
                     block, "list", "-o", sp_args["organization"]
