@@ -1,6 +1,6 @@
 <div align="center">
     <img src="https://raw.githubusercontent.com/seqeralabs/seqera-kit/main/assets/seqerakit.svg" width="50" alt="seqerakit logo" style="vertical-align: middle; margin-right: 10px">
-    <span style="vertical-align: middle; font-size: 40px;">seqerakit</span>
+    <span style="vertical-align: middle; font-size: 90px;">seqerakit</span>
 </div>
 <br>
 
