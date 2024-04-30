@@ -20,6 +20,7 @@ methods for each block in the YAML file.
 import yaml
 from seqerakit import utils
 import sys
+import json
 
 
 def parse_yaml_block(yaml_data, block_name):
@@ -79,24 +80,28 @@ def parse_all_yaml(file_paths, destroy=False):
                         f" The file '{file_path}' is empty or "
                         "does not contain valid data."
                     )
-
+            # Process each key-value pair in YAML data
             for key, new_value in data.items():
-                if key in merged_data:
-                    if isinstance(new_value, list) and all(
-                        isinstance(i, dict) for i in new_value
-                    ):
-                        # Handle list of dictionaries & merge without duplication
-                        existing_items = {
-                            tuple(sorted(d.items())) for d in merged_data[key]
-                        }
-                        for item in new_value:
-                            if tuple(sorted(item.items())) not in existing_items:
-                                merged_data[key].append(item)
-                    else:
-                        # override if not list of dictionaries
-                        merged_data[key] = new_value
+                # Check if key exist in merged_data and
+                # new value is a list of dictionaries
+                if (
+                    key in merged_data
+                    and isinstance(new_value, list)
+                    and all(isinstance(i, dict) for i in new_value)
+                ):
+                    # Serialize dictionaries to JSON strings for comparison
+                    existing_items = {
+                        json.dumps(d, sort_keys=True) for d in merged_data[key]
+                    }
+                    for item in new_value:
+                        # Check if item is not already present in merged data
+                        item_json = json.dumps(item, sort_keys=True)
+                        if item_json not in existing_items:
+                            # Append item to merged data
+                            merged_data[key].append(item)
                 else:
                     merged_data[key] = new_value
+
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found.")
             sys.exit(1)
