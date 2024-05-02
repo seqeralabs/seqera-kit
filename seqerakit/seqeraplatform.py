@@ -44,18 +44,19 @@ class SeqeraPlatform:
             return self.tw_instance._tw_run(command, **kwargs)
 
     # Constructs a new SeqeraPlatform instance
-    def __init__(self, cli_args=None, dryrun=False):
+    def __init__(self, cli_args=None, dryrun=False, json=False):
         if cli_args and "--verbose" in cli_args:
             raise ValueError(
                 "--verbose is not supported as a CLI argument to seqerakit."
             )
         self.cli_args = cli_args or []
         self.dryrun = dryrun
+        self.json = json
 
     def _construct_command(self, cmd, *args, **kwargs):
         command = ["tw"] + self.cli_args
 
-        if kwargs.get("to_json"):
+        if self.json:
             command.extend(["-o", "json"])
 
         command.extend(cmd)
@@ -88,7 +89,7 @@ class SeqeraPlatform:
         return " ".join(full_cmd_parts)
 
     # Executes a 'tw' command in a subprocess and returns the output.
-    def _execute_command(self, full_cmd, to_json=False):
+    def _execute_command(self, full_cmd):
         logging.debug(f" Running command: {full_cmd}")
         process = subprocess.Popen(
             full_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
@@ -99,7 +100,14 @@ class SeqeraPlatform:
         if "ERROR: " in stdout or process.returncode != 0:
             self._handle_command_errors(str(stdout))
 
-        return json.loads(stdout) if to_json else stdout
+        if self.json:
+            out = json.loads(stdout)
+            print(json.dumps(out))
+        else:
+            out = stdout
+            print(stdout)
+
+        return out
 
     def _execute_info_command(self):
         # Directly execute 'tw info' command
@@ -126,8 +134,9 @@ class SeqeraPlatform:
         full_cmd = self._construct_command(cmd, *args, **kwargs)
         if not full_cmd or self.dryrun:
             logging.debug(f"DRYRUN: Running command {full_cmd}")
-            return
-        return self._execute_command(full_cmd, kwargs.get("to_json"))
+            return None
+        result = self._execute_command(full_cmd)
+        return result
 
     # Allow any 'tw' subcommand to be called as a method.
     def __getattr__(self, cmd):
