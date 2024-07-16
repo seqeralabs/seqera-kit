@@ -67,7 +67,18 @@ class SeqeraPlatform:
         if "params_file" in kwargs:
             command.append(f"--params-file={kwargs['params_file']}")
 
+        # Check for empty string arguments and handle them
+        self._check_empty_args(command)
+
         return self._check_env_vars(command)
+
+    def _check_empty_args(self, command):
+        for current_arg, next_arg in zip(command, command[1:]):
+            if isinstance(next_arg, str) and next_arg.strip() == "":
+                raise ValueError(
+                    f"Empty string argument found for parameter '{current_arg}'. "
+                    "Please provide a valid value or remove the argument."
+                )
 
     # Checks environment variables to see that they are set accordingly
     def _check_env_vars(self, command):
