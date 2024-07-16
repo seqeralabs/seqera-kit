@@ -27,7 +27,6 @@ You will need to have an account on Seqera Platform (see [Plans and pricing](htt
 You can install `seqerakit` and its dependencies via Conda. Ensure that you have the correct channels configured:
 
 ```console
-conda config --add channels defaults
 conda config --add channels bioconda
 conda config --add channels conda-forge
 conda config --set channel_priority strict
