@@ -91,6 +91,22 @@ class TestSeqeraPlatform(unittest.TestCase):
             with self.assertRaises(seqeraplatform.ResourceCreationError):
                 command("import", "my_pipeline.json", "--name", "pipeline_name")
 
+    def test_empty_string_argument(self):
+        command = ["--profile", " ", "--config", "my_config"]
+        with self.assertRaises(ValueError) as context:
+            self.sp._check_empty_args(command)
+        self.assertIn(
+            "Empty string argument found for parameter '--profile'",
+            str(context.exception),
+        )
+
+    def test_no_empty_string_argument(self):
+        command = ["--profile", "test_profile", "--config", "my_config"]
+        try:
+            self.sp._check_empty_args(command)
+        except ValueError:
+            self.fail("_check_empty_args() raised ValueError unexpectedly!")
+
     def test_json_parsing(self):
         with patch("subprocess.Popen") as mock_subprocess:
             # Mock the stdout of the Popen process to return JSON
