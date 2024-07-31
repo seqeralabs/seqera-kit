@@ -19,8 +19,6 @@ import subprocess
 import re
 import json
 
-logging.basicConfig(level=logging.DEBUG)
-
 
 class SeqeraPlatform:
     """
@@ -99,13 +97,16 @@ class SeqeraPlatform:
         return " ".join(full_cmd_parts)
 
     # Executes a 'tw' command in a subprocess and returns the output.
-    def _execute_command(self, full_cmd, to_json=False):
-        logging.debug(f" Running command: {full_cmd}")
+    def _execute_command(self, full_cmd, to_json=False, print_stdout=True):
+        logging.info(f" Running command: {full_cmd}")
         process = subprocess.Popen(
             full_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
         )
         stdout, _ = process.communicate()
         stdout = stdout.decode("utf-8").strip()
+
+        if print_stdout:
+            logging.info(f" Command output: {stdout}")
 
         if "ERROR: " in stdout or process.returncode != 0:
             self._handle_command_errors(str(stdout))
@@ -115,11 +116,9 @@ class SeqeraPlatform:
     def _execute_info_command(self, *args, **kwargs):
         # Directly execute 'tw info' command
         command = ["info"]
-        return self._tw_run(command, *args, **kwargs)
+        return self._tw_run(command, *args, **kwargs, print_stdout=False)
 
     def _handle_command_errors(self, stdout):
-        logging.error(stdout)
-
         # Check for specific tw cli error patterns and raise custom exceptions
         if re.search(
             r"ERROR: .*already (exists|a participant)", stdout, flags=re.IGNORECASE
@@ -134,11 +133,12 @@ class SeqeraPlatform:
             )
 
     def _tw_run(self, cmd, *args, **kwargs):
+        print_stout = kwargs.pop("print_stdout", True)
         full_cmd = self._construct_command(cmd, *args, **kwargs)
         if not full_cmd or self.dryrun:
             logging.debug(f"DRYRUN: Running command {full_cmd}")
             return
-        return self._execute_command(full_cmd, kwargs.get("to_json"))
+        return self._execute_command(full_cmd, kwargs.get("to_json"), print_stout)
 
     # Allow any 'tw' subcommand to be called as a method.
     def __getattr__(self, cmd):

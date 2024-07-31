@@ -143,7 +143,7 @@ class BlockParser:
 
 def main(args=None):
     options = parse_args(args if args is not None else sys.argv[1:])
-    logging.basicConfig(level=options.log_level)
+    logging.basicConfig(level=getattr(logging, options.log_level.upper()))
 
     # Parse CLI arguments into a list and create a Seqera Platform instance
     cli_args_list = options.cli_args.split() if options.cli_args else []
@@ -186,15 +186,10 @@ def main(args=None):
         cmd_args_dict = helper.parse_all_yaml(options.yaml, destroy=options.delete)
         for block, args_list in cmd_args_dict.items():
             for args in args_list:
-                try:
-                    # Run the 'tw' methods for each block
-                    block_manager.handle_block(
-                        block, args, destroy=options.delete, dryrun=options.dryrun
-                    )
-                except (ResourceExistsError, ResourceCreationError) as e:
-                    logging.error(e)
-                    sys.exit(1)
-    except ValueError as e:
+                block_manager.handle_block(
+                    block, args, destroy=options.delete, dryrun=options.dryrun
+                )
+    except (ResourceExistsError, ResourceCreationError, ValueError) as e:
         logging.error(e)
         sys.exit(1)
 
