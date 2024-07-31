@@ -145,10 +145,15 @@ def main(args=None):
     options = parse_args(args if args is not None else sys.argv[1:])
     logging.basicConfig(level=options.log_level)
 
+    # Parse CLI arguments into a list and create a Seqera Platform instance
+    cli_args_list = options.cli_args.split() if options.cli_args else []
+    sp = seqeraplatform.SeqeraPlatform(cli_args=cli_args_list, dryrun=options.dryrun)
+
     # If the info flag is set, run 'tw info'
     if options.info:
-        sp = seqeraplatform.SeqeraPlatform()
-        print(sp.info())
+        result = sp.info()
+        if not options.dryrun:
+            print(result)
         return
 
     if not options.yaml:
@@ -160,11 +165,6 @@ def main(args=None):
             sys.exit(1)
         else:
             options.yaml = [sys.stdin]
-
-    # Parse CLI arguments into a list
-    cli_args_list = options.cli_args.split() if options.cli_args else []
-
-    sp = seqeraplatform.SeqeraPlatform(cli_args=cli_args_list, dryrun=options.dryrun)
 
     block_manager = BlockParser(
         sp,

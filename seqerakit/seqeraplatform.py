@@ -112,10 +112,10 @@ class SeqeraPlatform:
 
         return json.loads(stdout) if to_json else stdout
 
-    def _execute_info_command(self):
+    def _execute_info_command(self, *args, **kwargs):
         # Directly execute 'tw info' command
-        command = "tw info"
-        return self._execute_command(command)
+        command = ["info"]
+        return self._tw_run(command, *args, **kwargs)
 
     def _handle_command_errors(self, stdout):
         logging.error(stdout)

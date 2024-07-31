@@ -186,6 +186,32 @@ class TestSeqeraPlatformCLIArgs(unittest.TestCase):
             "--verbose is not supported as a CLI argument to seqerakit.",
         )
 
+    @patch("subprocess.Popen")
+    def test_info_command_construction(self, mock_subprocess):
+        # Mock the subprocess call to prevent actual execution
+        mock_subprocess.return_value = MagicMock(returncode=0)
+        mock_subprocess.return_value.communicate.return_value = (b"", b"")
+
+        self.sp.info()
+        called_command = mock_subprocess.call_args[0][0]
+
+        # Check if the constructed command is correct
+        expected_command_part = "tw --url http://tower-api.com --insecure info"
+        self.assertIn(expected_command_part, called_command)
+
+        # Check if the cli_args are included in the called command
+        for arg in self.cli_args:
+            self.assertIn(arg, called_command)
+
+    @patch("subprocess.Popen")
+    def test_info_command_dryrun(self, mock_subprocess):
+        # Initialize SeqeraPlatform with dryrun enabled
+        self.sp.dryrun = True
+        self.sp.info()
+
+        # Check that subprocess.Popen is not called
+        mock_subprocess.assert_not_called()
+
 
 class TestKitOptions(unittest.TestCase):
     def setUp(self):
