@@ -120,11 +120,6 @@ class SeqeraPlatform:
 
         return json.loads(stdout) if to_json else stdout
 
-    def _execute_info_command(self, *args, **kwargs):
-        # Directly execute 'tw info' command
-        command = ["info"]
-        return self._tw_run(command, *args, **kwargs, print_stdout=False)
-
     def _handle_command_errors(self, stdout):
         # Check for specific tw cli error patterns and raise custom exceptions
         if re.search(
@@ -159,7 +154,9 @@ class SeqeraPlatform:
     # Allow any 'tw' subcommand to be called as a method.
     def __getattr__(self, cmd):
         if cmd == "info":
-            return self._execute_info_command
+            return lambda *args, **kwargs: self._tw_run(
+                ["info"], *args, **kwargs, print_stdout=False
+            )
         if cmd == "-o json":
             return lambda *args, **kwargs: self._tw_run(
                 ["-o", "json"] + list(args), **kwargs
