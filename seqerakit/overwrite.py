@@ -117,13 +117,13 @@ class Overwrite:
             if self.check_resource_exists(operation["name_key"], sp_args):
                 # if resource exists and overwrite is true, delete
                 if overwrite:
-                    logging.debug(
+                    logging.info(
                         f" The attempted {block} resource already exists."
                         " Overwriting.\n"
                     )
                     self.delete_resource(block, operation, sp_args)
                 elif destroy:
-                    logging.debug(f" Deleting the {block} resource.")
+                    logging.info(f" Deleting the {block} resource.")
                     self.delete_resource(block, operation, sp_args)
                 else:  # return an error if resource exists, overwrite=False
                     raise ResourceExistsError(
@@ -147,7 +147,8 @@ class Overwrite:
 
         if not jsondata:
             json_method = getattr(self.sp, "-o json")
-            json_out = json_method("teams", "list", "-o", args["organization"])
+            with self.sp.suppress_output():
+                json_out = json_method("teams", "list", "-o", args["organization"])
             self.block_jsondata["teams"] = json_out
         else:
             json_out = jsondata
@@ -244,27 +245,30 @@ class Overwrite:
             # Fetch the data if it does not exist
             if block == "teams":
                 sp_args = self._get_values_from_cmd_args(args[0], keys_to_get)
-                self.cached_jsondata = json_method(
-                    block, "list", "-o", sp_args["organization"]
-                )
+                with self.sp.suppress_output():
+                    self.cached_jsondata = json_method(
+                        block, "list", "-o", sp_args["organization"]
+                    )
             elif block in Overwrite.generic_deletion or block in {
                 "participants",
                 "labels",
             }:
                 sp_args = self._get_values_from_cmd_args(args, keys_to_get)
-                self.cached_jsondata = json_method(
-                    block, "list", "-w", sp_args["workspace"]
-                )
-            elif block == "members" or block == "workspaces":  # TODO
+                with self.sp.suppress_output():
+                    self.cached_jsondata = json_method(
+                        block, "list", "-w", sp_args["workspace"]
+                    )
+            elif block == "members" or block == "workspaces":
                 sp_args = self._get_values_from_cmd_args(args, keys_to_get)
-                self.cached_jsondata = json_method(
-                    block, "list", "-o", sp_args["organization"]
-                )
+                with self.sp.suppress_output():
+                    self.cached_jsondata = json_method(
+                        block, "list", "-o", sp_args["organization"]
+                    )
             else:
                 sp_args = self._get_values_from_cmd_args(args, keys_to_get)
-                self.cached_jsondata = json_method(block, "list")
+                with self.sp.suppress_output():
+                    self.cached_jsondata = json_method(block, "list")
 
-        # Store this data in the block_jsondata dict for later use
         self.block_jsondata[block] = self.cached_jsondata
         return self.cached_jsondata, sp_args
 
