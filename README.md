@@ -169,6 +169,43 @@ seqerakit hello-world-config.yml --cli="-Djavax.net.ssl.trustStore=/absolute/pat
 
 <b>Note</b>: Use of `--verbose` option for the `tw` CLI is currently not supported by `seqerakit`. Supplying `--cli="--verbose"` will raise an error.
 
+## Specify targets
+When using a YAML file as input that defines multiple resources, you can use the `--targets` flag to specify which resources to create. This flag takes a comma-separated list of resource names.
+
+For example, given a YAML file that defines the following resources:
+
+```yaml
+workspaces:
+  - name: 'showcase'
+    organization: 'seqerakit_automation'
+...
+compute-envs:
+  - name: 'compute-env'
+    type: 'aws-batch forge'
+    workspace: 'seqerakit/test'
+...
+pipelines:
+  - name: "hello-world-test-seqerakit"
+    url: "https://github.com/nextflow-io/hello"
+    workspace: 'seqerakit/test'
+    compute-env: "compute-env"
+...
+```
+
+You can target the creation of `pipelines` only by running:
+
+```bash
+seqerakit test.yml --targets pipelines
+```
+This will process only the pipelines block from the YAML file and ignore other blocks such as `workspaces` and `compute-envs`.
+
+### Multiple Targets
+You can also specify multiple resources to create by separating them with commas. For example, to create both workspaces and pipelines, run:
+
+```bash
+seqerakit test.yml --targets workspaces,pipelines
+```
+
 ## YAML Configuration Options
 
 There are several options that can be provided in your YAML configuration file, that are handled specially by seqerakit and/or are not exposed as `tw` CLI options.
