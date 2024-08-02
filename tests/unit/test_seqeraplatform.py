@@ -4,6 +4,8 @@ from seqerakit import seqeraplatform
 import json
 import subprocess
 import os
+import logging
+from io import StringIO
 
 
 class TestSeqeraPlatform(unittest.TestCase):
@@ -266,6 +268,108 @@ class TestCheckEnvVars(unittest.TestCase):
         self.assertEqual(
             str(context.exception), f" Environment variable ${unset_var} not found!"
         )
+
+
+class TestSeqeraPlatformOutputHandling(unittest.TestCase):
+    def setUp(self):
+        self.sp = seqeraplatform.SeqeraPlatform()
+        # Set up logging to capture output
+        self.log_capture = StringIO()
+        self.log_handler = logging.StreamHandler(self.log_capture)
+        logging.getLogger().addHandler(self.log_handler)
+        logging.getLogger().setLevel(logging.INFO)
+
+    def tearDown(self):
+        logging.getLogger().removeHandler(self.log_handler)
+        logging.getLogger().setLevel(logging.NOTSET)
+
+    @patch("subprocess.Popen")
+    def test_suppress_output(self, mock_subprocess):
+        mock_subprocess.return_value = MagicMock(returncode=0)
+        mock_subprocess.return_value.communicate.return_value = (
+            b'{"key": "value"}',
+            b"",
+        )
+
+        log_capture = StringIO()
+        logging.getLogger().addHandler(logging.StreamHandler(log_capture))
+
+        with self.sp.suppress_output():
+            self.sp.pipelines("list")
+
+        log_contents = log_capture.getvalue()
+        self.assertIn("Running command:", log_contents)
+        self.assertNotIn("Command output:", log_contents)
+
+    @patch("subprocess.Popen")
+    def test_suppress_output_context(self, mock_subprocess):
+        mock_subprocess.return_value = MagicMock(returncode=0)
+        mock_subprocess.return_value.communicate.return_value = (
+            b'{"key": "value"}',
+            b"",
+        )
+
+        # Test that stdout is suppressed within the context manager
+        with self.sp.suppress_output():
+            result = self.sp._execute_command("tw pipelines list", to_json=True)
+        self.assertEqual(result, {"key": "value"})
+
+        # Test that stdout is not suppressed outside the context manager
+        result = self.sp._execute_command("tw pipelines list", to_json=True)
+        self.assertEqual(result, {"key": "value"})
+
+    @patch("subprocess.Popen")
+    def test_json_output_handling(self, mock_subprocess):
+        mock_subprocess.return_value = MagicMock(returncode=0)
+        mock_subprocess.return_value.communicate.return_value = (
+            b'{"key": "value"}',
+            b"",
+        )
+
+        result = self.sp._execute_command("tw pipelines list", to_json=True)
+        self.assertEqual(result, {"key": "value"})
+
+        result = self.sp._execute_command("tw pipelines list", to_json=False)
+        self.assertEqual(result, '{"key": "value"}')
+
+    @patch("subprocess.Popen")
+    def test_print_stdout_override(self, mock_subprocess):
+        mock_subprocess.return_value = MagicMock(returncode=0)
+        mock_subprocess.return_value.communicate.return_value = (b"output", b"")
+
+        # Test with print_stdout=True
+        self.sp._execute_command("tw pipelines list", print_stdout=True)
+        log_output = self.log_capture.getvalue()
+        self.assertIn("Command output: output", log_output)
+
+        # Clear the log capture
+        self.log_capture.truncate(0)
+        self.log_capture.seek(0)
+
+        # Test with print_stdout=False
+        self.sp._execute_command("tw pipelines list", print_stdout=False)
+        log_output = self.log_capture.getvalue()
+        self.assertNotIn("Command output: output", log_output)
+
+    @patch("subprocess.Popen")
+    def test_error_handling_with_suppressed_output(self, mock_subprocess):
+        mock_subprocess.return_value = MagicMock(returncode=1)
+        mock_subprocess.return_value.communicate.return_value = (
+            b"ERROR: Something went wrong",
+            b"",
+        )
+
+        with self.assertRaises(seqeraplatform.ResourceCreationError):
+            with self.sp.suppress_output():
+                self.sp._execute_command("tw pipelines list")
+
+    @patch("subprocess.Popen")
+    def test_json_parsing_error(self, mock_subprocess):
+        mock_subprocess.return_value = MagicMock(returncode=0)
+        mock_subprocess.return_value.communicate.return_value = (b"Invalid JSON", b"")
+
+        with self.assertRaises(json.JSONDecodeError):
+            self.sp._execute_command("tw pipelines list", to_json=True)
 
 
 if __name__ == "__main__":
