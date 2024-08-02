@@ -442,3 +442,73 @@ def test_error_duplicate_name_yaml_file(mock_yaml_file):
         "compute-envs: test_computeenv. Please specify "
         "a unique value." in str(e.value)
     )
+
+
+def test_targets_specified():
+    #  mock YAML data
+    yaml_data = """
+organizations:
+  - name: org1
+    description: Organization 1
+workspaces:
+  - name: workspace1
+    organization: org1
+    description: Workspace 1
+pipelines:
+  - name: pipeline1
+    workspace: workspace1
+    description: Pipeline 1
+"""
+    with patch("builtins.open", lambda f, _: StringIO(yaml_data)):
+        result = helper.parse_all_yaml(
+            ["dummy_path.yaml"], targets="organizations,workspaces"
+        )
+
+    expected_organizations_output = [
+        {
+            "cmd_args": ["--name", "org1", "--description", "Organization 1"],
+            "overwrite": False,
+        }
+    ]
+    expected_workspaces_output = [
+        {
+            "cmd_args": [
+                "--name",
+                "workspace1",
+                "--organization",
+                "org1",
+                "--description",
+                "Workspace 1",
+            ],
+            "overwrite": False,
+        }
+    ]
+    # Check that only 'organizations' and 'workspaces' are in the result
+    assert "organizations" in result
+    assert result["organizations"] == expected_organizations_output
+    assert "workspaces" in result
+    assert result["workspaces"] == expected_workspaces_output
+    assert "pipelines" not in result
+
+
+def test_no_targets_specified():
+    yaml_data = """
+organizations:
+  - name: org1
+    description: Organization 1
+workspaces:
+  - name: workspace1
+    organization: org1
+    description: Workspace 1
+pipelines:
+  - name: pipeline1
+    workspace: workspace1
+    description: Pipeline 1
+"""
+    with patch("builtins.open", lambda f, _: StringIO(yaml_data)):
+        result = helper.parse_all_yaml(["dummy_path.yaml"])
+
+    # Check that all blocks are in the result
+    assert "organizations" in result
+    assert "workspaces" in result
+    assert "pipelines" in result

@@ -80,6 +80,13 @@ def parse_args(args=None):
         help="Additional Seqera Platform CLI specific options to be passed,"
         " enclosed in double quotes (e.g. '--cli=\"--insecure\"').",
     )
+    yaml_processing.add_argument(
+        "--targets",
+        dest="targets",
+        type=str,
+        help="Specify the resources to be targeted for creation in a YAML file through "
+        "a comma-separated list (e.g. '--targets=teams,participants').",
+    )
     return parser.parse_args(args)
 
 
@@ -183,7 +190,9 @@ def main(args=None):
     # Parse the YAML file(s) by blocks
     # and get a dictionary of command line arguments
     try:
-        cmd_args_dict = helper.parse_all_yaml(options.yaml, destroy=options.delete)
+        cmd_args_dict = helper.parse_all_yaml(
+            options.yaml, destroy=options.delete, targets=options.targets
+        )
         for block, args_list in cmd_args_dict.items():
             for args in args_list:
                 block_manager.handle_block(
