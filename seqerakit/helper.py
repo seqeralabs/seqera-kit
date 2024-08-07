@@ -55,7 +55,7 @@ def parse_yaml_block(yaml_data, block_name):
     return block_name, cmd_args_list
 
 
-def parse_all_yaml(file_paths, destroy=False):
+def parse_all_yaml(file_paths, destroy=False, targets=None):
     # If multiple yamls, merge them into one dictionary
     merged_data = {}
 
@@ -107,6 +107,11 @@ def parse_all_yaml(file_paths, destroy=False):
             sys.exit(1)
 
     block_names = list(merged_data.keys())
+
+    # Filter blocks based on targets if provided
+    if targets:
+        target_blocks = set(targets.split(","))
+        block_names = [block for block in block_names if block in target_blocks]
 
     # Define the order in which the resources should be created.
     resource_order = [
