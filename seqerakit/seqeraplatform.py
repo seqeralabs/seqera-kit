@@ -119,7 +119,7 @@ class SeqeraPlatform:
         if "ERROR: " in stdout or process.returncode != 0:
             self._handle_command_errors(stdout)
 
-        if self.json:
+        if self.json or to_json:
             out = json.loads(stdout)
             print(json.dumps(out))
         else:
