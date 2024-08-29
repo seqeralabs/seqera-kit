@@ -113,7 +113,8 @@ class SeqeraPlatform:
             print_stdout if print_stdout is not None else self.print_stdout
         ) and not self._suppress_output
 
-        if should_print:
+        # Do not print output in logging if self.json is enabled
+        if should_print and not self.json:
             logging.info(f" Command output: {stdout}")
 
         if "ERROR: " in stdout or process.returncode != 0:
