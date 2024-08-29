@@ -142,28 +142,52 @@ To print the commands that would executed with `tw` when using a YAML file, you 
 seqerakit file.yaml --dryrun
 ```
 
-### JSON output
+To capture the details of the created resources, you can use the `--json` command-line flag to output the results as JSON to `stdout`. This is equivalent to using the `-o json` flag with the `tw` CLI.
 
-If you wish to capture the details of the resources made, you can use the command line flag `--json` to write a JSON output to stdout. This is equivalent to using the `-o json` flag on the tw CLI.
+For example:
 
-```console
+```bash
 seqerakit -j examples/yaml/e2e/launch.yml
-INFO:root: Running command: tw -o json launch --name hello --workspace $SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME hello
-{"workflowId": "1wfhRp5ioFIyrs", "workflowUrl": "https://tower.nf/orgs/orgName/workspaces/workspaceName/watch/1wfhRp5ioFIyrs", "workspaceId": 12345678, "workspaceRef": "[orgName / workspaceName]"}
 ```
 
-This will allow you to pipe the output into downstream tools. The logs will continue to be written to stderr, allowing you to monitor the progress of the tool.
+This command internally runs the following `tw` command:
 
-```console
+```bash
+INFO:root: Running command: tw -o json launch --name hello --workspace $SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME hello
+```
+
+The output will look like this:
+
+```json
+{
+  "workflowId": "1wfhRp5ioFIyrs",
+  "workflowUrl": "https://tower.nf/orgs/orgName/workspaces/workspaceName/watch/1wfhRp5ioFIyrs",
+  "workspaceId": 12345678,
+  "workspaceRef": "[orgName / workspaceName]"
+}
+```
+
+This JSON output can be piped into other tools for further processing. Note that logs will still be written to `stderr`, allowing you to monitor the tool's progress in real-time.
+
+If you prefer to suppress the JSON output and focus only on the logs:
+
+```bash
 seqerakit -j examples/yaml/e2e/launch.yml > /dev/null
+```
+
+This will still log:
+
+```bash
 INFO:root: Running command: tw -o json launch --name hello --workspace $SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME hello
 ```
 
-Each invocation of the `tw` CLI will create a single JSON object. If you wish to collate them into one JSON object use a tool like jq:
+Each execution of the `tw` CLI generates a single JSON object. To combine multiple JSON objects into one, you can use a tool like `jq`:
 
-```console
+```bash
 seqerakit -j launch/*.yml | jq --slurp > launched-pipelines.json
 ```
+
+This command will merge the individual JSON objects from each `tw` command into a single JSON array and save it to `launched-pipelines.json`.
 
 ### Recursively delete
 
