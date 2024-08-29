@@ -12,14 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from contextlib import contextmanager
 import os
 import shlex
 import logging
 import subprocess
 import re
 import json
-
-logging.basicConfig(level=logging.DEBUG)
 
 
 class SeqeraPlatform:
@@ -44,14 +43,16 @@ class SeqeraPlatform:
             return self.tw_instance._tw_run(command, **kwargs)
 
     # Constructs a new SeqeraPlatform instance
-    def __init__(self, cli_args=None, dryrun=False, json=False):
+    def __init__(self, cli_args=None, dryrun=False, print_stdout=True, json=False):
         if cli_args and "--verbose" in cli_args:
             raise ValueError(
                 "--verbose is not supported as a CLI argument to seqerakit."
             )
         self.cli_args = cli_args or []
         self.dryrun = dryrun
+        self.print_stdout = print_stdout
         self.json = json
+        self._suppress_output = False
 
     def _construct_command(self, cmd, *args, **kwargs):
         command = ["tw"] + self.cli_args
@@ -68,7 +69,18 @@ class SeqeraPlatform:
         if "params_file" in kwargs:
             command.append(f"--params-file={kwargs['params_file']}")
 
+        # Check for empty string arguments and handle them
+        self._check_empty_args(command)
+
         return self._check_env_vars(command)
+
+    def _check_empty_args(self, command):
+        for current_arg, next_arg in zip(command, command[1:]):
+            if isinstance(next_arg, str) and next_arg.strip() == "":
+                raise ValueError(
+                    f"Empty string argument found for parameter '{current_arg}'. "
+                    "Please provide a valid value or remove the argument."
+                )
 
     # Checks environment variables to see that they are set accordingly
     def _check_env_vars(self, command):
@@ -89,16 +101,23 @@ class SeqeraPlatform:
         return " ".join(full_cmd_parts)
 
     # Executes a 'tw' command in a subprocess and returns the output.
-    def _execute_command(self, full_cmd):
-        logging.debug(f" Running command: {full_cmd}")
+    def _execute_command(self, full_cmd, to_json=False, print_stdout=True):
+        logging.info(f" Running command: {full_cmd}")
         process = subprocess.Popen(
             full_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
         )
         stdout, _ = process.communicate()
         stdout = stdout.decode("utf-8").strip()
 
+        should_print = (
+            print_stdout if print_stdout is not None else self.print_stdout
+        ) and not self._suppress_output
+
+        if should_print:
+            logging.info(f" Command output: {stdout}")
+
         if "ERROR: " in stdout or process.returncode != 0:
-            self._handle_command_errors(str(stdout))
+            self._handle_command_errors(stdout)
 
         if self.json:
             out = json.loads(stdout)
@@ -109,14 +128,7 @@ class SeqeraPlatform:
 
         return out
 
-    def _execute_info_command(self):
-        # Directly execute 'tw info' command
-        command = "tw info"
-        return self._execute_command(command)
-
     def _handle_command_errors(self, stdout):
-        logging.error(stdout)
-
         # Check for specific tw cli error patterns and raise custom exceptions
         if re.search(
             r"ERROR: .*already (exists|a participant)", stdout, flags=re.IGNORECASE
@@ -131,19 +143,33 @@ class SeqeraPlatform:
             )
 
     def _tw_run(self, cmd, *args, **kwargs):
+        print_stdout = kwargs.pop("print_stdout", None)
         full_cmd = self._construct_command(cmd, *args, **kwargs)
         if not full_cmd or self.dryrun:
-            logging.debug(f"DRYRUN: Running command {full_cmd}")
+            logging.info(f"DRYRUN: Running command {full_cmd}")
             return None
-        result = self._execute_command(full_cmd)
-        return result
+        return self._execute_command(full_cmd, kwargs.get("to_json"), print_stdout)
+
+    @contextmanager
+    def suppress_output(self):
+        original_suppress = self._suppress_output
+        self._suppress_output = True
+        try:
+            yield
+        finally:
+            self._suppress_output = original_suppress
 
     # Allow any 'tw' subcommand to be called as a method.
     def __getattr__(self, cmd):
         if cmd == "info":
-            return self._execute_info_command
-        else:
-            return self.TwCommand(self, cmd.replace("_", "-"))
+            return lambda *args, **kwargs: self._tw_run(
+                ["info"], *args, **kwargs, print_stdout=False
+            )
+        if cmd == "-o json":
+            return lambda *args, **kwargs: self._tw_run(
+                ["-o", "json"] + list(args), **kwargs
+            )
+        return self.TwCommand(self, cmd.replace("_", "-"))
 
 
 class ResourceExistsError(Exception):

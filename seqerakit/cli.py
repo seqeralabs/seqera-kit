@@ -83,6 +83,13 @@ def parse_args(args=None):
         help="Additional Seqera Platform CLI specific options to be passed,"
         " enclosed in double quotes (e.g. '--cli=\"--insecure\"').",
     )
+    yaml_processing.add_argument(
+        "--targets",
+        dest="targets",
+        type=str,
+        help="Specify the resources to be targeted for creation in a YAML file through "
+        "a comma-separated list (e.g. '--targets=teams,participants').",
+    )
     return parser.parse_args(args)
 
 
@@ -146,12 +153,20 @@ class BlockParser:
 
 def main(args=None):
     options = parse_args(args if args is not None else sys.argv[1:])
-    logging.basicConfig(level=options.log_level)
+    logging.basicConfig(level=getattr(logging, options.log_level.upper()))
+
+    # Parse CLI arguments into a list
+    cli_args_list = options.cli_args.split() if options.cli_args else []
+
+    sp = seqeraplatform.SeqeraPlatform(
+        cli_args=cli_args_list, dryrun=options.dryrun, json=options.json
+    )
 
     # If the info flag is set, run 'tw info'
     if options.info:
-        sp = seqeraplatform.SeqeraPlatform()
-        print(sp.info())
+        result = sp.info()
+        if not options.dryrun:
+            print(result)
         return
 
     if not options.yaml:
@@ -163,13 +178,6 @@ def main(args=None):
             sys.exit(1)
         else:
             options.yaml = [sys.stdin]
-
-    # Parse CLI arguments into a list
-    cli_args_list = options.cli_args.split() if options.cli_args else []
-
-    sp = seqeraplatform.SeqeraPlatform(
-        cli_args=cli_args_list, dryrun=options.dryrun, json=options.json
-    )
 
     block_manager = BlockParser(
         sp,
@@ -188,18 +196,15 @@ def main(args=None):
     # Parse the YAML file(s) by blocks
     # and get a dictionary of command line arguments
     try:
-        cmd_args_dict = helper.parse_all_yaml(options.yaml, destroy=options.delete)
+        cmd_args_dict = helper.parse_all_yaml(
+            options.yaml, destroy=options.delete, targets=options.targets
+        )
         for block, args_list in cmd_args_dict.items():
             for args in args_list:
-                try:
-                    # Run the 'tw' methods for each block
-                    block_manager.handle_block(
-                        block, args, destroy=options.delete, dryrun=options.dryrun
-                    )
-                except (ResourceExistsError, ResourceCreationError) as e:
-                    logging.error(e)
-                    sys.exit(1)
-    except ValueError as e:
+                block_manager.handle_block(
+                    block, args, destroy=options.delete, dryrun=options.dryrun
+                )
+    except (ResourceExistsError, ResourceCreationError, ValueError) as e:
         logging.error(e)
         sys.exit(1)
 
