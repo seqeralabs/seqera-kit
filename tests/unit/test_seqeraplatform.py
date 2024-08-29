@@ -332,6 +332,13 @@ class TestSeqeraPlatformOutputHandling(unittest.TestCase):
         result = self.sp._execute_command("tw pipelines list", to_json=False)
         self.assertEqual(result, '{"key": "value"}')
 
+        _sp = seqeraplatform.SeqeraPlatform(json=True)
+        result = _sp._execute_command("tw pipelines list", to_json=False)
+        self.assertEqual(result, {"key": "value"})
+
+        result = _sp._execute_command("tw pipelines list", to_json=True)
+        self.assertEqual(result, {"key": "value"})
+
     @patch("subprocess.Popen")
     def test_print_stdout_override(self, mock_subprocess):
         mock_subprocess.return_value = MagicMock(returncode=0)
