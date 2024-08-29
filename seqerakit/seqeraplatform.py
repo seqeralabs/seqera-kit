@@ -85,18 +85,27 @@ class SeqeraPlatform:
     def _check_env_vars(self, command):
         full_cmd_parts = []
         shell_constructs = ["|", ">", "<", "$(", "&", "&&", "`"]
+        
+        # Define the patterns and extraction methods for variable types
+        env_var_patterns = {
+            "Unix-style": (r"\$\{?[\w]+\}?", lambda var: re.sub(r"[${}]", "", var)),
+            "Windows-style": (r"%[\w]+%", lambda var: var.strip("%")),
+            "PowerShell-style": (r"\$env:[\w]+", lambda var: var.split(":")[1])
+        }
+        
         for arg in command:
             if any(construct in arg for construct in shell_constructs):
                 full_cmd_parts.append(arg)
-            elif "$" in arg:
-                for env_var in re.findall(r"\$\{?[\w]+\}?", arg):
-                    if re.sub(r"[${}]", "", env_var) not in os.environ:
-                        raise EnvironmentError(
-                            f" Environment variable {env_var} not found!"
-                        )
+            elif "$" in arg or "%" in arg:
+                for pattern, extractor in env_var_patterns.values():
+                    for env_var in re.findall(pattern, arg):
+                        env_var_name = extractor(env_var)
+                        if env_var_name not in os.environ:
+                            raise EnvironmentError(f"Environment variable {env_var} not found!")
                 full_cmd_parts.append(arg)
             else:
                 full_cmd_parts.append(shlex.quote(arg))
+        
         return " ".join(full_cmd_parts)
 
     # Executes a 'tw' command in a subprocess and returns the output.
