@@ -48,6 +48,9 @@ def parse_args(args=None):
         help="Display Seqera Platform information and exit.",
     )
     general.add_argument(
+        "-j", "--json", action="store_true", help="Output JSON format in stdout."
+    )
+    general.add_argument(
         "--dryrun",
         "-d",
         action="store_true",
@@ -152,9 +155,12 @@ def main(args=None):
     options = parse_args(args if args is not None else sys.argv[1:])
     logging.basicConfig(level=getattr(logging, options.log_level.upper()))
 
-    # Parse CLI arguments into a list and create a Seqera Platform instance
+    # Parse CLI arguments into a list
     cli_args_list = options.cli_args.split() if options.cli_args else []
-    sp = seqeraplatform.SeqeraPlatform(cli_args=cli_args_list, dryrun=options.dryrun)
+
+    sp = seqeraplatform.SeqeraPlatform(
+        cli_args=cli_args_list, dryrun=options.dryrun, json=options.json
+    )
 
     # If the info flag is set, run 'tw info'
     if options.info:

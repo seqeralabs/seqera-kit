@@ -43,7 +43,7 @@ class SeqeraPlatform:
             return self.tw_instance._tw_run(command, **kwargs)
 
     # Constructs a new SeqeraPlatform instance
-    def __init__(self, cli_args=None, dryrun=False, print_stdout=True):
+    def __init__(self, cli_args=None, dryrun=False, print_stdout=True, json=False):
         if cli_args and "--verbose" in cli_args:
             raise ValueError(
                 "--verbose is not supported as a CLI argument to seqerakit."
@@ -51,12 +51,13 @@ class SeqeraPlatform:
         self.cli_args = cli_args or []
         self.dryrun = dryrun
         self.print_stdout = print_stdout
+        self.json = json
         self._suppress_output = False
 
     def _construct_command(self, cmd, *args, **kwargs):
         command = ["tw"] + self.cli_args
 
-        if kwargs.get("to_json"):
+        if self.json:
             command.extend(["-o", "json"])
 
         command.extend(cmd)
@@ -112,13 +113,21 @@ class SeqeraPlatform:
             print_stdout if print_stdout is not None else self.print_stdout
         ) and not self._suppress_output
 
-        if should_print:
+        # Do not print output in logging if self.json is enabled
+        if should_print and not self.json:
             logging.info(f" Command output: {stdout}")
 
         if "ERROR: " in stdout or process.returncode != 0:
             self._handle_command_errors(stdout)
 
-        return json.loads(stdout) if to_json else stdout
+        if self.json or to_json:
+            out = json.loads(stdout)
+            print(json.dumps(out))
+        else:
+            out = stdout
+            print(stdout)
+
+        return out
 
     def _handle_command_errors(self, stdout):
         # Check for specific tw cli error patterns and raise custom exceptions
@@ -139,7 +148,7 @@ class SeqeraPlatform:
         full_cmd = self._construct_command(cmd, *args, **kwargs)
         if not full_cmd or self.dryrun:
             logging.info(f"DRYRUN: Running command {full_cmd}")
-            return
+            return None
         return self._execute_command(full_cmd, kwargs.get("to_json"), print_stdout)
 
     @contextmanager

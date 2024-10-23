@@ -10,7 +10,7 @@ from io import StringIO
 
 class TestSeqeraPlatform(unittest.TestCase):
     def setUp(self):
-        self.sp = seqeraplatform.SeqeraPlatform()
+        self.sp = seqeraplatform.SeqeraPlatform(json=True)
 
     @patch("subprocess.Popen")
     def test_run_with_jsonout_command(self, mock_subprocess):
@@ -38,7 +38,7 @@ class TestSeqeraPlatform(unittest.TestCase):
         command = getattr(self.sp, "pipelines")
 
         # Run the command with arguments
-        result = command("view", "--name", "pipeline_name", to_json=True)
+        result = command("view", "--name", "pipeline_name")
 
         # Check that Popen was called with the right arguments
         mock_subprocess.assert_called_once_with(
@@ -121,7 +121,7 @@ class TestSeqeraPlatform(unittest.TestCase):
             command = getattr(self.sp, "pipelines")
 
             # Check that the JSON is parsed correctly
-            self.assertEqual(command("arg1", "arg2", to_json=True), {"key": "value"})
+            self.assertEqual(command("arg1", "arg2"), {"key": "value"})
 
 
 class TestSeqeraPlatformCLIArgs(unittest.TestCase):
@@ -139,7 +139,7 @@ class TestSeqeraPlatformCLIArgs(unittest.TestCase):
         )
 
         # Call a method
-        self.sp.pipelines("view", "--name", "pipeline_name", to_json=True)
+        self.sp.pipelines("view", "--name", "pipeline_name")
 
         # Extract the command used to call Popen
         called_command = mock_subprocess.call_args[0][0]
@@ -164,7 +164,7 @@ class TestSeqeraPlatformCLIArgs(unittest.TestCase):
         )
 
         # Call a method
-        self.sp.pipelines("view", "--name", "pipeline_name", to_json=True)
+        self.sp.pipelines("view", "--name", "pipeline_name")
 
         # Extract the command used to call Popen
         called_command = mock_subprocess.call_args[0][0]
@@ -222,7 +222,7 @@ class TestKitOptions(unittest.TestCase):
     @patch("subprocess.Popen")
     def test_dryrun_call(self, mock_subprocess):
         # Run a method with dryrun=True
-        self.dryrun_tw.pipelines("view", "--name", "pipeline_name", to_json=True)
+        self.dryrun_tw.pipelines("view", "--name", "pipeline_name")
 
         # Assert that subprocess.Popen is not called
         mock_subprocess.assert_not_called()
@@ -331,6 +331,13 @@ class TestSeqeraPlatformOutputHandling(unittest.TestCase):
 
         result = self.sp._execute_command("tw pipelines list", to_json=False)
         self.assertEqual(result, '{"key": "value"}')
+
+        _sp = seqeraplatform.SeqeraPlatform(json=True)
+        result = _sp._execute_command("tw pipelines list", to_json=False)
+        self.assertEqual(result, {"key": "value"})
+
+        result = _sp._execute_command("tw pipelines list", to_json=True)
+        self.assertEqual(result, {"key": "value"})
 
     @patch("subprocess.Popen")
     def test_print_stdout_override(self, mock_subprocess):
