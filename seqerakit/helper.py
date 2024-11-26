@@ -333,6 +333,11 @@ def handle_generic_block(sp, block, args, method_name="add"):
         method(method_name, *args)
 
 
+def handle_launch(sp, args):
+    updated_args = utils.update_dataset_params(sp, args)
+    sp.launch(*updated_args)
+
+
 def handle_teams(sp, args):
     cmd_args, members_cmd_args = args
     sp.teams("add", *cmd_args)
@@ -370,7 +375,8 @@ def handle_pipelines(sp, args):
         # Check if arg is a url or a json file.
         # If it is, use the appropriate method and break.
         if utils.is_url(arg):
-            method("add", *args)
+            updated_args = utils.update_dataset_params(sp, args)
+            method("add", *updated_args)
             break
         elif ".json" in arg:
             method("import", *args)
