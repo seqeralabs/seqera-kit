@@ -85,19 +85,36 @@ class SeqeraPlatform:
     # Checks environment variables to see that they are set accordingly
     def _check_env_vars(self, command):
         full_cmd_parts = []
-        shell_constructs = ["|", ">", "<", "$(", "&", "&&", "`"]
+        shell_constructs = {"|", ">", "<", "$(", "&", "&&", "`"}
+        special_vars = {"$TW_AGENT_WORK"}
+
         for arg in command:
+            if arg in special_vars:
+                full_cmd_parts.append(f'"\\\\\${arg.lstrip("$")}"')
+                continue
+
+            # Skip interpolation for explicitly escaped vars
+            if arg.startswith("\\") or (arg.startswith("'") and arg.endswith("'")):
+                full_cmd_parts.append(arg.lstrip("\\").strip("'"))
+                continue
+
             if any(construct in arg for construct in shell_constructs):
                 full_cmd_parts.append(arg)
-            elif "$" in arg:
+                continue
+
+            if "$" in arg:
+                processed_arg = arg
                 for env_var in re.findall(r"\$\{?[\w]+\}?", arg):
-                    if re.sub(r"[${}]", "", env_var) not in os.environ:
+                    var_name = re.sub(r"[${}]", "", env_var)
+                    if var_name not in os.environ:
                         raise EnvironmentError(
                             f" Environment variable {env_var} not found!"
                         )
-                full_cmd_parts.append(arg)
+                    processed_arg = processed_arg.replace(env_var, os.environ[var_name])
+                full_cmd_parts.append(processed_arg)
             else:
                 full_cmd_parts.append(shlex.quote(arg))
+
         return " ".join(full_cmd_parts)
 
     # Executes a 'tw' command in a subprocess and returns the output.

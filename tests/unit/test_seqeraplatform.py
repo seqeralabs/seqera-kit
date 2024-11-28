@@ -243,7 +243,7 @@ class TestCheckEnvVars(unittest.TestCase):
         os.environ["VAR1"] = "value1"
 
         command = ["tw", "pipelines", "list", "-w", "$VAR1"]
-        expected = "tw pipelines list -w $VAR1"
+        expected = "tw pipelines list -w value1"
         result = self.sp._check_env_vars(command)
         self.assertEqual(result, expected)
 
@@ -268,6 +268,39 @@ class TestCheckEnvVars(unittest.TestCase):
         self.assertEqual(
             str(context.exception), f" Environment variable ${unset_var} not found!"
         )
+
+    def test_special_vars_handling(self):
+        os.environ["VAR1"] = "value1"
+
+        test_cases = [
+            (
+                ["tw", "credentials", "add", "agent", "--work-dir", "$TW_AGENT_WORK"],
+                r'tw credentials add agent --work-dir "\\\$TW_AGENT_WORK"',
+            ),
+            # Mixed case with both types of variables
+            (
+                [
+                    "tw",
+                    "credentials",
+                    "add",
+                    "--var",
+                    "$VAR1",
+                    "--work-dir",
+                    "$TW_AGENT_WORK",
+                ],
+                r'tw credentials add --var value1 --work-dir "\\\$TW_AGENT_WORK"',
+            ),
+            # Already escaped variable
+            (
+                ["tw", "credentials", "add", "--var", "\\$SOME_VAR"],
+                "tw credentials add --var $SOME_VAR",
+            ),
+        ]
+
+        for command, expected in test_cases:
+            with self.subTest(command=command):
+                result = self.sp._check_env_vars(command)
+                self.assertEqual(result, expected)
 
 
 class TestSeqeraPlatformOutputHandling(unittest.TestCase):
