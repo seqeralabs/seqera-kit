@@ -111,7 +111,9 @@ class BlockParser:
         self.sp = sp
         self.list_for_add_method = list_for_add_method
 
-        # Create a separate instance of the Overwrite class without JSON output
+        # Create a separate instance of the Seqera Platform client without JSON output
+        # This is needed because when checking if resources exist during overwrite operations,
+        # we don't want JSON output mixed with the actual resource creation output
         sp_without_json = seqeraplatform.SeqeraPlatform(
             cli_args=sp.cli_args,
             dryrun=sp.dryrun,
