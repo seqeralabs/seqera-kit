@@ -111,7 +111,7 @@ class BlockParser:
         self.sp = sp
         self.list_for_add_method = list_for_add_method
 
-        # Create a separate instance of the Overwrite class without JSON output
+        # Create a separate instance of the SeqeraPlatform class without JSON output
         sp_without_json = seqeraplatform.SeqeraPlatform(
             cli_args=sp.cli_args,
             dryrun=sp.dryrun,
