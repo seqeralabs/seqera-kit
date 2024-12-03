@@ -114,7 +114,7 @@ class SeqeraPlatform:
             if "$" in arg or "%" in arg:
                 processed_arg = arg
 
-                for (pattern, extractor) in env_var_patterns.values():
+                for pattern, extractor in env_var_patterns.values():
                     for env_var in re.findall(pattern, arg):
                         var_name = extractor(env_var)
 
