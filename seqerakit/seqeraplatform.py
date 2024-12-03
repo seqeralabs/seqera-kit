@@ -88,7 +88,15 @@ class SeqeraPlatform:
         shell_constructs = {"|", ">", "<", "$(", "&", "&&", "`"}
         special_vars = {"$TW_AGENT_WORK"}
 
+        # Define the patterns and extraction methods for variable types
+        env_var_patterns = {
+            "powershell": (r"\$env:[\w]+", lambda var: var.replace("$env:", "")),
+            "windows": (r"%[\w]+%", lambda var: var.strip("%")),
+            "unix": (r"\$\{[\w]+\}|\$[^e][\w]*", lambda var: re.sub(r"[${}]", "", var)),
+        }
+
         for arg in command:
+            # Handle special variables that should be escaped not interpolated to bash
             if arg in special_vars:
                 full_cmd_parts.append(f'"\\\\\${arg.lstrip("$")}"')
                 continue
@@ -102,18 +110,24 @@ class SeqeraPlatform:
                 full_cmd_parts.append(arg)
                 continue
 
-            if "$" in arg:
+            # Finally, handle environment var interpolation
+            if "$" in arg or "%" in arg:
                 processed_arg = arg
-                for env_var in re.findall(r"\$\{?[\w]+\}?", arg):
-                    var_name = re.sub(r"[${}]", "", env_var)
-                    if var_name not in os.environ:
-                        raise EnvironmentError(
-                            f" Environment variable {env_var} not found!"
-                        )
-                    processed_arg = processed_arg.replace(env_var, os.environ[var_name])
+
+                for pattern, extractor in env_var_patterns.values():
+                    for env_var in re.findall(pattern, arg):
+                        var_name = extractor(env_var)
+
+                        # Check variable exists
+                        if var_name not in os.environ:
+                            raise EnvironmentError(
+                                f"Environment variable {env_var} not found!"
+                            )
+
                 full_cmd_parts.append(processed_arg)
-            else:
-                full_cmd_parts.append(shlex.quote(arg))
+                continue
+
+            full_cmd_parts.append(shlex.quote(arg))
 
         return " ".join(full_cmd_parts)
 

@@ -244,7 +244,7 @@ class TestCheckEnvVars(unittest.TestCase):
         os.environ["VAR1"] = "value1"
 
         command = ["tw", "pipelines", "list", "-w", "$VAR1"]
-        expected = "tw pipelines list -w value1"
+        expected = "tw pipelines list -w $VAR1"
         result = self.sp._check_env_vars(command)
         self.assertEqual(result, expected)
 
@@ -267,7 +267,7 @@ class TestCheckEnvVars(unittest.TestCase):
         with self.assertRaises(EnvironmentError) as context:
             self.sp._check_env_vars(command)
         self.assertEqual(
-            str(context.exception), f" Environment variable ${unset_var} not found!"
+            str(context.exception), f"Environment variable ${unset_var} not found!"
         )
 
     def test_special_vars_handling(self):
@@ -289,9 +289,10 @@ class TestCheckEnvVars(unittest.TestCase):
                     "--work-dir",
                     "$TW_AGENT_WORK",
                 ],
-                r'tw credentials add --var value1 --work-dir "\\\$TW_AGENT_WORK"',
+                r'tw credentials add --var $VAR1 --work-dir "\\\$TW_AGENT_WORK"',
             ),
             # Already escaped variable
+            # Preserve variable as is
             (
                 ["tw", "credentials", "add", "--var", "\\$SOME_VAR"],
                 "tw credentials add --var $SOME_VAR",
@@ -302,6 +303,29 @@ class TestCheckEnvVars(unittest.TestCase):
             with self.subTest(command=command):
                 result = self.sp._check_env_vars(command)
                 self.assertEqual(result, expected)
+
+    def test_mixed_env_var_styles(self):
+        # Not a valid use case but test handling of diff types
+        os.environ["VAR1"] = "value1"
+        os.environ["VAR2"] = "value2"
+        os.environ["VAR3"] = "value3"
+
+        command = [
+            "tw",
+            "credentials",
+            "add",
+            "-w",
+            "${VAR1}",
+            "--secret-key",
+            "%VAR2%",
+            "--access-key",
+            "$env:VAR3",
+        ]
+        expected = (
+            "tw credentials add -w ${VAR1} --secret-key %VAR2% --access-key $env:VAR3"
+        )
+        result = self.sp._check_env_vars(command)
+        self.assertEqual(result, expected)
 
 
 class TestSeqeraPlatformOutputHandling(unittest.TestCase):
