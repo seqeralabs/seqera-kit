@@ -43,7 +43,7 @@ class SeqeraPlatform:
             return self.tw_instance._tw_run(command, **kwargs)
 
     # Constructs a new SeqeraPlatform instance
-    def __init__(self, cli_args=None, dryrun=False, print_stdout=True):
+    def __init__(self, cli_args=None, dryrun=False, print_stdout=True, json=False):
         if cli_args and "--verbose" in cli_args:
             raise ValueError(
                 "--verbose is not supported as a CLI argument to seqerakit."
@@ -51,12 +51,13 @@ class SeqeraPlatform:
         self.cli_args = cli_args or []
         self.dryrun = dryrun
         self.print_stdout = print_stdout
+        self.json = json
         self._suppress_output = False
 
     def _construct_command(self, cmd, *args, **kwargs):
         command = ["tw"] + self.cli_args
 
-        if kwargs.get("to_json"):
+        if self.json:
             command.extend(["-o", "json"])
 
         command.extend(cmd)
@@ -84,29 +85,49 @@ class SeqeraPlatform:
     # Checks environment variables to see that they are set accordingly
     def _check_env_vars(self, command):
         full_cmd_parts = []
-        shell_constructs = ["|", ">", "<", "$(", "&", "&&", "`"]
+        shell_constructs = {"|", ">", "<", "$(", "&", "&&", "`"}
+        special_vars = {"$TW_AGENT_WORK"}
 
         # Define the patterns and extraction methods for variable types
         env_var_patterns = {
-            "Unix-style": (r"\$\{?[\w]+\}?", lambda var: re.sub(r"[${}]", "", var)),
-            "Windows-style": (r"%[\w]+%", lambda var: var.strip("%")),
-            "PowerShell-style": (r"\$env:[\w]+", lambda var: var.split(":")[1]),
+            "powershell": (r"\$env:[\w]+", lambda var: var.replace("$env:", "")),
+            "windows": (r"%[\w]+%", lambda var: var.strip("%")),
+            "unix": (r"\$\{[\w]+\}|\$[^e][\w]*", lambda var: re.sub(r"[${}]", "", var)),
         }
 
         for arg in command:
+            # Handle special variables that should be escaped not interpolated to bash
+            if arg in special_vars:
+                full_cmd_parts.append(f'"\\\\\${arg.lstrip("$")}"')
+                continue
+
+            # Skip interpolation for explicitly escaped vars
+            if arg.startswith("\\") or (arg.startswith("'") and arg.endswith("'")):
+                full_cmd_parts.append(arg.lstrip("\\").strip("'"))
+                continue
+
             if any(construct in arg for construct in shell_constructs):
                 full_cmd_parts.append(arg)
-            elif "$" in arg or "%" in arg:
-                for pattern, extractor in env_var_patterns.values():
+                continue
+
+            # Finally, handle environment var interpolation
+            if "$" in arg or "%" in arg:
+                processed_arg = arg
+
+                for (pattern, extractor) in env_var_patterns.values():
                     for env_var in re.findall(pattern, arg):
-                        env_var_name = extractor(env_var)
-                        if env_var_name not in os.environ:
+                        var_name = extractor(env_var)
+
+                        # Check variable exists
+                        if var_name not in os.environ:
                             raise EnvironmentError(
                                 f"Environment variable {env_var} not found!"
                             )
-                full_cmd_parts.append(arg)
-            else:
-                full_cmd_parts.append(shlex.quote(arg))
+
+                full_cmd_parts.append(processed_arg)
+                continue
+
+            full_cmd_parts.append(shlex.quote(arg))
 
         return " ".join(full_cmd_parts)
 
@@ -123,13 +144,21 @@ class SeqeraPlatform:
             print_stdout if print_stdout is not None else self.print_stdout
         ) and not self._suppress_output
 
-        if should_print:
+        # Do not print output in logging if self.json is enabled
+        if should_print and not self.json:
             logging.info(f" Command output: {stdout}")
 
         if "ERROR: " in stdout or process.returncode != 0:
             self._handle_command_errors(stdout)
 
-        return json.loads(stdout) if to_json else stdout
+        if self.json or to_json:
+            out = json.loads(stdout)
+            print(json.dumps(out))
+        else:
+            out = stdout
+            print(stdout)
+
+        return out
 
     def _handle_command_errors(self, stdout):
         # Check for specific tw cli error patterns and raise custom exceptions
@@ -150,7 +179,7 @@ class SeqeraPlatform:
         full_cmd = self._construct_command(cmd, *args, **kwargs)
         if not full_cmd or self.dryrun:
             logging.info(f"DRYRUN: Running command {full_cmd}")
-            return
+            return None
         return self._execute_command(full_cmd, kwargs.get("to_json"), print_stdout)
 
     @contextmanager
