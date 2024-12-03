@@ -110,8 +110,16 @@ class BlockParser:
         """
         self.sp = sp
         self.list_for_add_method = list_for_add_method
-        # Create an instance of Overwrite class
-        self.overwrite_method = overwrite.Overwrite(self.sp)
+
+        # Create a separate instance of the Seqera Platform client without JSON output
+        # This is needed because when checking if resources exist during overwrite operations,
+        # we don't want JSON output mixed with the actual resource creation output
+        sp_without_json = seqeraplatform.SeqeraPlatform(
+            cli_args=sp.cli_args,
+            dryrun=sp.dryrun,
+            json=False,
+        )
+        self.overwrite_method = overwrite.Overwrite(sp_without_json)
 
     def handle_block(self, block, args, destroy=False, dryrun=False):
         # Check if delete is set to True, and call delete handler

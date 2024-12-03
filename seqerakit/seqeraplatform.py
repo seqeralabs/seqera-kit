@@ -139,10 +139,12 @@ class SeqeraPlatform:
 
         if self.json or to_json:
             out = json.loads(stdout)
-            print(json.dumps(out))
+            if should_print:
+                print(json.dumps(out))
         else:
             out = stdout
-            print(stdout)
+            if should_print:
+                print(stdout)
 
         return out
 
