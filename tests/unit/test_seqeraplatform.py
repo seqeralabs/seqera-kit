@@ -414,23 +414,26 @@ class TestSeqeraPlatformOutputHandling(unittest.TestCase):
             "tw pipelines list",
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            shell=True
+            shell=True,
         )
 
     @patch("subprocess.Popen")
     def test_json_parsing_failure_fallback(self, mock_subprocess):
         mock_subprocess.return_value = MagicMock(returncode=0)
         mock_subprocess.return_value.communicate.return_value = (b"Invalid JSON", b"")
-        
+
         result = self.sp._execute_command("tw pipelines list", to_json=True)
-        
+
         self.assertEqual(result, "Invalid JSON")
 
     @patch("subprocess.Popen")
     def test_error_with_nonzero_return_code(self, mock_subprocess):
         mock_subprocess.return_value = MagicMock(returncode=1)
-        mock_subprocess.return_value.communicate.return_value = (b"ERROR: Something went wrong", b"")
-        
+        mock_subprocess.return_value.communicate.return_value = (
+            b"ERROR: Something went wrong",
+            b"",
+        )
+
         with self.assertRaises(ResourceCreationError):
             self.sp._execute_command("tw pipelines list")
 
@@ -438,19 +441,20 @@ class TestSeqeraPlatformOutputHandling(unittest.TestCase):
     def test_correct_logging(self, mock_subprocess):
         mock_subprocess.return_value = MagicMock(returncode=0)
         mock_subprocess.return_value.communicate.return_value = (b"Command output", b"")
-        
-        with patch('logging.info') as mock_logging:
+
+        with patch("logging.info") as mock_logging:
             # Test with JSON enabled
             self.sp.json = True
             self.sp._execute_command("tw pipelines list")
             mock_logging.assert_called_once_with(" Running command: tw pipelines list")
-            
+
             mock_logging.reset_mock()
-            
+
             # Test with JSON disabled
             self.sp.json = False
             self.sp._execute_command("tw pipelines list")
             mock_logging.assert_any_call(" Command output: Command output")
+
 
 if __name__ == "__main__":
     unittest.main()
