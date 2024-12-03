@@ -134,19 +134,22 @@ class SeqeraPlatform:
         if should_print and not self.json:
             logging.info(f" Command output: {stdout}")
 
-        if "ERROR: " in stdout or process.returncode != 0:
+        # Try JSON parsing first
+        if self.json or to_json:
+            try:
+                out = json.loads(stdout)
+                if should_print:
+                    print(json.dumps(out))
+                return out
+            except json.JSONDecodeError:
+                pass
+
+        if process.returncode != 0 and "ERROR: " in stdout:
             self._handle_command_errors(stdout)
 
-        if self.json or to_json:
-            out = json.loads(stdout)
-            if should_print:
-                print(json.dumps(out))
-        else:
-            out = stdout
-            if should_print:
-                print(stdout)
-
-        return out
+        if should_print:
+            print(stdout)
+        return stdout
 
     def _handle_command_errors(self, stdout):
         # Check for specific tw cli error patterns and raise custom exceptions

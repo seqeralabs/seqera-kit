@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from seqerakit import seqeraplatform
+from seqerakit.seqeraplatform import ResourceCreationError
 import json
 import subprocess
 import os
@@ -382,11 +383,9 @@ class TestSeqeraPlatformOutputHandling(unittest.TestCase):
         log_output = self.log_capture.getvalue()
         self.assertIn("Command output: output", log_output)
 
-        # Clear the log capture
         self.log_capture.truncate(0)
         self.log_capture.seek(0)
 
-        # Test with print_stdout=False
         self.sp._execute_command("tw pipelines list", print_stdout=False)
         log_output = self.log_capture.getvalue()
         self.assertNotIn("Command output: output", log_output)
@@ -408,8 +407,53 @@ class TestSeqeraPlatformOutputHandling(unittest.TestCase):
         mock_subprocess.return_value = MagicMock(returncode=0)
         mock_subprocess.return_value.communicate.return_value = (b"Invalid JSON", b"")
 
-        with self.assertRaises(json.JSONDecodeError):
-            self.sp._execute_command("tw pipelines list", to_json=True)
+        result = self.sp._execute_command("tw pipelines list", to_json=True)
+
+        self.assertEqual(result, "Invalid JSON")  # Should return raw stdout
+        mock_subprocess.assert_called_once_with(
+            "tw pipelines list",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            shell=True,
+        )
+
+    @patch("subprocess.Popen")
+    def test_json_parsing_failure_fallback(self, mock_subprocess):
+        mock_subprocess.return_value = MagicMock(returncode=0)
+        mock_subprocess.return_value.communicate.return_value = (b"Invalid JSON", b"")
+
+        result = self.sp._execute_command("tw pipelines list", to_json=True)
+
+        self.assertEqual(result, "Invalid JSON")
+
+    @patch("subprocess.Popen")
+    def test_error_with_nonzero_return_code(self, mock_subprocess):
+        mock_subprocess.return_value = MagicMock(returncode=1)
+        mock_subprocess.return_value.communicate.return_value = (
+            b"ERROR: Something went wrong",
+            b"",
+        )
+
+        with self.assertRaises(ResourceCreationError):
+            self.sp._execute_command("tw pipelines list")
+
+    @patch("subprocess.Popen")
+    def test_correct_logging(self, mock_subprocess):
+        mock_subprocess.return_value = MagicMock(returncode=0)
+        mock_subprocess.return_value.communicate.return_value = (b"Command output", b"")
+
+        with patch("logging.info") as mock_logging:
+            # Test with JSON enabled
+            self.sp.json = True
+            self.sp._execute_command("tw pipelines list")
+            mock_logging.assert_called_once_with(" Running command: tw pipelines list")
+
+            mock_logging.reset_mock()
+
+            # Test with JSON disabled
+            self.sp.json = False
+            self.sp._execute_command("tw pipelines list")
+            mock_logging.assert_any_call(" Command output: Command output")
 
 
 if __name__ == "__main__":
