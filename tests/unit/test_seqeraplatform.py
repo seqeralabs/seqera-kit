@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from seqerakit import seqeraplatform
-from seqerakit.seqeraplatform import ResourceCreationError, ResourceExistsError
+from seqerakit.seqeraplatform import ResourceCreationError
 import json
 import subprocess
 import os
