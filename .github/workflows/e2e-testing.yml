@@ -36,7 +36,9 @@ jobs:
       AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
       GOOGLE_KEY: ${{ secrets.GOOGLE_KEY }}
       SENTIEON_LICENSE_BASE64: ${{ secrets.SENTIEON_LICENSE_BASE64 }}
-
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_WORK_DIR: ${{ secrets.AWS_WORK_DIR }}
+      AWS_COMPUTE_ENV_NAME: ${{ secrets.AWS_COMPUTE_ENV_NAME }}
     steps:
       - name: Check out source-code repository
         uses: actions/checkout@v3
