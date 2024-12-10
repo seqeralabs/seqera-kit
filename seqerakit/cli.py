@@ -143,13 +143,11 @@ class BlockParser:
 
         # Check if overwrite is set to True, and call overwrite handler
         overwrite_option = args.get("overwrite", False)
-        if overwrite_option and dryrun is False:
+        if overwrite_option and not dryrun:
             logging.debug(f" Overwrite is set to 'True' for {block}\n")
             self.overwrite_method.handle_overwrite(
                 block, args["cmd_args"], overwrite_option
             )
-        elif dryrun is False:
-            self.overwrite_method.handle_overwrite(block, args["cmd_args"])
 
         if block in self.list_for_add_method:
             helper.handle_generic_block(self.sp, block, args["cmd_args"])

@@ -332,6 +332,16 @@ compute-envs:
     file-path: './compute-envs/my_aws_compute_environment.json' # required
     overwrite: True
 ```
+### 4. Using personal or user workspaces
+To create resources such as pipelines, compute environments, credentials, secrets, etc. in your user workspace, omit the `workspace` key in your YAML file.
+
+```yaml
+compute-envs:
+  - name: 'my_aws_compute_environment'
+    type: 'aws-batch forge'
+    file-path: './compute-envs/my_aws_compute_environment.json'
+```
+The above YAML will create the compute environment in your user workspace.
 
 ## Quick start
 
