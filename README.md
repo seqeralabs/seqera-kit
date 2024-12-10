@@ -54,14 +54,17 @@ pip install --upgrade --force-reinstall seqerakit
 ```
 
 ### Local development installation
+
 You can install the development branch of `seqerakit` on your local machine to test feature updates of the tool. Before proceeding, ensure that you have [Python](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads) installed on your system.
 
 1. To install directly from pip:
+
 ```bash
 pip install git+https://github.com/seqeralabs/seqera-kit.git@dev
 ```
 
 2. Alternatively, you may clone the repository locally and install manually:
+
 ```bash
 git clone https://github.com/seqeralabs/seqera-kit.git
 cd seqera-kit
@@ -70,6 +73,7 @@ pip install .
 ```
 
 You can verify your installation with:
+
 ```bash
 pip show seqerakit
 ```
@@ -85,11 +89,12 @@ export TOWER_ACCESS_TOKEN=<Your access token>
 ```
 
 For Enterprise installations of Seqera Platform, you will also need to configure the API endpoint that will be used to connect to the Platform. You can do so by exporting the following environment variable:
+
 ```bash
 export TOWER_API_ENDPOINT=<Tower API URL>
 ```
-By default, this is set to `https://api.cloud.seqera.io` to connect to Seqera Platform Cloud.
 
+By default, this is set to `https://api.cloud.seqera.io` to connect to Seqera Platform Cloud.
 
 ## Usage
 
@@ -100,25 +105,33 @@ seqerakit --info
 ```
 
 Use the `--help` or `-h` parameter to list the available commands and their associated options:
+
 ```bash
 seqerakit --help
 ```
 
 Use `--version` or `-v` to retrieve the current version of your seqerakit installation:
+
 ```bash
 seqerakit --version
 ```
+
 ### Input
+
 `seqerakit` supports input through either file paths to YAMLs or directly from standard input (stdin).
 
 #### Using File Path
+
 ```bash
 seqerakit /path/to/file.yaml
 ```
+
 #### Using stdin
+
 ```console
 $ cat file.yaml | seqerakit -
 ```
+
 See the [Defining your YAML file using CLI options](#defining-your-yaml-file-using-cli-options) section for guidance on formatting your input YAML file(s).
 
 ### Dryrun
@@ -128,6 +141,53 @@ To print the commands that would executed with `tw` when using a YAML file, you 
 ```bash
 seqerakit file.yaml --dryrun
 ```
+
+To capture the details of the created resources, you can use the `--json` command-line flag to output the results as JSON to `stdout`. This is equivalent to using the `-o json` flag with the `tw` CLI.
+
+For example:
+
+```bash
+seqerakit -j examples/yaml/e2e/launch.yml
+```
+
+This command internally runs the following `tw` command:
+
+```bash
+INFO:root: Running command: tw -o json launch --name hello --workspace $SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME hello
+```
+
+The output will look like this:
+
+```json
+{
+  "workflowId": "1wfhRp5ioFIyrs",
+  "workflowUrl": "https://tower.nf/orgs/orgName/workspaces/workspaceName/watch/1wfhRp5ioFIyrs",
+  "workspaceId": 12345678,
+  "workspaceRef": "[orgName / workspaceName]"
+}
+```
+
+This JSON output can be piped into other tools for further processing. Note that logs will still be written to `stderr`, allowing you to monitor the tool's progress in real-time.
+
+If you prefer to suppress the JSON output and focus only on the logs:
+
+```bash
+seqerakit -j examples/yaml/e2e/launch.yml > /dev/null
+```
+
+This will still log:
+
+```bash
+INFO:root: Running command: tw -o json launch --name hello --workspace $SEQERA_ORGANIZATION_NAME/$SEQERA_WORKSPACE_NAME hello
+```
+
+Each execution of the `tw` CLI generates a single JSON object. To combine multiple JSON objects into one, you can use a tool like `jq`:
+
+```bash
+seqerakit -j launch/*.yml | jq --slurp > launched-pipelines.json
+```
+
+This command will merge the individual JSON objects from each `tw` command into a single JSON array and save it to `launched-pipelines.json`.
 
 ### Recursively delete
 
@@ -170,6 +230,7 @@ seqerakit hello-world-config.yml --cli="-Djavax.net.ssl.trustStore=/absolute/pat
 <b>Note</b>: Use of `--verbose` option for the `tw` CLI is currently not supported by `seqerakit`. Supplying `--cli="--verbose"` will raise an error.
 
 ## Specify targets
+
 When using a YAML file as input that defines multiple resources, you can use the `--targets` flag to specify which resources to create. This flag takes a comma-separated list of resource names.
 
 For example, given a YAML file that defines the following resources:
@@ -178,18 +239,17 @@ For example, given a YAML file that defines the following resources:
 workspaces:
   - name: 'showcase'
     organization: 'seqerakit_automation'
-...
+---
 compute-envs:
   - name: 'compute-env'
     type: 'aws-batch forge'
     workspace: 'seqerakit/test'
-...
+---
 pipelines:
-  - name: "hello-world-test-seqerakit"
-    url: "https://github.com/nextflow-io/hello"
+  - name: 'hello-world-test-seqerakit'
+    url: 'https://github.com/nextflow-io/hello'
     workspace: 'seqerakit/test'
-    compute-env: "compute-env"
-...
+    compute-env: 'compute-env'
 ```
 
 You can target the creation of `pipelines` only by running:
@@ -197,9 +257,11 @@ You can target the creation of `pipelines` only by running:
 ```bash
 seqerakit test.yml --targets pipelines
 ```
+
 This will process only the pipelines block from the YAML file and ignore other blocks such as `workspaces` and `compute-envs`.
 
 ### Multiple Targets
+
 You can also specify multiple resources to create by separating them with commas. For example, to create both workspaces and pipelines, run:
 
 ```bash
@@ -240,6 +302,7 @@ params:
 **Note**: If duplicate parameters are provided, the parameters provided as key-value pairs inside the `params` nested dictionary of the YAML file will take precedence **over** values in the provided `params-file`.
 
 ### 2. `overwrite` Functionality
+
 For every entity defined in your YAML file, you can specify `overwrite: True` to overwrite any existing entities in Seqera Platform of the same name.
 
 `seqerakit` will first check to see if the name of the entity exists, if so, it will invoke a `tw <subcommand> delete` command before attempting to create it based on the options defined in the YAML file.
@@ -253,21 +316,32 @@ DEBUG:root: The attempted organizations resource already exists. Overwriting.
 DEBUG:root: Running command: tw organizations delete --name $SEQERA_ORGANIZATION_NAME
 DEBUG:root: Running command: tw organizations add --name $SEQERA_ORGANIZATION_NAME --full-name $SEQERA_ORGANIZATION_NAME --description 'Example of an organization'
 ```
+
 ### 3. Specifying JSON configuration files with `file-path`
+
 The Seqera Platform CLI allows export and import of entities through JSON configuration files for pipelines and compute environments. To use these files to add a pipeline or compute environment to a workspace, use the `file-path` key to specify a path to a JSON configuration file.
 
 An example of the `file-path` option is provided in the [compute-envs.yml](./templates/compute-envs.yml) template:
 
 ```yaml
 compute-envs:
-  - name: 'my_aws_compute_environment'                              # required
-    workspace: 'my_organization/my_workspace'                       # required
-    credentials: 'my_aws_credentials'                               # required
-    wait: 'AVAILABLE'                                               # optional
-    file-path: './compute-envs/my_aws_compute_environment.json'     # required
+  - name: 'my_aws_compute_environment' # required
+    workspace: 'my_organization/my_workspace' # required
+    credentials: 'my_aws_credentials' # required
+    wait: 'AVAILABLE' # optional
+    file-path: './compute-envs/my_aws_compute_environment.json' # required
     overwrite: True
 ```
+### 4. Using personal or user workspaces
+To create resources such as pipelines, compute environments, credentials, secrets, etc. in your user workspace, omit the `workspace` key in your YAML file.
 
+```yaml
+compute-envs:
+  - name: 'my_aws_compute_environment'
+    type: 'aws-batch forge'
+    file-path: './compute-envs/my_aws_compute_environment.json'
+```
+The above YAML will create the compute environment in your user workspace.
 
 ## Quick start
 
@@ -281,10 +355,10 @@ You will need to have an account on Seqera Platform (see [Plans and pricing](htt
 
    ```yaml # noqa
    launch:
-     - name: 'hello-world'                              # Workflow name
-       workspace: '<YOUR_WORKSPACE>'                    # Workspace name
-       compute-env: '<YOUR_COMPUTE_ENVIRONMENT>'        # Compute environment
-       revision: 'master'                               # Pipeline revision
+     - name: 'hello-world' # Workflow name
+       workspace: '<YOUR_WORKSPACE>' # Workspace name
+       compute-env: '<YOUR_COMPUTE_ENVIRONMENT>' # Compute environment
+       revision: 'master' # Pipeline revision
        pipeline: 'https://github.com/nextflow-io/hello' # Pipeline URL
    ```
 
@@ -340,6 +414,7 @@ Options:
       --revision=<revision>                A valid repository commit Id, tag or branch name.
   ...
 ```
+
 2. Define Key-Value Pairs in YAML
 
 Translate each CLI option into a key-value pair in the YAML file. The structure of your YAML file should reflect the hierarchy and format of the CLI options. For instance:
@@ -364,11 +439,11 @@ In this example:
 - The corresponding values are user-defined
 
 ### Best Practices:
+
 - Ensure that the indentation and structure of the YAML file are correct - YAML is sensitive to formatting.
 - Use quotes around strings that contain special characters or spaces.
 - When listing multiple values (`labels`, `instance-types`, `allow-buckets`, etc), separate them with commas as shown above.
 - For complex configurations, refer to the [Templates](./templates/) provided in this repository.
-
 
 ## Templates
 

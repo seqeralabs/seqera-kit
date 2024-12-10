@@ -5,7 +5,7 @@
 compute-envs:
 # To create a compute environment from a JSON configuration file (AWS Example)
   - name: 'my_aws_compute_environment'                              # required
-    workspace: 'my_organization/my_workspace'                       # required
+    workspace: 'my_organization/my_workspace'                       # optional
     credentials: 'my_aws_credentials'                               # required
     wait: 'AVAILABLE'                                               # optional
     file-path: './compute-envs/my_aws_compute_environment.json'     # required
@@ -15,7 +15,7 @@ compute-envs:
   - type: aws-batch                                                 # required
     config-mode: forge                                              # required for AWS and Azure
     name: 'my_aws_compute_environment'                              # required
-    workspace: 'my_organization/my_workspace'                       # required
+    workspace: 'my_organization/my_workspace'                       # optional
     credentials: 'my_aws_credentials'                               # required
     region: 'eu-west-1'                                             # required 
     work-dir: 's3://my-bucket'                                      # required

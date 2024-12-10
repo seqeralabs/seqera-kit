@@ -72,12 +72,22 @@ secrets:
     value: '$SENTIEON_LICENSE_BASE64'
     overwrite: True
 compute-envs:
-  - name: 'seqera_aws_virginia_fusionv2_nvme'
-    workspace: 'seqerakit-e2e/showcase'
-    credentials: 'aws_credentials'
-    wait: 'AVAILABLE'
-    file-path: './examples/yaml/compute-envs/seqera_aws_virginia_fusionv2_nvme.json'
-    overwrite: True
+  - type: aws-batch
+    config-mode: forge
+    name: "aws_ireland_fusionv2_nvme"
+    workspace: "seqerakit-e2e/showcase"
+    credentials: "aws_credentials"
+    region: "eu-west-1"
+    work-dir: "s3://seqeralabs-showcase"
+    provisioning-model: SPOT
+    fusion-v2: True
+    wave: True
+    fast-storage: True
+    instance-types: "r6id,c6id,m6id"
+    no-ebs-auto-scale: True
+    max-cpus: 500
+    wait: AVAILABLE
+    overwrite: False
   - name: 'seqera_azure_virginia'
     workspace: 'seqerakit-e2e/showcase'
     credentials: 'azure_credentials'
