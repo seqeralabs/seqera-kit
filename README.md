@@ -332,7 +332,7 @@ compute-envs:
     file-path: './compute-envs/my_aws_compute_environment.json' # required
     overwrite: True
 ```
-### 4. Using personal or user workspaces 
+### 4. Using personal or user workspaces
 To create resources such as pipelines, compute environments, credentials, secrets, etc. in your user workspace, omit the `workspace` key in your YAML file.
 
 ```yaml
