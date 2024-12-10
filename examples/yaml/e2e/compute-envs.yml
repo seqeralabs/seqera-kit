@@ -1,9 +1,19 @@
 compute-envs:
-  - name: 'seqera_aws_virginia_fusionv2_nvme'
-    workspace: 'seqerakit-e2e/showcase'
-    credentials: 'aws_credentials'
-    wait: 'AVAILABLE'
-    file-path: './examples/yaml/compute-envs/seqera_aws_virginia_fusionv2_nvme.json'
+  - type: aws-batch
+    config-mode: forge
+    name: "$AWS_COMPUTE_ENV_NAME"
+    workspace: "seqerakit-e2e/showcase"
+    credentials: "aws_credentials"
+    region: "$AWS_REGION"
+    work-dir: "$AWS_WORK_DIR"
+    provisioning-model: SPOT
+    fusion-v2: True
+    wave: True
+    fast-storage: True
+    instance-types: "r6id,c6id,m6id"
+    no-ebs-auto-scale: True
+    max-cpus: 500
+    wait: AVAILABLE
     overwrite: True
   - name: 'seqera_azure_virginia'
     workspace: 'seqerakit-e2e/showcase'
