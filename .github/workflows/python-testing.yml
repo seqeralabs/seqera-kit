@@ -1,14 +1,14 @@
-name: Lint-and-test
+name: Lint and Test
 
 on: [push]
 
 jobs:
-  lint:
+  pre-commit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: psf/black@stable
-      - uses: chartboost/ruff-action@v1
+      - uses: actions/setup-python@v4
+      - uses: pre-commit/action@v3.0.1
   test:
     runs-on: ubuntu-latest
     steps:
