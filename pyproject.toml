@@ -37,7 +37,7 @@ Issues = "https://github.com/seqeralabs/seqera-kit/issues"
 Changelog = "https://github.com/seqeralabs/seqera-kit/releases"
 
 [project.scripts]
-seqerakit = "seqerakit.cli:main"
+seqerakit = "seqerakit.cli:run"
 
 [build-system]
 requires = ["setuptools>=61.0"]
