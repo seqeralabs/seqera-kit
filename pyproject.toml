@@ -46,3 +46,8 @@ build-backend = "setuptools.build_meta"
 packages = ["seqerakit"]
 zip-safe = false
 include-package-data = true
+
+[dependency-groups]
+dev = [
+    "pre-commit>=3.5.0",
+]
