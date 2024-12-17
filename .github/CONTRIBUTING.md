@@ -42,7 +42,7 @@ You can then develop the code before committing changes and opening a pull reque
 #### uv workflow
 
 1. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
-2. `uv run seqerakit -h` 
+2. `uv run seqerakit -h`
 
 ##### Publishing
 
