@@ -38,17 +38,11 @@ jobs:
       SENTIEON_LICENSE_BASE64: ${{ secrets.SENTIEON_LICENSE_BASE64 }}
 
     steps:
-      - name: Check out source-code repository
-        uses: actions/checkout@v3
-
-      - name: Setup Python
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
         with:
-          python-version: '3.12'
-
-      - name: Install pip & seqerakit
-        run: |
-          pip install -e .
+          enable-cache: true
+          cache-dependency-glob: 'uv.lock'
 
       - name: Install Tower CLI v0.9.1
         run: |
@@ -64,7 +58,7 @@ jobs:
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          seqerakit examples/yaml/e2e/*.yml --delete || true
+          uv run seqerakit examples/yaml/e2e/*.yml --delete || true
 
       - name: dryrun
         run: |
@@ -80,7 +74,7 @@ jobs:
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          seqerakit examples/yaml/e2e/*.yml
+          uv run seqerakit examples/yaml/e2e/*.yml
 
       - name: teardown
         if: ( success() || failure() ) && ( github.event_name != 'workflow_dispatch' || inputs.clearup )
@@ -89,4 +83,4 @@ jobs:
           echo $GOOGLE_KEY | base64 -d > $temp_file
           export GOOGLE_KEY=$temp_file
 
-          seqerakit examples/yaml/e2e/*.yml --delete
+          uv runseqerakit examples/yaml/e2e/*.yml --delete
