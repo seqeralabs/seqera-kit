@@ -27,6 +27,7 @@ classifiers = [
 ]
 dependencies = [
     "pyyaml>=6.0.0",
+    "typer>=0.15.1",
 ]
 [project.urls]
 Homepage = "https://seqera.io/"
