@@ -17,81 +17,28 @@ This script is used to build a Seqera Platform instance from a YAML configuratio
 Requires a YAML file that defines the resources to be created in Seqera Platform and
 the required options for each resource based on the Seqera Platform CLI.
 """
-import argparse
+
 import logging
 import sys
+from typing import List, Optional
+from typing_extensions import Annotated
+
+import typer
+from rich.console import Console
 
 from seqerakit import seqeraplatform, helper, overwrite
 from seqerakit.seqeraplatform import ResourceExistsError, ResourceCreationError
 from seqerakit import __version__
 
+# Initialize typer app and console
+app = typer.Typer(
+    help="Seqerakit: Python wrapper for the Seqera Platform CLI",
+    rich_markup_mode="rich",
+)
+console = Console()
+
+# Set up logging
 logger = logging.getLogger(__name__)
-
-
-def parse_args(args=None):
-    parser = argparse.ArgumentParser(
-        description="Seqerakit: Python wrapper for the Seqera Platform CLI"
-    )
-    # General options
-    general = parser.add_argument_group("General Options")
-    general.add_argument(
-        "-l",
-        "--log_level",
-        default="INFO",
-        choices=("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"),
-        help="Set the logging level.",
-    )
-    general.add_argument(
-        "--info",
-        "-i",
-        action="store_true",
-        help="Display Seqera Platform information and exit.",
-    )
-    general.add_argument(
-        "-j", "--json", action="store_true", help="Output JSON format in stdout."
-    )
-    general.add_argument(
-        "--dryrun",
-        "-d",
-        action="store_true",
-        help="Print the commands that would be executed.",
-    )
-    general.add_argument(
-        "--version",
-        "-v",
-        action="version",
-        version=f"%(prog)s {__version__}",
-        help="Show version number and exit.",
-    )
-
-    # YAML processing options
-    yaml_processing = parser.add_argument_group("YAML Processing Options")
-    yaml_processing.add_argument(
-        "yaml",
-        nargs="*",
-        help="One or more YAML files with Seqera Platform resource definitions.",
-    )
-    yaml_processing.add_argument(
-        "--delete",
-        action="store_true",
-        help="Recursively delete resources defined in the YAML files.",
-    )
-    yaml_processing.add_argument(
-        "--cli",
-        dest="cli_args",
-        type=str,
-        help="Additional Seqera Platform CLI specific options to be passed,"
-        " enclosed in double quotes (e.g. '--cli=\"--insecure\"').",
-    )
-    yaml_processing.add_argument(
-        "--targets",
-        dest="targets",
-        type=str,
-        help="Specify the resources to be targeted for creation in a YAML file through "
-        "a comma-separated list (e.g. '--targets=teams,participants').",
-    )
-    return parser.parse_args(args)
-
 
 class BlockParser:
     """
@@ -124,7 +71,7 @@ class BlockParser:
     def handle_block(self, block, args, destroy=False, dryrun=False):
         # Check if delete is set to True, and call delete handler
         if destroy:
-            logging.debug(" The '--delete' flag has been specified.\n")
+            logging.debug("The '--delete' flag has been specified.\n")
             self.overwrite_method.handle_overwrite(
                 block, args["cmd_args"], overwrite=False, destroy=True
             )
@@ -144,7 +91,7 @@ class BlockParser:
         # Check if overwrite is set to True, and call overwrite handler
         overwrite_option = args.get("overwrite", False)
         if overwrite_option and not dryrun:
-            logging.debug(f" Overwrite is set to 'True' for {block}\n")
+            logging.debug(f"Overwrite is set to 'True' for {block}\n")
             self.overwrite_method.handle_overwrite(
                 block, args["cmd_args"], overwrite_option
             )
@@ -156,39 +103,101 @@ class BlockParser:
         else:
             logger.error(f"Unrecognized resource block in YAML: {block}")
 
-
-def main(args=None):
-    options = parse_args(args if args is not None else sys.argv[1:])
-    logging.basicConfig(level=getattr(logging, options.log_level.upper()))
+@app.command()
+def main(
+    yaml: Annotated[
+        Optional[List[str]], 
+        typer.Argument(
+            help="One or more YAML files with Seqera Platform resource definitions",
+            show_default=False
+        )
+    ] = None,
+    log_level: Annotated[
+        str,
+        typer.Option(
+            "--log-level", "-l",
+            help="Set the logging level",
+            case_sensitive=False
+        )
+    ] = "INFO",
+    info: Annotated[
+        bool,
+        typer.Option(
+            "--info", "-i",
+            help="Display Seqera Platform information and exit"
+        )
+    ] = False,
+    json_output: Annotated[
+        bool,
+        typer.Option(
+            "--json", "-j",
+            help="Output JSON format in stdout"
+        )
+    ] = False,
+    dryrun: Annotated[
+        bool,
+        typer.Option(
+            "--dryrun", "-d",
+            help="Print the commands that would be executed"
+        )
+    ] = False,
+    delete: Annotated[
+        bool,
+        typer.Option(
+            help="Recursively delete resources defined in the YAML files"
+        )
+    ] = False,
+    cli_args: Annotated[
+        Optional[str],
+        typer.Option(
+            "--cli",
+            help="Additional Seqera Platform CLI specific options to be passed"
+        )
+    ] = None,
+    targets: Annotated[
+        Optional[str],
+        typer.Option(
+            help="Specify the resources to be targeted for creation"
+        )
+    ] = None,
+):
+    """
+    Process YAML configuration files to manage Seqera Platform resources.
+    """
+    # Set up logging
+    logging.basicConfig(level=getattr(logging, log_level.upper()))
 
     # Parse CLI arguments into a list
-    cli_args_list = options.cli_args.split() if options.cli_args else []
+    cli_args_list = cli_args.split() if cli_args else []
 
+    # Initialize SeqeraPlatform
     sp = seqeraplatform.SeqeraPlatform(
-        cli_args=cli_args_list, dryrun=options.dryrun, json=options.json
+        cli_args=cli_args_list,
+        dryrun=dryrun,
+        json=json_output
     )
 
-    # If the info flag is set, run 'tw info'
-    if options.info:
+    # Handle info command
+    if info:
         result = sp.info()
-        if not options.dryrun:
-            print(result)
+        if not dryrun:
+            console.print(result)
         return
 
-    if not options.yaml:
+    # Handle YAML input
+    if not yaml:
         if sys.stdin.isatty():
-            logging.error(
-                " No YAML(s) provided and no input from stdin. Please provide "
+            raise typer.BadParameter(
+                "No YAML(s) provided and no input from stdin. Please provide "
                 "at least one YAML configuration file or pipe input from stdin."
             )
-            sys.exit(1)
-        else:
-            options.yaml = [sys.stdin]
+        yaml = [sys.stdin]
 
+    # Initialize BlockParser
     block_manager = BlockParser(
         sp,
         [
-            "organizations",  # all use method.add
+            "organizations", # all use method.add
             "workspaces",
             "labels",
             "members",
@@ -203,17 +212,20 @@ def main(args=None):
     # and get a dictionary of command line arguments
     try:
         cmd_args_dict = helper.parse_all_yaml(
-            options.yaml, destroy=options.delete, targets=options.targets
+            yaml, destroy=delete, targets=targets
         )
         for block, args_list in cmd_args_dict.items():
             for args in args_list:
                 block_manager.handle_block(
-                    block, args, destroy=options.delete, dryrun=options.dryrun
+                    block, args, destroy=delete, dryrun=dryrun
                 )
     except (ResourceExistsError, ResourceCreationError, ValueError) as e:
-        logging.error(e)
-        sys.exit(1)
+        logger.error(str(e))
+        raise typer.Exit(code=1)
 
+def run():
+    """Entry point for the CLI"""
+    app(prog_name="seqerakit")
 
 if __name__ == "__main__":
-    main()
+    run()
