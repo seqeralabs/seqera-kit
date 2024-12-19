@@ -90,6 +90,12 @@ def parse_args(args=None):
         help="Specify the resources to be targeted for creation in a YAML file through "
         "a comma-separated list (e.g. '--targets=teams,participants').",
     )
+    yaml_processing.add_argument(
+        "--env-file",
+        dest="env_file",
+        type=str,
+        help="Path to a YAML file containing environment variables for configuration.",
+    )
     return parser.parse_args(args)
 
 
@@ -165,7 +171,10 @@ def main(args=None):
     cli_args_list = options.cli_args.split() if options.cli_args else []
 
     sp = seqeraplatform.SeqeraPlatform(
-        cli_args=cli_args_list, dryrun=options.dryrun, json=options.json
+        cli_args=cli_args_list,
+        dryrun=options.dryrun,
+        json=options.json,
+        env_file=options.env_file,
     )
 
     # If the info flag is set, run 'tw info'
