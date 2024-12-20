@@ -19,7 +19,6 @@ import logging
 import subprocess
 import re
 import json
-import yaml
 
 
 class SeqeraPlatform:
@@ -44,9 +43,7 @@ class SeqeraPlatform:
             return self.tw_instance._tw_run(command, **kwargs)
 
     # Constructs a new SeqeraPlatform instance
-    def __init__(
-        self, cli_args=None, dryrun=False, print_stdout=True, json=False, env_file=None
-    ):
+    def __init__(self, cli_args=None, dryrun=False, print_stdout=True, json=False):
         if cli_args and "--verbose" in cli_args:
             raise ValueError(
                 "--verbose is not supported as a CLI argument to seqerakit."
@@ -56,9 +53,6 @@ class SeqeraPlatform:
         self.print_stdout = print_stdout
         self.json = json
         self._suppress_output = False
-        self.variables = {}
-        if env_file:
-            self.load_variables_file(env_file)
 
     def _construct_command(self, cmd, *args, **kwargs):
         command = ["tw"] + self.cli_args
@@ -87,11 +81,6 @@ class SeqeraPlatform:
                     f"Empty string argument found for parameter '{current_arg}'. "
                     "Please provide a valid value or remove the argument."
                 )
-
-    def load_variables_file(self, file_path):
-        # Load variables from a YAML file then merge with those in the env
-        with open(file_path, "r") as file:
-            self.variables = {**os.environ, **yaml.safe_load(file)}
 
     # Checks environment variables to see that they are set accordingly
     def _check_env_vars(self, command):
@@ -129,14 +118,11 @@ class SeqeraPlatform:
                     for env_var in re.findall(pattern, arg):
                         var_name = extractor(env_var)
 
-                        if var_name not in self.variables:
+                        # Check variable exists
+                        if var_name not in os.environ:
                             raise EnvironmentError(
-                                f"Variable {env_var} not found in the environment"
-                                " or the variables file!"
+                                f"Environment variable {env_var} not found!"
                             )
-                        processed_arg = processed_arg.replace(
-                            env_var, str(self.variables[var_name])
-                        )
 
                 full_cmd_parts.append(processed_arg)
                 continue

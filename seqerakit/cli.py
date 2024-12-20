@@ -20,6 +20,8 @@ the required options for each resource based on the Seqera Platform CLI.
 import argparse
 import logging
 import sys
+import os
+import yaml
 
 from seqerakit import seqeraplatform, helper, overwrite
 from seqerakit.seqeraplatform import ResourceExistsError, ResourceCreationError
@@ -169,6 +171,12 @@ def main(args=None):
 
     # Parse CLI arguments into a list
     cli_args_list = options.cli_args.split() if options.cli_args else []
+
+    # add and overwrite existing environment variables with those in the env_file
+    if options.env_file:
+        with open(options.env_file, "r") as f:
+            env_vars = yaml.safe_load(f)
+            os.environ.update(env_vars)
 
     sp = seqeraplatform.SeqeraPlatform(
         cli_args=cli_args_list,
