@@ -87,7 +87,7 @@ compute-envs:
     no-ebs-auto-scale: True
     max-cpus: 500
     wait: AVAILABLE
-    overwrite: False
+    overwrite: True
   - name: 'seqera_azure_virginia'
     workspace: 'seqerakit-e2e/showcase'
     credentials: 'azure_credentials'
