@@ -179,10 +179,7 @@ def main(args=None):
             os.environ.update(env_vars)
 
     sp = seqeraplatform.SeqeraPlatform(
-        cli_args=cli_args_list,
-        dryrun=options.dryrun,
-        json=options.json,
-        env_file=options.env_file,
+        cli_args=cli_args_list, dryrun=options.dryrun, json=options.json
     )
 
     # If the info flag is set, run 'tw info'
