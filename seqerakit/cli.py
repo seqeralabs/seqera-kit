@@ -21,6 +21,8 @@ import argparse
 import logging
 import sys
 
+from pathlib import Path
+
 from seqerakit import seqeraplatform, helper, overwrite
 from seqerakit.seqeraplatform import ResourceExistsError, ResourceCreationError
 from seqerakit import __version__
@@ -183,7 +185,25 @@ def main(args=None):
             )
             sys.exit(1)
         else:
-            options.yaml = [sys.stdin]
+            yaml_files = [sys.stdin]
+    else:
+
+        # Expand any directories to find yaml files recursively
+        yaml_files = []
+        for path in options.yaml:
+            if path == "-":
+                yaml_files.append(path)
+            elif not Path(path).exists():
+                raise FileExistsError(f"File {path} does not exist")
+            elif Path(path).is_file():
+                yaml_files.append(path)
+            elif Path(path).is_dir():
+                for yaml_path in Path(path).rglob("*.[yY][aA][mM][lL]"):
+                    yaml_files.append(str(yaml_path))
+                for yaml_path in Path(path).rglob("*.[yY][mM][lL]"):
+                    yaml_files.append(str(yaml_path))
+            else:
+                yaml_files.append(path)
 
     block_manager = BlockParser(
         sp,
@@ -203,7 +223,7 @@ def main(args=None):
     # and get a dictionary of command line arguments
     try:
         cmd_args_dict = helper.parse_all_yaml(
-            options.yaml, destroy=options.delete, targets=options.targets
+            yaml_files, destroy=options.delete, targets=options.targets
         )
         for block, args_list in cmd_args_dict.items():
             for args in args_list:
