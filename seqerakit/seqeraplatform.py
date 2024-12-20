@@ -158,7 +158,7 @@ class SeqeraPlatform:
             except json.JSONDecodeError:
                 pass
 
-        if process.returncode != 0 and "ERROR: " in stdout:
+        if process.returncode != 0 and "ERROR:" in stdout:
             self._handle_command_errors(stdout)
 
         if should_print:
