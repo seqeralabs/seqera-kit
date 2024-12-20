@@ -49,4 +49,4 @@ class ComputeEnvs(SeqeraPlatform):
         ]
 
         # Pass the built command to the base class method in SeqeraPlatform
-        return self._tw_run(command, *args, **kwargs, to_json=True)
+        return self._tw_run(command, *args, **kwargs)
