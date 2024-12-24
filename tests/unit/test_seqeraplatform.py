@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from seqerakit import seqeraplatform
+from seqerakit.seqeraplatform import ResourceCreationError
 import json
 import subprocess
 import os
@@ -10,7 +11,7 @@ from io import StringIO
 
 class TestSeqeraPlatform(unittest.TestCase):
     def setUp(self):
-        self.sp = seqeraplatform.SeqeraPlatform()
+        self.sp = seqeraplatform.SeqeraPlatform(json=True)
 
     @patch("subprocess.Popen")
     def test_run_with_jsonout_command(self, mock_subprocess):
@@ -38,7 +39,7 @@ class TestSeqeraPlatform(unittest.TestCase):
         command = getattr(self.sp, "pipelines")
 
         # Run the command with arguments
-        result = command("view", "--name", "pipeline_name", to_json=True)
+        result = command("view", "--name", "pipeline_name")
 
         # Check that Popen was called with the right arguments
         mock_subprocess.assert_called_once_with(
@@ -121,7 +122,7 @@ class TestSeqeraPlatform(unittest.TestCase):
             command = getattr(self.sp, "pipelines")
 
             # Check that the JSON is parsed correctly
-            self.assertEqual(command("arg1", "arg2", to_json=True), {"key": "value"})
+            self.assertEqual(command("arg1", "arg2"), {"key": "value"})
 
 
 class TestSeqeraPlatformCLIArgs(unittest.TestCase):
@@ -139,7 +140,7 @@ class TestSeqeraPlatformCLIArgs(unittest.TestCase):
         )
 
         # Call a method
-        self.sp.pipelines("view", "--name", "pipeline_name", to_json=True)
+        self.sp.pipelines("view", "--name", "pipeline_name")
 
         # Extract the command used to call Popen
         called_command = mock_subprocess.call_args[0][0]
@@ -164,7 +165,7 @@ class TestSeqeraPlatformCLIArgs(unittest.TestCase):
         )
 
         # Call a method
-        self.sp.pipelines("view", "--name", "pipeline_name", to_json=True)
+        self.sp.pipelines("view", "--name", "pipeline_name")
 
         # Extract the command used to call Popen
         called_command = mock_subprocess.call_args[0][0]
@@ -222,7 +223,7 @@ class TestKitOptions(unittest.TestCase):
     @patch("subprocess.Popen")
     def test_dryrun_call(self, mock_subprocess):
         # Run a method with dryrun=True
-        self.dryrun_tw.pipelines("view", "--name", "pipeline_name", to_json=True)
+        self.dryrun_tw.pipelines("view", "--name", "pipeline_name")
 
         # Assert that subprocess.Popen is not called
         mock_subprocess.assert_not_called()
@@ -266,8 +267,65 @@ class TestCheckEnvVars(unittest.TestCase):
         with self.assertRaises(EnvironmentError) as context:
             self.sp._check_env_vars(command)
         self.assertEqual(
-            str(context.exception), f" Environment variable ${unset_var} not found!"
+            str(context.exception), f"Environment variable ${unset_var} not found!"
         )
+
+    def test_special_vars_handling(self):
+        os.environ["VAR1"] = "value1"
+
+        test_cases = [
+            (
+                ["tw", "credentials", "add", "agent", "--work-dir", "$TW_AGENT_WORK"],
+                r'tw credentials add agent --work-dir "\\\$TW_AGENT_WORK"',
+            ),
+            # Mixed case with both types of variables
+            (
+                [
+                    "tw",
+                    "credentials",
+                    "add",
+                    "--var",
+                    "$VAR1",
+                    "--work-dir",
+                    "$TW_AGENT_WORK",
+                ],
+                r'tw credentials add --var $VAR1 --work-dir "\\\$TW_AGENT_WORK"',
+            ),
+            # Already escaped variable
+            # Preserve variable as is
+            (
+                ["tw", "credentials", "add", "--var", "\\$SOME_VAR"],
+                "tw credentials add --var $SOME_VAR",
+            ),
+        ]
+
+        for command, expected in test_cases:
+            with self.subTest(command=command):
+                result = self.sp._check_env_vars(command)
+                self.assertEqual(result, expected)
+
+    def test_mixed_env_var_styles(self):
+        # Not a valid use case but test handling of diff types
+        os.environ["VAR1"] = "value1"
+        os.environ["VAR2"] = "value2"
+        os.environ["VAR3"] = "value3"
+
+        command = [
+            "tw",
+            "credentials",
+            "add",
+            "-w",
+            "${VAR1}",
+            "--secret-key",
+            "%VAR2%",
+            "--access-key",
+            "$env:VAR3",
+        ]
+        expected = (
+            "tw credentials add -w ${VAR1} --secret-key %VAR2% --access-key $env:VAR3"
+        )
+        result = self.sp._check_env_vars(command)
+        self.assertEqual(result, expected)
 
 
 class TestSeqeraPlatformOutputHandling(unittest.TestCase):
@@ -332,6 +390,13 @@ class TestSeqeraPlatformOutputHandling(unittest.TestCase):
         result = self.sp._execute_command("tw pipelines list", to_json=False)
         self.assertEqual(result, '{"key": "value"}')
 
+        _sp = seqeraplatform.SeqeraPlatform(json=True)
+        result = _sp._execute_command("tw pipelines list", to_json=False)
+        self.assertEqual(result, {"key": "value"})
+
+        result = _sp._execute_command("tw pipelines list", to_json=True)
+        self.assertEqual(result, {"key": "value"})
+
     @patch("subprocess.Popen")
     def test_print_stdout_override(self, mock_subprocess):
         mock_subprocess.return_value = MagicMock(returncode=0)
@@ -342,11 +407,9 @@ class TestSeqeraPlatformOutputHandling(unittest.TestCase):
         log_output = self.log_capture.getvalue()
         self.assertIn("Command output: output", log_output)
 
-        # Clear the log capture
         self.log_capture.truncate(0)
         self.log_capture.seek(0)
 
-        # Test with print_stdout=False
         self.sp._execute_command("tw pipelines list", print_stdout=False)
         log_output = self.log_capture.getvalue()
         self.assertNotIn("Command output: output", log_output)
@@ -368,8 +431,53 @@ class TestSeqeraPlatformOutputHandling(unittest.TestCase):
         mock_subprocess.return_value = MagicMock(returncode=0)
         mock_subprocess.return_value.communicate.return_value = (b"Invalid JSON", b"")
 
-        with self.assertRaises(json.JSONDecodeError):
-            self.sp._execute_command("tw pipelines list", to_json=True)
+        result = self.sp._execute_command("tw pipelines list", to_json=True)
+
+        self.assertEqual(result, "Invalid JSON")  # Should return raw stdout
+        mock_subprocess.assert_called_once_with(
+            "tw pipelines list",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            shell=True,
+        )
+
+    @patch("subprocess.Popen")
+    def test_json_parsing_failure_fallback(self, mock_subprocess):
+        mock_subprocess.return_value = MagicMock(returncode=0)
+        mock_subprocess.return_value.communicate.return_value = (b"Invalid JSON", b"")
+
+        result = self.sp._execute_command("tw pipelines list", to_json=True)
+
+        self.assertEqual(result, "Invalid JSON")
+
+    @patch("subprocess.Popen")
+    def test_error_with_nonzero_return_code(self, mock_subprocess):
+        mock_subprocess.return_value = MagicMock(returncode=1)
+        mock_subprocess.return_value.communicate.return_value = (
+            b"ERROR: Something went wrong",
+            b"",
+        )
+
+        with self.assertRaises(ResourceCreationError):
+            self.sp._execute_command("tw pipelines list")
+
+    @patch("subprocess.Popen")
+    def test_correct_logging(self, mock_subprocess):
+        mock_subprocess.return_value = MagicMock(returncode=0)
+        mock_subprocess.return_value.communicate.return_value = (b"Command output", b"")
+
+        with patch("logging.info") as mock_logging:
+            # Test with JSON enabled
+            self.sp.json = True
+            self.sp._execute_command("tw pipelines list")
+            mock_logging.assert_called_once_with(" Running command: tw pipelines list")
+
+            mock_logging.reset_mock()
+
+            # Test with JSON disabled
+            self.sp.json = False
+            self.sp._execute_command("tw pipelines list")
+            mock_logging.assert_any_call(" Command output: Command output")
 
 
 if __name__ == "__main__":

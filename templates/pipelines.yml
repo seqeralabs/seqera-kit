@@ -4,7 +4,7 @@
 ##   2. Via a JSON file exported from SeqeraPlatform with the "tw pipelines export" command
 pipelines:
   - name: 'my_first_pipeline'                         # required
-    workspace: 'my_organization/my_workspace'         # required
+    workspace: 'my_organization/my_workspace'         # optional
     description: 'My test pipeline'                   # optional
     compute-env: 'my_aws_compute_environment'         # required
     work-dir: 's3://my_bucket'                        # optional
@@ -17,7 +17,7 @@ pipelines:
     url: 'https://github.com/my_username/my_repo'     # required
     overwrite: True                                   # optional
   - name: 'my_second_pipeline'                        # required
-    workspace: 'my_organization/my_workspace'         # required
+    workspace: 'my_organization/my_workspace'         # optional
     description: 'My test pipeline'                   # optional
     compute-env: 'my_aws_compute_environment'         # required
     file-path: './pipelines/my_pipeline.json'         # required

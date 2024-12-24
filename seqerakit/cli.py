@@ -48,6 +48,9 @@ def parse_args(args=None):
         help="Display Seqera Platform information and exit.",
     )
     general.add_argument(
+        "-j", "--json", action="store_true", help="Output JSON format in stdout."
+    )
+    general.add_argument(
         "--dryrun",
         "-d",
         action="store_true",
@@ -107,8 +110,16 @@ class BlockParser:
         """
         self.sp = sp
         self.list_for_add_method = list_for_add_method
-        # Create an instance of Overwrite class
-        self.overwrite_method = overwrite.Overwrite(self.sp)
+
+        # Create a separate Seqera Platform client instance without
+        # JSON output to avoid mixing resource checks with creation
+        # output during overwrite operations.
+        sp_without_json = seqeraplatform.SeqeraPlatform(
+            cli_args=sp.cli_args,
+            dryrun=sp.dryrun,
+            json=False,
+        )
+        self.overwrite_method = overwrite.Overwrite(sp_without_json)
 
     def handle_block(self, block, args, destroy=False, dryrun=False):
         # Check if delete is set to True, and call delete handler
@@ -132,13 +143,11 @@ class BlockParser:
 
         # Check if overwrite is set to True, and call overwrite handler
         overwrite_option = args.get("overwrite", False)
-        if overwrite_option and dryrun is False:
+        if overwrite_option and not dryrun:
             logging.debug(f" Overwrite is set to 'True' for {block}\n")
             self.overwrite_method.handle_overwrite(
                 block, args["cmd_args"], overwrite_option
             )
-        elif dryrun is False:
-            self.overwrite_method.handle_overwrite(block, args["cmd_args"])
 
         if block in self.list_for_add_method:
             helper.handle_generic_block(self.sp, block, args["cmd_args"])
@@ -152,9 +161,12 @@ def main(args=None):
     options = parse_args(args if args is not None else sys.argv[1:])
     logging.basicConfig(level=getattr(logging, options.log_level.upper()))
 
-    # Parse CLI arguments into a list and create a Seqera Platform instance
+    # Parse CLI arguments into a list
     cli_args_list = options.cli_args.split() if options.cli_args else []
-    sp = seqeraplatform.SeqeraPlatform(cli_args=cli_args_list, dryrun=options.dryrun)
+
+    sp = seqeraplatform.SeqeraPlatform(
+        cli_args=cli_args_list, dryrun=options.dryrun, json=options.json
+    )
 
     # If the info flag is set, run 'tw info'
     if options.info:

@@ -28,5 +28,4 @@ pipeline_run = tw.launch(
     "--wait",
     "SUBMITTED",
     "https://github.com/nextflow-io/hello",
-    to_json=True,
 )
