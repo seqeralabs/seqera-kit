@@ -159,6 +159,44 @@ class BlockParser:
             logger.error(f"Unrecognized resource block in YAML: {block}")
 
 
+def find_yaml_files(path_list=None):
+    """
+    Find YAML files in the given path list.
+
+    Args:
+        path_list (list, optional): A list of paths to search for YAML files.
+
+    Returns:
+        list: A list of YAML files found in the given path list or stdin.
+    """
+
+    yaml_files = []
+    yaml_exts = ["*.[yY][aA][mM][lL]", "*.[yY][mM][lL]"]
+
+    if not path_list:
+        if sys.stdin.isatty():
+            raise ValueError(
+                "No YAML(s) provided and no input from stdin. Please provide at least "
+                "one YAML configuration file or pipe input from stdin."
+            )
+        return [sys.stdin]
+
+    for path in path_list:
+        if path == "-":
+            yaml_files.append(path)
+        elif not Path(path).exists():
+            raise FileExistsError(f"File {path} does not exist")
+        elif Path(path).is_file():
+            yaml_files.append(str(path))
+        elif Path(path).is_dir():
+            for ext in yaml_exts:
+                yaml_files.extend(str(p) for p in Path(path).rglob(ext))
+        else:
+            yaml_files.append(path)
+
+    return yaml_files
+
+
 def main(args=None):
     options = parse_args(args if args is not None else sys.argv[1:])
     logging.basicConfig(level=getattr(logging, options.log_level.upper()))
@@ -177,33 +215,7 @@ def main(args=None):
             print(result)
         return
 
-    if not options.yaml:
-        if sys.stdin.isatty():
-            logging.error(
-                " No YAML(s) provided and no input from stdin. Please provide "
-                "at least one YAML configuration file or pipe input from stdin."
-            )
-            sys.exit(1)
-        else:
-            yaml_files = [sys.stdin]
-    else:
-
-        # Expand any directories to find yaml files recursively
-        yaml_files = []
-        for path in options.yaml:
-            if path == "-":
-                yaml_files.append(path)
-            elif not Path(path).exists():
-                raise FileExistsError(f"File {path} does not exist")
-            elif Path(path).is_file():
-                yaml_files.append(path)
-            elif Path(path).is_dir():
-                for yaml_path in Path(path).rglob("*.[yY][aA][mM][lL]"):
-                    yaml_files.append(str(yaml_path))
-                for yaml_path in Path(path).rglob("*.[yY][mM][lL]"):
-                    yaml_files.append(str(yaml_path))
-            else:
-                yaml_files.append(path)
+    yaml_files = find_yaml_files(options.yaml)
 
     block_manager = BlockParser(
         sp,
