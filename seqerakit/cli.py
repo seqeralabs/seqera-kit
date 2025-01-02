@@ -84,8 +84,10 @@ def parse_args(args=None):
         "--cli",
         dest="cli_args",
         type=str,
+        action="append",
         help="Additional Seqera Platform CLI specific options to be passed,"
-        " enclosed in double quotes (e.g. '--cli=\"--insecure\"').",
+        " enclosed in double quotes (e.g. '--cli=\"--insecure\"'). Can be specified"
+        " multiple times.",
     )
     yaml_processing.add_argument(
         "--targets",
@@ -214,7 +216,10 @@ def main(args=None):
     logging.basicConfig(level=getattr(logging, options.log_level.upper()))
 
     # Parse CLI arguments into a list
-    cli_args_list = options.cli_args.split() if options.cli_args else []
+    cli_args_list = []
+    if options.cli_args:
+        for cli_arg in options.cli_args:
+            cli_args_list.extend(cli_arg.split())
 
     # add and overwrite existing environment variables with those in the env_file
     if options.env_file:
