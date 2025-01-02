@@ -21,6 +21,8 @@ import argparse
 import logging
 import sys
 
+from pathlib import Path
+
 from seqerakit import seqeraplatform, helper, overwrite
 from seqerakit.seqeraplatform import ResourceExistsError, ResourceCreationError
 from seqerakit import __version__
@@ -157,6 +159,48 @@ class BlockParser:
             logger.error(f"Unrecognized resource block in YAML: {block}")
 
 
+def find_yaml_files(path_list=None):
+    """
+    Find YAML files in the given path list.
+
+    Args:
+        path_list (list, optional): A list of paths to search for YAML files.
+
+    Returns:
+        list: A list of YAML files found in the given path list or stdin.
+    """
+
+    yaml_files = []
+    yaml_exts = ["**/*.[yY][aA][mM][lL]", "**/*.[yY][mM][lL]"]
+
+    if not path_list:
+        if sys.stdin.isatty():
+            raise ValueError(
+                "No YAML(s) provided and no input from stdin. Please provide at least "
+                "one YAML configuration file or pipe input from stdin."
+            )
+        return [sys.stdin]
+
+    for path in path_list:
+        if path == "-":
+            yaml_files.append(path)
+            continue
+
+        path = Path(path)
+        if not path.exists():
+            raise FileExistsError(f"File {path} does not exist")
+
+        if path.is_file():
+            yaml_files.append(str(path))
+        elif path.is_dir():
+            for ext in yaml_exts:
+                yaml_files.extend(str(p) for p in path.rglob(ext))
+        else:
+            yaml_files.append(str(path))
+
+    return yaml_files
+
+
 def main(args=None):
     options = parse_args(args if args is not None else sys.argv[1:])
     logging.basicConfig(level=getattr(logging, options.log_level.upper()))
@@ -175,15 +219,7 @@ def main(args=None):
             print(result)
         return
 
-    if not options.yaml:
-        if sys.stdin.isatty():
-            logging.error(
-                " No YAML(s) provided and no input from stdin. Please provide "
-                "at least one YAML configuration file or pipe input from stdin."
-            )
-            sys.exit(1)
-        else:
-            options.yaml = [sys.stdin]
+    yaml_files = find_yaml_files(options.yaml)
 
     block_manager = BlockParser(
         sp,
@@ -203,7 +239,7 @@ def main(args=None):
     # and get a dictionary of command line arguments
     try:
         cmd_args_dict = helper.parse_all_yaml(
-            options.yaml, destroy=options.delete, targets=options.targets
+            yaml_files, destroy=options.delete, targets=options.targets
         )
         for block, args_list in cmd_args_dict.items():
             for args in args_list:
