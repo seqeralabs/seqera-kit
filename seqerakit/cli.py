@@ -171,7 +171,7 @@ def find_yaml_files(path_list=None):
     """
 
     yaml_files = []
-    yaml_exts = ["*.[yY][aA][mM][lL]", "*.[yY][mM][lL]"]
+    yaml_exts = ["**/*.[yY][aA][mM][lL]", "**/*.[yY][mM][lL]"]
 
     if not path_list:
         if sys.stdin.isatty():
@@ -184,15 +184,19 @@ def find_yaml_files(path_list=None):
     for path in path_list:
         if path == "-":
             yaml_files.append(path)
-        elif not Path(path).exists():
+            continue
+
+        path = Path(path)
+        if not path.exists():
             raise FileExistsError(f"File {path} does not exist")
-        elif Path(path).is_file():
+
+        if path.is_file():
             yaml_files.append(str(path))
-        elif Path(path).is_dir():
+        elif path.is_dir():
             for ext in yaml_exts:
-                yaml_files.extend(str(p) for p in Path(path).rglob(ext))
+                yaml_files.extend(str(p) for p in path.rglob(ext))
         else:
-            yaml_files.append(path)
+            yaml_files.append(str(path))
 
     return yaml_files
 
