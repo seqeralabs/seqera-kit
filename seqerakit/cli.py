@@ -20,6 +20,8 @@ the required options for each resource based on the Seqera Platform CLI.
 import argparse
 import logging
 import sys
+import os
+import yaml
 
 from pathlib import Path
 
@@ -91,6 +93,12 @@ def parse_args(args=None):
         type=str,
         help="Specify the resources to be targeted for creation in a YAML file through "
         "a comma-separated list (e.g. '--targets=teams,participants').",
+    )
+    yaml_processing.add_argument(
+        "--env-file",
+        dest="env_file",
+        type=str,
+        help="Path to a YAML file containing environment variables for configuration.",
     )
     return parser.parse_args(args)
 
@@ -207,6 +215,12 @@ def main(args=None):
 
     # Parse CLI arguments into a list
     cli_args_list = options.cli_args.split() if options.cli_args else []
+
+    # add and overwrite existing environment variables with those in the env_file
+    if options.env_file:
+        with open(options.env_file, "r") as f:
+            env_vars = yaml.safe_load(f)
+            os.environ.update(env_vars)
 
     sp = seqeraplatform.SeqeraPlatform(
         cli_args=cli_args_list, dryrun=options.dryrun, json=options.json
