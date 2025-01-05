@@ -221,11 +221,16 @@ def main(args=None):
         for cli_arg in options.cli_args:
             cli_args_list.extend(cli_arg.split())
 
-    # add and overwrite existing environment variables with those in the env_file
+    # Merge environment variables from env_file with existing ones
+    # Will prioritize env_file values
     if options.env_file:
         with open(options.env_file, "r") as f:
             env_vars = yaml.safe_load(f)
-            os.environ.update(env_vars)
+            # Only update environment variables that are explicitly defined in env_file
+            for key, value in env_vars.items():
+                if value is not None:
+                    full_value = os.path.expandvars(str(value))
+                    os.environ[key] = full_value
 
     sp = seqeraplatform.SeqeraPlatform(
         cli_args=cli_args_list, dryrun=options.dryrun, json=options.json
