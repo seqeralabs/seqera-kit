@@ -438,6 +438,36 @@ In this example:
 - `name`, `url`, `workspace`, etc., are the keys derived from the CLI options.
 - The corresponding values are user-defined
 
+### Using environment variables
+
+You can also use environment variables to define the values for your YAML file. This is useful if you want to avoid hardcoding values in your YAML file or if you want to use the same YAML file for multiple Seqera Platform workspaces.
+
+To use environment variables, you can prefix the value with `$` and the name of the environment variable. For example:
+
+```yaml
+pipelines:
+  - name: 'my_first_pipeline'
+    url: '$PIPELINE_URL'
+    workspace: '$WORKSPACE'
+    compute-env: '$COMPUTE_ENV'
+```
+
+In addition, you can provide environment variables in the form of a file. To do this, you can use the `--env-file` flag. For example:
+
+```bash
+seqerakit --env-file /path/to/env.yaml
+```
+
+The environment variables in the file should be in the form of key-value pairs in YAML format, with the key being the name of the environment variable and the value being the value you want to use.
+
+```yaml
+# env.yaml
+WORKSPACE: 'my_workspace'
+COMPUTE_ENV: 'my_compute_environment'
+```
+
+An environment file is taken as precedence over environment variables present in the environment.
+
 ### Best Practices:
 
 - Ensure that the indentation and structure of the YAML file are correct - YAML is sensitive to formatting.
