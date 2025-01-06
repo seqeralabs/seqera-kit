@@ -443,10 +443,13 @@ In this example:
 You can also use environment variables to define the values for your YAML file. This is useful if you want to avoid hardcoding values in your YAML file or if you want to use the same YAML file for multiple Seqera Platform workspaces.
 
 To use environment variables, you can prefix the value with `$` and the name of the environment variable. For example:
+
 ```sh
 export WORKSPACE='https://github.com/nextflow/hello'
 export WORKSPACE='my_workspace'
 export COMPUTE_ENV='my_compute_environment'
+```
+
 ```yaml
 pipelines:
   - name: 'my_first_pipeline'
