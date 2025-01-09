@@ -158,7 +158,7 @@ class SeqeraPlatform:
             except json.JSONDecodeError:
                 pass
 
-        if process.returncode != 0 and "ERROR:" in stdout:
+        if process.returncode != 0:
             self._handle_command_errors(stdout)
 
         if should_print:
@@ -173,10 +173,11 @@ class SeqeraPlatform:
             raise ResourceExistsError(
                 "Resource already exists. Please delete first or set 'overwrite: true'"
             )
+        elif re.search(r"ERROR: .*not found", stdout, flags=re.IGNORECASE):
+            raise ResourceNotFoundError(f"Resource not found: '{stdout}'")
         else:
             raise ResourceCreationError(
-                f"Resource creation failed: '{stdout}'. "
-                "Check your config and try again."
+                f"Command failed: '{stdout}'. " "Check your input and try again."
             )
 
     def _tw_run(self, cmd, *args, **kwargs):
@@ -214,4 +215,8 @@ class ResourceExistsError(Exception):
 
 
 class ResourceCreationError(Exception):
+    pass
+
+
+class ResourceNotFoundError(Exception):
     pass
