@@ -176,8 +176,8 @@ class SeqeraPlatform:
         elif re.search(r"ERROR: .*not found", stdout, flags=re.IGNORECASE):
             raise ResourceNotFoundError(f"Resource not found: '{stdout}'")
         else:
-            raise ResourceCreationError(
-                f"Command failed: '{stdout}'. " "Check your input and try again."
+            raise CommandError(
+                f"Command failed: '{stdout}'. Check your input and try again."
             )
 
     def _tw_run(self, cmd, *args, **kwargs):
@@ -210,11 +210,11 @@ class SeqeraPlatform:
         return self.TwCommand(self, cmd.replace("_", "-"))
 
 
-class ResourceExistsError(Exception):
+class CommandError(Exception):
     pass
 
 
-class ResourceCreationError(Exception):
+class ResourceExistsError(Exception):
     pass
 
 
