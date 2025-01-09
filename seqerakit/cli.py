@@ -241,11 +241,15 @@ def main(args=None):
     )
 
     # If the info flag is set, run 'tw info'
-    if options.info:
-        result = sp.info()
-        if not options.dryrun:
-            print(result)
-        return
+    try:
+        if options.info:
+            result = sp.info()
+            if not options.dryrun:
+                print(result)
+            return
+    except CommandError as e:
+        logging.error(e)
+        sys.exit(1)
 
     yaml_files = find_yaml_files(options.yaml)
 
