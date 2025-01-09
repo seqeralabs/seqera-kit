@@ -445,7 +445,7 @@ You can also use environment variables to define the values for your YAML file. 
 To use environment variables, you can prefix the value with `$` and the name of the environment variable. For example:
 
 ```sh
-export WORKSPACE='https://github.com/nextflow/hello'
+export PIPELINE_URL='https://github.com/nextflow/hello'
 export WORKSPACE='my_workspace'
 export COMPUTE_ENV='my_compute_environment'
 ```
@@ -472,7 +472,7 @@ WORKSPACE: 'my_workspace'
 COMPUTE_ENV: 'my_compute_environment'
 ```
 
-An environment file is taken as precedence over environment variables present in the environment.
+Values in the provided environment file will override any existing environment variables.
 
 ### Best Practices:
 
