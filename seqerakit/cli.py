@@ -26,7 +26,11 @@ import yaml
 from pathlib import Path
 
 from seqerakit import seqeraplatform, helper, overwrite
-from seqerakit.seqeraplatform import ResourceExistsError, ResourceCreationError
+from seqerakit.seqeraplatform import (
+    ResourceExistsError,
+    ResourceNotFoundError,
+    CommandError,
+)
 from seqerakit import __version__
 
 logger = logging.getLogger(__name__)
@@ -270,7 +274,7 @@ def main(args=None):
                 block_manager.handle_block(
                     block, args, destroy=options.delete, dryrun=options.dryrun
                 )
-    except (ResourceExistsError, ResourceCreationError, ValueError) as e:
+    except (ResourceExistsError, ResourceNotFoundError, CommandError, ValueError) as e:
         logging.error(e)
         sys.exit(1)
 

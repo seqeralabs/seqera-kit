@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from seqerakit import seqeraplatform
-from seqerakit.seqeraplatform import ResourceCreationError
+from seqerakit.seqeraplatform import CommandError
 import json
 import subprocess
 import os
@@ -91,7 +91,7 @@ class TestSeqeraPlatform(unittest.TestCase):
             command = getattr(self.sp, "pipelines")
 
             # Check that the error is raised
-            with self.assertRaises(seqeraplatform.ResourceCreationError):
+            with self.assertRaises(seqeraplatform.CommandError):
                 command("import", "my_pipeline.json", "--name", "pipeline_name")
 
     def test_empty_string_argument(self):
@@ -422,7 +422,7 @@ class TestSeqeraPlatformOutputHandling(unittest.TestCase):
             b"",
         )
 
-        with self.assertRaises(seqeraplatform.ResourceCreationError):
+        with self.assertRaises(seqeraplatform.CommandError):
             with self.sp.suppress_output():
                 self.sp._execute_command("tw pipelines list")
 
@@ -458,7 +458,7 @@ class TestSeqeraPlatformOutputHandling(unittest.TestCase):
             b"",
         )
 
-        with self.assertRaises(ResourceCreationError):
+        with self.assertRaises(CommandError):
             self.sp._execute_command("tw pipelines list")
 
     @patch("subprocess.Popen")
