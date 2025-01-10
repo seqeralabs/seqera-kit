@@ -20,9 +20,17 @@ the required options for each resource based on the Seqera Platform CLI.
 import argparse
 import logging
 import sys
+import os
+import yaml
+
+from pathlib import Path
 
 from seqerakit import seqeraplatform, helper, overwrite
-from seqerakit.seqeraplatform import ResourceExistsError, ResourceCreationError
+from seqerakit.seqeraplatform import (
+    ResourceExistsError,
+    ResourceNotFoundError,
+    CommandError,
+)
 from seqerakit import __version__
 
 logger = logging.getLogger(__name__)
@@ -80,8 +88,10 @@ def parse_args(args=None):
         "--cli",
         dest="cli_args",
         type=str,
+        action="append",
         help="Additional Seqera Platform CLI specific options to be passed,"
-        " enclosed in double quotes (e.g. '--cli=\"--insecure\"').",
+        " enclosed in double quotes (e.g. '--cli=\"--insecure\"'). Can be specified"
+        " multiple times.",
     )
     yaml_processing.add_argument(
         "--targets",
@@ -89,6 +99,12 @@ def parse_args(args=None):
         type=str,
         help="Specify the resources to be targeted for creation in a YAML file through "
         "a comma-separated list (e.g. '--targets=teams,participants').",
+    )
+    yaml_processing.add_argument(
+        "--env-file",
+        dest="env_file",
+        type=str,
+        help="Path to a YAML file containing environment variables for configuration.",
     )
     return parser.parse_args(args)
 
@@ -157,33 +173,85 @@ class BlockParser:
             logger.error(f"Unrecognized resource block in YAML: {block}")
 
 
+def find_yaml_files(path_list=None):
+    """
+    Find YAML files in the given path list.
+
+    Args:
+        path_list (list, optional): A list of paths to search for YAML files.
+
+    Returns:
+        list: A list of YAML files found in the given path list or stdin.
+    """
+
+    yaml_files = []
+    yaml_exts = ["**/*.[yY][aA][mM][lL]", "**/*.[yY][mM][lL]"]
+
+    if not path_list:
+        if sys.stdin.isatty():
+            raise ValueError(
+                "No YAML(s) provided and no input from stdin. Please provide at least "
+                "one YAML configuration file or pipe input from stdin."
+            )
+        return [sys.stdin]
+
+    for path in path_list:
+        if path == "-":
+            yaml_files.append(path)
+            continue
+
+        path = Path(path)
+        if not path.exists():
+            raise FileExistsError(f"File {path} does not exist")
+
+        if path.is_file():
+            yaml_files.append(str(path))
+        elif path.is_dir():
+            for ext in yaml_exts:
+                yaml_files.extend(str(p) for p in path.rglob(ext))
+        else:
+            yaml_files.append(str(path))
+
+    return yaml_files
+
+
 def main(args=None):
     options = parse_args(args if args is not None else sys.argv[1:])
     logging.basicConfig(level=getattr(logging, options.log_level.upper()))
 
     # Parse CLI arguments into a list
-    cli_args_list = options.cli_args.split() if options.cli_args else []
+    cli_args_list = []
+    if options.cli_args:
+        for cli_arg in options.cli_args:
+            cli_args_list.extend(cli_arg.split())
+
+    # Merge environment variables from env_file with existing ones
+    # Will prioritize env_file values
+    if options.env_file:
+        with open(options.env_file, "r") as f:
+            env_vars = yaml.safe_load(f)
+            # Only update environment variables that are explicitly defined in env_file
+            for key, value in env_vars.items():
+                if value is not None:
+                    full_value = os.path.expandvars(str(value))
+                    os.environ[key] = full_value
 
     sp = seqeraplatform.SeqeraPlatform(
         cli_args=cli_args_list, dryrun=options.dryrun, json=options.json
     )
 
     # If the info flag is set, run 'tw info'
-    if options.info:
-        result = sp.info()
-        if not options.dryrun:
-            print(result)
-        return
+    try:
+        if options.info:
+            result = sp.info()
+            if not options.dryrun:
+                print(result)
+            return
+    except CommandError as e:
+        logging.error(e)
+        sys.exit(1)
 
-    if not options.yaml:
-        if sys.stdin.isatty():
-            logging.error(
-                " No YAML(s) provided and no input from stdin. Please provide "
-                "at least one YAML configuration file or pipe input from stdin."
-            )
-            sys.exit(1)
-        else:
-            options.yaml = [sys.stdin]
+    yaml_files = find_yaml_files(options.yaml)
 
     block_manager = BlockParser(
         sp,
@@ -203,14 +271,14 @@ def main(args=None):
     # and get a dictionary of command line arguments
     try:
         cmd_args_dict = helper.parse_all_yaml(
-            options.yaml, destroy=options.delete, targets=options.targets
+            yaml_files, destroy=options.delete, targets=options.targets
         )
         for block, args_list in cmd_args_dict.items():
             for args in args_list:
                 block_manager.handle_block(
                     block, args, destroy=options.delete, dryrun=options.dryrun
                 )
-    except (ResourceExistsError, ResourceCreationError, ValueError) as e:
+    except (ResourceExistsError, ResourceNotFoundError, CommandError, ValueError) as e:
         logging.error(e)
         sys.exit(1)
 
