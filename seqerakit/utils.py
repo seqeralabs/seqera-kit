@@ -67,11 +67,9 @@ def check_if_exists(json_data, namekey, namevalue):
     if not json_data:
         return False
     logging.info(f" Checking if {namekey} {namevalue} exists in Seqera Platform...")
-    # Regex pattern to match environment variables in the string
-    env_var_pattern = re.compile(r"\$\{?[\w]+\}?")
 
     # Substitute environment variables in namevalue
-    resolved_value = env_var_pattern.sub(replace_env_var, namevalue)
+    resolved_value = resolve_env_var(namevalue)
 
     data = json.loads(json_data)
     if find_key_value_in_dict(data, namekey, resolved_value, return_key=None):
@@ -145,8 +143,8 @@ def create_temp_yaml(params_dict, params_file=None):
 
     for key, value in combined_params.items():
         if isinstance(value, str):
-            expanded_value = re.sub(r"\$\{?\w+\}?", replace_env_var, value)
-            combined_params[key] = quoted_str(expanded_value)
+            resolved_value = resolve_env_var(value)
+            combined_params[key] = quoted_str(resolved_value)
 
     with tempfile.NamedTemporaryFile(
         mode="w", delete=False, suffix=".yaml"
@@ -155,9 +153,29 @@ def create_temp_yaml(params_dict, params_file=None):
         return temp_file.name
 
 
-def replace_env_var(match):
-    var_name = match.group().lstrip("$").strip("{}")
-    var_value = os.getenv(var_name)
-    if var_value is None:
-        raise EnvironmentError(f"Environment variable {var_name} not found")
-    return var_value
+def resolve_env_var(value):
+    """
+    Resolves environment variables in a string value.
+    Handles both $VAR and ${VAR} formats.
+
+    Args:
+        value (str): The value that might contain environment variables 
+        (e.g. "$MYVAR" or "${MYVAR}")
+
+    Returns:
+        str: The resolved value with environment variables replaced
+
+    Raises:
+        EnvironmentError: If an environment variable is not found
+    """
+    if not isinstance(value, str) or "$" not in value:
+        return value
+
+    def _replace(match):
+        var_name = match.group().lstrip("$").strip("{}")
+        var_value = os.getenv(var_name)
+        if var_value is None:
+            raise EnvironmentError(f"Environment variable {var_name} not found")
+        return var_value
+
+    return re.sub(r"\$\{?\w+\}?", _replace, value)
