@@ -159,7 +159,7 @@ def resolve_env_var(value):
     Handles both $VAR and ${VAR} formats.
 
     Args:
-        value (str): The value that might contain environment variables 
+        value (str): The value that might contain environment variables
         (e.g. "$MYVAR" or "${MYVAR}")
 
     Returns:

@@ -155,7 +155,7 @@ class Overwrite:
 
         # Get the teamId from the json data
         team_id = utils.find_key_value_in_dict(
-            json.loads(json_out), "name", args["name"], "teamId"
+            json.loads(json_out), "name", utils.resolve_env_var(args["name"]), "teamId"
         )
         return ("delete", "--id", str(team_id), "--organization", args["organization"])
 
