@@ -277,7 +277,9 @@ class Overwrite:
         Check if a resource exists in Seqera Platform by looking for the name and value
         in the json data generated from the list() method.
         """
-        return utils.check_if_exists(self.cached_jsondata, name_key, sp_args["name"])
+        return utils.check_if_exists(
+            self.cached_jsondata, name_key, utils.resolve_env_var(sp_args["name"])
+        )
 
     def delete_resource(self, block, operation, sp_args):
         """
