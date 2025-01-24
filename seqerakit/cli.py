@@ -106,6 +106,11 @@ def parse_args(args=None):
         type=str,
         help="Path to a YAML file containing environment variables for configuration.",
     )
+    yaml_processing.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Globally enable overwrite for all resources defined in YAML input(s).",
+    )
     return parser.parse_args(args)
 
 
@@ -157,8 +162,10 @@ class BlockParser:
             ),
         }
 
-        # Check if overwrite is set to True, and call overwrite handler
-        overwrite_option = args.get("overwrite", False)
+        # Check if overwrite is set to True or globally, and call overwrite handler
+        overwrite_option = args.get("overwrite", False) or getattr(
+            self.sp, "overwrite", False
+        )
         if overwrite_option and not dryrun:
             logging.debug(f" Overwrite is set to 'True' for {block}\n")
             self.overwrite_method.handle_overwrite(
@@ -239,6 +246,7 @@ def main(args=None):
     sp = seqeraplatform.SeqeraPlatform(
         cli_args=cli_args_list, dryrun=options.dryrun, json=options.json
     )
+    sp.overwrite = options.overwrite  # If global overwrite is set
 
     # If the info flag is set, run 'tw info'
     try:
