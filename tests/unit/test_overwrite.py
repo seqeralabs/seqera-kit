@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 import json
 from seqerakit.overwrite import Overwrite
 from seqerakit.seqeraplatform import ResourceExistsError
@@ -139,6 +139,32 @@ class TestOverwrite(unittest.TestCase):
             "--workspace",
             "test-workspace",
         )
+
+    @patch("seqerakit.utils.resolve_env_var")
+    def test_organization_deletion_with_env_var(self, mock_resolve_env_var):
+
+        args = ["--name", "${ORG_NAME}"]
+
+        # Setup environment variable mock
+        mock_resolve_env_var.side_effect = lambda x: (
+            "resolved-org-name" if x == "${ORG_NAME}" else x
+        )
+
+        # Create a mock for the json method that returns our JSON data
+        # The JSON response needs to match what check_if_exists method looks for
+        json_method_mock = Mock(
+            side_effect=lambda *args: json.dumps(
+                {"organizations": [{"orgName": "resolved-org-name"}]}
+            )
+        )
+
+        self.mock_sp.configure_mock(**{"-o json": json_method_mock})
+
+        self.overwrite.handle_overwrite("organizations", args, overwrite=True)
+
+        mock_resolve_env_var.assert_any_call("${ORG_NAME}")
+
+        self.mock_sp.organizations.assert_called_with("delete", "--name", "${ORG_NAME}")
 
 
 # TODO: tests for destroy and JSON caching
