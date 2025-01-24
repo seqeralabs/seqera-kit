@@ -155,7 +155,7 @@ class Overwrite:
 
         # Get the teamId from the json data
         team_id = utils.find_key_value_in_dict(
-            json.loads(json_out), "name", args["name"], "teamId"
+            json.loads(json_out), "name", utils.resolve_env_var(args["name"]), "teamId"
         )
         return ("delete", "--id", str(team_id), "--organization", args["organization"])
 
@@ -277,7 +277,9 @@ class Overwrite:
         Check if a resource exists in Seqera Platform by looking for the name and value
         in the json data generated from the list() method.
         """
-        return utils.check_if_exists(self.cached_jsondata, name_key, sp_args["name"])
+        return utils.check_if_exists(
+            self.cached_jsondata, name_key, utils.resolve_env_var(sp_args["name"])
+        )
 
     def delete_resource(self, block, operation, sp_args):
         """
@@ -313,12 +315,15 @@ class Overwrite:
         """
         jsondata = json.loads(self.cached_jsondata)
         workspaces = jsondata["workspaces"]
+
         for workspace in workspaces:
-            if (
-                workspace.get("orgName") == organization
-                and workspace.get("workspaceName") == workspace_name
+            if workspace.get("orgName") == utils.resolve_env_var(
+                organization
+            ) and workspace.get("workspaceName") == utils.resolve_env_var(
+                workspace_name
             ):
-                return workspace.get("workspaceId")
+                workspace_id = workspace.get("workspaceId")
+                return workspace_id
         return None
 
     def _find_label_id(self, label_name, label_value):
@@ -329,6 +334,8 @@ class Overwrite:
         jsondata = json.loads(self.cached_jsondata)
         labels = jsondata["labels"]
         for label in labels:
-            if label.get("name") == label_name and label.get("value") == label_value:
+            if label.get("name") == utils.resolve_env_var(label_name) and label.get(
+                "value"
+            ) == utils.resolve_env_var(label_value):
                 return label.get("id")
         return None
