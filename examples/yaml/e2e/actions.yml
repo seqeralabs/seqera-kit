@@ -5,7 +5,7 @@ actions:
     workspace: 'seqerakit-e2e/showcase'
     compute-env: 'seqera_aws_virginia_fusionv2_nvme'
     work-dir: 's3://scidev-testing'
-    revision: 'main'
+    revision: 'master'
     profile: 'test'
     params:
       outdir: s3://seqeralabs-showcase/nf-core-rnaseq/action/'
