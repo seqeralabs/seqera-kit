@@ -346,7 +346,6 @@ def test_create_mock_studios_yaml(mock_yaml_file):
                 "autoStart": False,
                 "overwrite": True,
                 "mount-data-ids": "v1-user-bf73f9d33997f93a20ee3e6911779951",
-                "autoStart": False,
             }
         ]
     }
