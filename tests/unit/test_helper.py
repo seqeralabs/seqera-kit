@@ -332,6 +332,7 @@ def test_create_mock_members_yaml(mock_yaml_file):
     assert "members" in result
     assert result["members"] == expected_block_output
 
+
 def test_create_mock_studios_yaml(mock_yaml_file):
     test_data = {
         "studios": [
@@ -378,6 +379,7 @@ def test_create_mock_studios_yaml(mock_yaml_file):
     assert "studios" in result
     assert result["studios"] == expected_block_output
 
+
 def test_create_mock_data_links_yaml(mock_yaml_file):
     test_data = {
         "data-links": [
@@ -390,7 +392,7 @@ def test_create_mock_data_links_yaml(mock_yaml_file):
                 "overwrite": True,
             }
         ]
-    }   
+    }
     expected_block_output = [
         {
             "cmd_args": [
@@ -412,6 +414,7 @@ def test_create_mock_data_links_yaml(mock_yaml_file):
     result = helper.parse_all_yaml([file_path])
     assert "data-links" in result
     assert result["data-links"] == expected_block_output
+
 
 def test_empty_yaml_file(mock_yaml_file):
     test_data = {}

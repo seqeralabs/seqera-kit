@@ -142,7 +142,6 @@ class TestOverwrite(unittest.TestCase):
 
     @patch("seqerakit.utils.resolve_env_var")
     def test_organization_deletion_with_env_var(self, mock_resolve_env_var):
-
         args = ["--name", "${ORG_NAME}"]
 
         # Setup environment variable mock
