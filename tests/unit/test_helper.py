@@ -332,6 +332,86 @@ def test_create_mock_members_yaml(mock_yaml_file):
     assert "members" in result
     assert result["members"] == expected_block_output
 
+def test_create_mock_studios_yaml(mock_yaml_file):
+    test_data = {
+        "studios": [
+            {
+                "name": "test_studio1",
+                "workspace": "my_organization/my_workspace",
+                "template": "public.seqera.io/public/data-studio-rstudio:4.4.1",
+                "compute-env": "my_computeenv",
+                "cpu": 2,
+                "memory": 4096,
+                "autoStart": False,
+                "overwrite": True,
+                "mount-data-ids": "v1-user-bf73f9d33997f93a20ee3e6911779951",
+                "autoStart": False,
+            }
+        ]
+    }
+
+    expected_block_output = [
+        {
+            "cmd_args": [
+                "--compute-env",
+                "my_computeenv",
+                "--cpu",
+                "2",
+                "--memory",
+                "4096",
+                "--mount-data-ids",
+                "v1-user-bf73f9d33997f93a20ee3e6911779951",
+                "--name",
+                "test_studio1",
+                "--template",
+                "public.seqera.io/public/data-studio-rstudio:4.4.1",
+                "--workspace",
+                "my_organization/my_workspace",
+            ],
+            "overwrite": True,
+        }
+    ]
+
+    file_path = mock_yaml_file(test_data)
+    result = helper.parse_all_yaml([file_path])
+    print(f"debug - result: {result}")
+    assert "studios" in result
+    assert result["studios"] == expected_block_output
+
+def test_create_mock_data_links_yaml(mock_yaml_file):
+    test_data = {
+        "data-links": [
+            {
+                "name": "test_data_link1",
+                "workspace": "my_organization/my_workspace",
+                "provider": "aws",
+                "credentials": "my_credentials",
+                "uri": "s3://scidev-playground-eu-west-2/esha/nf-core-scrnaseq/",
+                "overwrite": True,
+            }
+        ]
+    }   
+    expected_block_output = [
+        {
+            "cmd_args": [
+                "--credentials",
+                "my_credentials",
+                "--name",
+                "test_data_link1",
+                "--provider",
+                "aws",
+                "--uri",
+                "s3://scidev-playground-eu-west-2/esha/nf-core-scrnaseq/",
+                "--workspace",
+                "my_organization/my_workspace",
+            ],
+            "overwrite": True,
+        }
+    ]
+    file_path = mock_yaml_file(test_data)
+    result = helper.parse_all_yaml([file_path])
+    assert "data-links" in result
+    assert result["data-links"] == expected_block_output
 
 def test_empty_yaml_file(mock_yaml_file):
     test_data = {}
