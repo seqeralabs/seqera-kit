@@ -1,0 +1,19 @@
+## To see the full list of options available run: "tw data-links add"
+
+# Creating a private data link
+data-links:
+  - name: "my-data-link"                                              # required
+    workspace: "my_organization/my_workspace"                         # required
+    description: "Data link for my results"                           # optional
+    provider: "aws"                                                   # required
+    credentials: "my_aws_credentials"                                 # optional
+    uri: "s3://my-bucket/my-results/"                                 # required
+    overwrite: False                                                  # optional
+
+# Creating a public data link
+  - name: "1000-genomes"                                              # required
+    workspace: "my_organization/my_workspace"                         # required
+    description: "Public data link to 1000 genomes public bucket"     # optional
+    provider: "aws"                                                   # required
+    uri: "s3://1000genomes"                                           # required
+    overwrite: False                                                  # optional

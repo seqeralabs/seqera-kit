@@ -34,6 +34,7 @@ class Overwrite:
         "datasets",
         "actions",
         "pipelines",
+        "studios",
     ]
 
     def __init__(self, sp):
@@ -62,7 +63,7 @@ class Overwrite:
             },
             "labels": {
                 "keys": ["name", "value", "workspace"],
-                "method_args": self._get_label_args,
+                "method_args": lambda args: self._get_id_resource_args("labels", args),
                 "name_key": "name",
             },
             "members": {
@@ -84,6 +85,13 @@ class Overwrite:
                 "keys": ["name", "organization"],
                 "method_args": self._get_workspace_args,
                 "name_key": "workspaceName",
+            },
+            "data-links": {
+                "keys": ["name", "workspace"],
+                "method_args": lambda args: self._get_id_resource_args(
+                    "data-links", args
+                ),
+                "name_key": "name",
             },
         }
 
@@ -197,14 +205,17 @@ class Overwrite:
         workspace_id = self._find_workspace_id(args["organization"], args["name"])
         return ("delete", "--id", str(workspace_id))
 
-    def _get_label_args(self, args):
+    def _get_id_resource_args(self, resource_type, args):
         """
         Returns a list of arguments for the delete() method for labels. The
-        label_id used to delete will be retrieved using the _find_label_id()
-        method.
+        label_id used to delete will be retrieved using the _find_id() method.
         """
-        label_id = self._find_label_id(args["name"], args["value"])
-        return ("delete", "--id", str(label_id), "-w", args["workspace"])
+        if resource_type == "labels":
+            resource_id = self._find_id(resource_type, args["name"], args["value"])
+        else:  # data-links
+            resource_id = self._find_id(resource_type, args["name"])
+
+        return ("delete", "--id", str(resource_id), "-w", args["workspace"])
 
     def _get_generic_deletion_args(self, args):
         """
@@ -252,6 +263,7 @@ class Overwrite:
             elif block in Overwrite.generic_deletion or block in {
                 "participants",
                 "labels",
+                "data-links",
             }:
                 sp_args = self._get_values_from_cmd_args(args, keys_to_get)
                 with self.sp.suppress_output():
@@ -326,16 +338,29 @@ class Overwrite:
                 return workspace_id
         return None
 
-    def _find_label_id(self, label_name, label_value):
+    def _find_id(self, resource_type, name, value=None):
         """
-        Custom method to find a label ID in a nested dictionary with a given
-        workspace name. This ID will be used to delete the label.
+        Generic method to find a resource ID in a nested dictionary.
+
+        Args:
+            resource_type (str): Type of resource ('labels' or 'data-links')
+            name (str): Name of the resource
+            value (str, optional): Value field for labels
+
+        Returns:
+            str: ID of the resource if found, None otherwise
         """
         jsondata = json.loads(self.cached_jsondata)
-        labels = jsondata["labels"]
-        for label in labels:
-            if label.get("name") == utils.resolve_env_var(label_name) and label.get(
-                "value"
-            ) == utils.resolve_env_var(label_value):
-                return label.get("id")
+        json_key = "dataLinks" if resource_type == "data-links" else resource_type
+        resources = jsondata[json_key]
+
+        for resource in resources:
+            if resource_type == "labels":
+                if resource.get("name") == utils.resolve_env_var(name) and resource.get(
+                    "value"
+                ) == utils.resolve_env_var(value):
+                    return resource.get("id")
+            elif resource_type == "data-links":
+                if resource.get("name") == utils.resolve_env_var(name):
+                    return resource.get("id")
         return None
