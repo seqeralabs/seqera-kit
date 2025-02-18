@@ -340,15 +340,27 @@ class Overwrite:
 
     def _find_id(self, resource_type, name, value=None):
         """
-        Generic method to find a resource ID in a nested dictionary.
+        Finds the unique identifier (ID) for a Seqera Platform resource by searching
+        through the cached JSON data. This method is necessary because certain Platform
+        resources must be deleted using their ID rather than their name.
 
         Args:
-            resource_type (str): Type of resource ('labels' or 'data-links')
-            name (str): Name of the resource
-            value (str, optional): Value field for labels
+            resource_type (str): Type of resource to search for. Currently supports:
+                - 'labels': Platform labels that require both name and value matching
+                - 'data-links': Data link resources that only require name matching
+            name (str): Name of the resource to find
+            value (str, optional): For labels only, the value field that must match
+                along with the name. Defaults to None for non-label resources.
 
         Returns:
-            str: ID of the resource if found, None otherwise
+            str: The unique identifier (ID) of the matching resource if found
+            None: If no matching resource is found
+
+        Note:
+            - For labels, both name and value must match to find the correct ID
+            - For data-links, only the name needs to match
+            - The method uses cached JSON data from previous API calls to avoid
+              redundant requests to the Platform
         """
         jsondata = json.loads(self.cached_jsondata)
         json_key = "dataLinks" if resource_type == "data-links" else resource_type
