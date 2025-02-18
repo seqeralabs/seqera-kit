@@ -128,6 +128,8 @@ def parse_all_yaml(file_paths, destroy=False, targets=None):
         "datasets",
         "pipelines",
         "launch",
+        "data-links",
+        "studios",
     ]
 
     # Reverse the order of resources to delete if destroy is True
@@ -175,7 +177,11 @@ def parse_block(block_name, item):
 def parse_generic_block(item):
     cmd_args = []
     for key, value in item.items():
-        cmd_args.extend([f"--{key}", str(value)])
+        if isinstance(value, bool):
+            if value:
+                cmd_args.append(f"--{key}")
+        else:
+            cmd_args.extend([f"--{key}", str(value)])
     return cmd_args
 
 
