@@ -486,6 +486,7 @@ Values in the provided environment file will override any existing environment v
 We have provided template YAML files for each of the entities that can be created on Seqera Platform. These can be found in the [`templates/`](https://github.com/seqeralabs/blob/main/seqera-kit/templates) directory and should form a good starting point for you to add your own customization:
 
 - [organizations.yml](./templates/organizations.yml)
+- [members.yml](./templates/members.yml)
 - [teams.yml](./templates/teams.yml)
 - [workspaces.yml](./templates/workspaces.yml)
 - [participants.yml](./templates/participants.yml)
@@ -497,6 +498,8 @@ We have provided template YAML files for each of the entities that can be create
 - [labels.yml](./templates/labels.yml)
 - [pipelines.yml](./templates/pipelines.yml)
 - [launch.yml](./templates/launch.yml)
+- [data-links.yml](./templates/data-links.yml)
+- [studios.yml](./templates/studios.yml)
 
 ## Real world example
 

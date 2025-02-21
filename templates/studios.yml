@@ -1,0 +1,48 @@
+## To see the full list of options available run: "tw studios add"
+## The options required to create studios can be specified:
+##   1. With a provided template using `template:` option
+##   2. With a custom template using `custom-template:` option
+##   3. A template image customized with conda packages using `conda-env-yml:` option
+##   4. Mounting data resources using `mount-data-resource-refs:` option
+##   5. Mounting data using data link names using `mount-data:` option
+
+# Mounting with a template image
+studios:
+  - name: 'rstudio_environment'                                               # required
+    description: 'An RStudio environment for testing'                         # optional
+    workspace: 'my_organization/my_workspace'                                 # required
+    template: 'public.cr.seqera.io/platform/data-studio-rstudio:4.4.1-u1-0.7' # required
+    compute-env: 'my_aws_compute_environment'                                 # required
+    gpu: 1                                                                    # optional
+    cpu: 2                                                                    # optional
+    memory: 4096                                                              # optional
+    autoStart: True                                                           # optional
+    mount-data-resource-refs: 's3://my_bucket/my_data'                        # optional, comma separated list
+    overwrite: False                                                          # optional
+
+# Mounting with a custom template
+  - name: 'rstudio_environment_custom_template'                                 # required
+    description: 'An RStudio environment built with a custom image for testing' # optional
+    workspace: 'my_organization/my_workspace'                                   # required
+    custom-template: 'my-registry/my-template:latest'                           # required
+    compute-env: 'my_aws_compute_environment'                                   # required
+    gpu: 1                                                                      # optional
+    cpu: 2                                                                      # optional
+    memory: 4096                                                                # optional
+    autoStart: True                                                             # optional
+    mount-data-resource-refs: 's3://my_bucket/my_data'                          # optional, comma separated list
+    overwrite: False                                                            # optional
+
+# Mounting with a template image customized with conda packages
+  - name: 'rstudio_environment_conda_packages'                                  # required
+    description: 'An RStudio environment built with conda packages for testing' # optional
+    workspace: 'my_organization/my_workspace'                                   # required
+    template: 'public.cr.seqera.io/platform/data-studio-rstudio:4.4.1-u1-0.7'   # required
+    conda-env-yml: './templates/rstudio_environment.yml'                        # required
+    compute-env: 'my_aws_compute_environment'                                   # required
+    gpu: 1                                                                      # optional
+    cpu: 2                                                                      # optional
+    memory: 4096                                                                # optional
+    autoStart: True                                                             # optional
+    mount-data-resource-refs: 's3://my_bucket/my_data'                          # optional, comma separated list
+    overwrite: False                                                            # optional

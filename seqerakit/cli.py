@@ -272,6 +272,8 @@ def main(args=None):
             "secrets",
             "actions",
             "datasets",
+            "studios",
+            "data-links",
         ],
     )
 
