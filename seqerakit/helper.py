@@ -163,11 +163,19 @@ def parse_block(block_name, item):
     }
     # Use the generic block function as a default.
     parse_fn = block_to_function.get(block_name, parse_generic_block)
-    overwrite = item.pop("overwrite", False)
 
-    # Call the appropriate function and return its result along with overwrite value.
+    # Handle both old and new parameters for backward compatibility
+    overwrite = item.pop("overwrite", None)
+    on_exists = item.pop("on_exists", "fail")
+
+    # If overwrite is specified,
+    # it takes precedence over on_exists for backward compatibility
+    if overwrite is not None:
+        on_exists = "overwrite" if overwrite else "fail"
+
+    # Call the appropriate function and return its result along with on_exists value.
     cmd_args = parse_fn(item)
-    return {"cmd_args": cmd_args, "overwrite": overwrite}
+    return {"cmd_args": cmd_args, "on_exists": on_exists}
 
 
 # Parsers for certain blocks of yaml that require handling

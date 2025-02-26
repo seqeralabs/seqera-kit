@@ -165,6 +165,90 @@ class TestOverwrite(unittest.TestCase):
 
         self.mock_sp.organizations.assert_called_with("delete", "--name", "${ORG_NAME}")
 
+    def test_handle_on_exists_overwrite(self):
+        # Test for credentials, secrets, compute-envs, datasets, actions, pipelines
+        args = ["--name", "test-resource", "--workspace", "test-workspace"]
+
+        self.mock_sp.__getattr__("-o json").return_value = json.dumps(
+            {"name": "test-resource"}
+        )
+
+        # Test with on_exists='overwrite'
+        self.overwrite.handle_overwrite("credentials", args, on_exists="overwrite")
+
+        self.mock_sp.credentials.assert_called_with(
+            "delete", "--name", "test-resource", "--workspace", "test-workspace"
+        )
+
+    def test_handle_on_exists_ignore(self):
+        # Test for credentials with on_exists='ignore'
+        args = ["--name", "test-resource", "--workspace", "test-workspace"]
+
+        self.mock_sp.__getattr__("-o json").return_value = json.dumps(
+            {"name": "test-resource"}
+        )
+
+        # Test with on_exists='ignore'
+        result = self.overwrite.handle_overwrite(
+            "credentials", args, on_exists="ignore"
+        )
+
+        # Should return False to indicate creation should be skipped
+        self.assertFalse(result)
+
+        # Should not call delete
+        self.mock_sp.credentials.assert_not_called()
+
+    def test_handle_on_exists_fail(self):
+        args = ["--name", "test-resource", "--workspace", "test-workspace"]
+
+        # Mock JSON response indicating resource exists
+        self.mock_sp.__getattr__("-o json").return_value = json.dumps(
+            {"name": "test-resource"}
+        )
+
+        # Test with on_exists='fail' (default)
+        with self.assertRaises(ResourceExistsError):
+            self.overwrite.handle_overwrite("credentials", args, on_exists="fail")
+
+        # Should not call delete
+        self.mock_sp.credentials.assert_not_called()
+
+    def test_handle_invalid_on_exists(self):
+        args = ["--name", "test-resource", "--workspace", "test-workspace"]
+
+        # Test with invalid on_exists value
+        with self.assertRaises(ValueError):
+            self.overwrite.handle_overwrite(
+                "credentials", args, on_exists="invalid_option"
+            )
+
+    def test_backward_compatibility_overwrite(self):
+        args = ["--name", "test-resource", "--workspace", "test-workspace"]
+
+        self.mock_sp.__getattr__("-o json").return_value = json.dumps(
+            {"name": "test-resource"}
+        )
+
+        # Test with legacy overwrite=True parameter
+        self.overwrite.handle_overwrite("credentials", args, overwrite=True)
+
+        self.mock_sp.credentials.assert_called_with(
+            "delete", "--name", "test-resource", "--workspace", "test-workspace"
+        )
+
+    def test_backward_compatibility_no_overwrite(self):
+        args = ["--name", "test-resource", "--workspace", "test-workspace"]
+
+        # Mock JSON response indicating resource exists
+        self.mock_sp.__getattr__("-o json").return_value = json.dumps(
+            {"name": "test-resource"}
+        )
+
+        # Test with legacy overwrite=False parameter
+        with self.assertRaises(ResourceExistsError):
+            self.overwrite.handle_overwrite("credentials", args, overwrite=False)
+
 
 # TODO: tests for destroy and JSON caching
 
