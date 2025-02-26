@@ -21,7 +21,7 @@ import argparse
 import logging
 import sys
 import os
-import yaml
+import yaml  # type: ignore
 
 from pathlib import Path
 
@@ -107,9 +107,19 @@ def parse_args(args=None):
         help="Path to a YAML file containing environment variables for configuration.",
     )
     yaml_processing.add_argument(
+        "--on-exists",
+        dest="on_exists",
+        type=str,
+        help="Globally specifies the action to take if a resource already exists.",
+        choices=["fail", "ignore", "overwrite"],
+    )
+    yaml_processing.add_argument(
         "--overwrite",
         action="store_true",
-        help="Globally enable overwrite for all resources defined in YAML input(s).",
+        help="""
+        Globally enable overwrite for all resources defined in YAML input(s).
+        "Deprecated: Please use '--on-exists=overwrite' instead.""",
+        deprecated=True,
     )
     return parser.parse_args(args)
 
@@ -147,7 +157,7 @@ class BlockParser:
         if destroy:
             logging.debug(" The '--delete' flag has been specified.\n")
             self.overwrite_method.handle_overwrite(
-                block, args["cmd_args"], overwrite=False, destroy=True
+                block, args["cmd_args"], on_exists="fail", destroy=True
             )
             return
 
@@ -162,15 +172,29 @@ class BlockParser:
             ),
         }
 
-        # Check if overwrite is set to True or globally, and call overwrite handler
-        overwrite_option = args.get("overwrite", False) or getattr(
-            self.sp, "overwrite", False
-        )
-        if overwrite_option and not dryrun:
-            logging.debug(f" Overwrite is set to 'True' for {block}\n")
-            self.overwrite_method.handle_overwrite(
-                block, args["cmd_args"], overwrite_option
+        # Get the on_exists option from args for backward compatibility
+        on_exists = args.get("on_exists", "fail")
+
+        # Global settings take precedence over block-level settings
+        # First check the global --on-exists parameter
+        if (
+            hasattr(self.sp, "global_on_exists")
+            and self.sp.global_on_exists is not None
+        ):
+            on_exists = self.sp.global_on_exists
+        # Then check for the deprecated global --overwrite flag
+        elif getattr(self.sp, "overwrite", False):
+            on_exists = "overwrite"
+
+        if not dryrun:
+            logging.debug(f" on_exists is set to '{on_exists}' for {block}\n")
+            should_continue = self.overwrite_method.handle_overwrite(
+                block, args["cmd_args"], on_exists=on_exists
             )
+
+            # If on_exists is "ignore" and resource exists, skip creation
+            if not should_continue:
+                return
 
         if block in self.list_for_add_method:
             helper.handle_generic_block(self.sp, block, args["cmd_args"])
@@ -247,6 +271,9 @@ def main(args=None):
         cli_args=cli_args_list, dryrun=options.dryrun, json=options.json
     )
     sp.overwrite = options.overwrite  # If global overwrite is set
+
+    # Store the global on_exists parameter if provided
+    sp.global_on_exists = options.on_exists if options.on_exists else None
 
     # If the info flag is set, run 'tw info'
     try:
