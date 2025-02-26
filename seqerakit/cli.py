@@ -21,7 +21,7 @@ import argparse
 import logging
 import sys
 import os
-import yaml
+import yaml  # type: ignore
 
 from pathlib import Path
 
@@ -116,7 +116,9 @@ def parse_args(args=None):
     yaml_processing.add_argument(
         "--overwrite",
         action="store_true",
-        help="Globally enable overwrite for all resources defined in YAML input(s). ",
+        help="""
+        Globally enable overwrite for all resources defined in YAML input(s).
+        "Deprecated: Please use '--on-exists=overwrite' instead.""",
         deprecated=True,
     )
     return parser.parse_args(args)
@@ -173,8 +175,15 @@ class BlockParser:
         # Get the on_exists option from args for backward compatibility
         on_exists = args.get("on_exists", "fail")
 
-        # For backward compatibility, check if overwrite is set globally
-        if getattr(self.sp, "overwrite", False):
+        # Global settings take precedence over block-level settings
+        # First check the global --on-exists parameter
+        if (
+            hasattr(self.sp, "global_on_exists")
+            and self.sp.global_on_exists is not None
+        ):
+            on_exists = self.sp.global_on_exists
+        # Then check for the deprecated global --overwrite flag
+        elif getattr(self.sp, "overwrite", False):
             on_exists = "overwrite"
 
         if not dryrun:
@@ -262,6 +271,9 @@ def main(args=None):
         cli_args=cli_args_list, dryrun=options.dryrun, json=options.json
     )
     sp.overwrite = options.overwrite  # If global overwrite is set
+
+    # Store the global on_exists parameter if provided
+    sp.global_on_exists = options.on_exists if options.on_exists else None
 
     # If the info flag is set, run 'tw info'
     try:

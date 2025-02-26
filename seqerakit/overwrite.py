@@ -167,8 +167,9 @@ class Overwrite:
                 else:  # fail
                     raise ResourceExistsError(
                         f" The {block} resource already exists and"
-                        " will not be created. Please set 'on_exists: overwrite'"
-                        " or 'on_exists: ignore' in your config file.\n"
+                        " will not be created. Please set 'on_exists: overwrite' "
+                        " to replace the resource or set 'on_exists: ignore' to "
+                        " ignore this error.\n"
                     )
             return True
         return True
