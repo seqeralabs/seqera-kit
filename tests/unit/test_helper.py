@@ -28,7 +28,7 @@ def test_create_mock_organization_yaml(mock_yaml_file):
                 "description": "My test organization 1",
                 "location": "Global",
                 "url": "https://example.com",
-                "overwrite": True,
+                "on_exists": "overwrite",
             }
         ]
     }
@@ -46,7 +46,7 @@ def test_create_mock_organization_yaml(mock_yaml_file):
                 "--url",
                 "https://example.com",
             ],
-            "overwrite": True,
+            "on_exists": "overwrite",
         }
     ]
     file_path = mock_yaml_file(test_data)
@@ -66,7 +66,7 @@ def test_create_mock_workspace_yaml(mock_yaml_file):
                 "organization": "my_organization",
                 "description": "My test workspace 1",
                 "visibility": "PRIVATE",
-                "overwrite": True,
+                "on_exists": "overwrite",
             }
         ]
     }
@@ -84,7 +84,7 @@ def test_create_mock_workspace_yaml(mock_yaml_file):
                 "--visibility",
                 "PRIVATE",
             ],
-            "overwrite": True,
+            "on_exists": "overwrite",
         }
     ]
 
@@ -104,7 +104,7 @@ def test_create_mock_dataset_yaml(mock_yaml_file):
                 "workspace": "my_organization/my_workspace",
                 "header": True,
                 "file-path": "./examples/yaml/datasets/samples.csv",
-                "overwrite": True,
+                "on_exists": "overwrite",
             }
         ]
     }
@@ -120,7 +120,7 @@ def test_create_mock_dataset_yaml(mock_yaml_file):
                 "My test dataset 1",
                 "--header",
             ],
-            "overwrite": True,
+            "on_exists": "overwrite",
         }
     ]
 
@@ -142,7 +142,7 @@ def test_create_mock_computeevs_source_yaml(mock_yaml_file):
                 "wait": "AVAILABLE",
                 "fusion-v2": True,
                 "fargate": False,
-                "overwrite": True,
+                "on_exists": "overwrite",
             }
         ],
     }
@@ -161,7 +161,7 @@ def test_create_mock_computeevs_source_yaml(mock_yaml_file):
                 "--workspace",
                 "my_organization/my_workspace",
             ],
-            "overwrite": True,
+            "on_exists": "overwrite",
         }
     ]
 
@@ -200,7 +200,7 @@ def test_create_mock_computeevs_cli_yaml(mock_yaml_file):
                 "--workspace",
                 "my_organization/my_workspace",
             ],
-            "overwrite": False,
+            "on_exists": "fail",
         }
     ]
     file_path = mock_yaml_file(test_data)
@@ -224,7 +224,7 @@ def test_create_mock_pipeline_add_yaml(mock_yaml_file):
                 "config": "./examples/yaml/pipelines/test_pipeline1/config.txt",
                 "pre-run": "./examples/yaml/pipelines/test_pipeline1/pre_run.sh",
                 "revision": "master",
-                "overwrite": True,
+                "on_exists": "overwrite",
                 "stub-run": True,
             }
         ]
@@ -256,7 +256,7 @@ def test_create_mock_pipeline_add_yaml(mock_yaml_file):
                 "--params-file",
                 "./examples/yaml/pipelines/test_pipeline1/params.yaml",
             ],
-            "overwrite": True,
+            "on_exists": "overwrite",
         }
     ]
 
@@ -275,7 +275,7 @@ def test_create_mock_teams_yaml(mock_yaml_file):
                 "organization": "my_organization",
                 "description": "My test team 1",
                 "members": ["user1@org.io"],
-                "overwrite": True,
+                "on_exists": "overwrite",
             },
         ]
     }
@@ -302,7 +302,7 @@ def test_create_mock_teams_yaml(mock_yaml_file):
                     ]
                 ],
             ),
-            "overwrite": True,
+            "on_exists": "overwrite",
         }
     ]
 
@@ -323,7 +323,7 @@ def test_create_mock_members_yaml(mock_yaml_file):
                 "--user",
                 "bob@myorg.io",
             ],
-            "overwrite": False,
+            "on_exists": "fail",
         }
     ]
     file_path = mock_yaml_file(test_data)
@@ -344,7 +344,7 @@ def test_create_mock_studios_yaml(mock_yaml_file):
                 "cpu": 2,
                 "memory": 4096,
                 "autoStart": False,
-                "overwrite": True,
+                "on_exists": "overwrite",
                 "mount-data-ids": "v1-user-bf73f9d33997f93a20ee3e6911779951",
             }
         ]
@@ -368,7 +368,7 @@ def test_create_mock_studios_yaml(mock_yaml_file):
                 "--workspace",
                 "my_organization/my_workspace",
             ],
-            "overwrite": True,
+            "on_exists": "overwrite",
         }
     ]
 
@@ -388,7 +388,7 @@ def test_create_mock_data_links_yaml(mock_yaml_file):
                 "provider": "aws",
                 "credentials": "my_credentials",
                 "uri": "s3://scidev-playground-eu-west-2/esha/nf-core-scrnaseq/",
-                "overwrite": True,
+                "on_exists": "overwrite",
             }
         ]
     }
@@ -406,7 +406,7 @@ def test_create_mock_data_links_yaml(mock_yaml_file):
                 "--workspace",
                 "my_organization/my_workspace",
             ],
-            "overwrite": True,
+            "on_exists": "overwrite",
         }
     ]
     file_path = mock_yaml_file(test_data)
@@ -466,7 +466,7 @@ compute-envs:
                 "--wait",
                 "AVAILABLE",
             ],
-            "overwrite": False,
+            "on_exists": "fail",
         }
     ]
     assert "compute-envs" in result
@@ -549,7 +549,7 @@ pipelines:
     expected_organizations_output = [
         {
             "cmd_args": ["--name", "org1", "--description", "Organization 1"],
-            "overwrite": False,
+            "on_exists": "fail",
         }
     ]
     expected_workspaces_output = [
@@ -562,7 +562,7 @@ pipelines:
                 "--description",
                 "Workspace 1",
             ],
-            "overwrite": False,
+            "on_exists": "fail",
         }
     ]
     # Check that only 'organizations' and 'workspaces' are in the result

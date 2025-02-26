@@ -175,7 +175,17 @@ def parse_block(block_name, item):
 
     # Call the appropriate function and return its result along with on_exists value.
     cmd_args = parse_fn(item)
-    return {"cmd_args": cmd_args, "on_exists": on_exists}
+
+    # Return both on_exists and overwrite for backward compatibility
+    # This allows existing tests to continue using overwrite key
+    # while new code can use the on_exists key
+    result = {"cmd_args": cmd_args, "on_exists": on_exists}
+
+    # Set overwrite boolean for test compatibility
+    # If on_exists is 'overwrite', set overwrite to True, otherwise False
+    result["overwrite"] = on_exists == "overwrite"
+
+    return result
 
 
 # Parsers for certain blocks of yaml that require handling
