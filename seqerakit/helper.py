@@ -17,10 +17,11 @@ This file contains helper functions for the library.
 Including handling methods for each block in the YAML file, and parsing
 methods for each block in the YAML file.
 """
-import yaml
+import yaml  # type: ignore
 from seqerakit import utils
 import sys
 import json
+from seqerakit.on_exists import OnExists
 
 
 def parse_yaml_block(yaml_data, block_name):
@@ -166,24 +167,34 @@ def parse_block(block_name, item):
 
     # Handle both old and new parameters for backward compatibility
     overwrite = item.pop("overwrite", None)
-    on_exists = item.pop("on_exists", "fail")
+    on_exists_str = item.pop("on_exists", "fail")
+
+    # Convert string to enum
+    if isinstance(on_exists_str, str):
+        on_exists_str = on_exists_str.upper()
+        try:
+            on_exists = OnExists[on_exists_str]
+        except KeyError:
+            # Default to FAIL for invalid values
+            on_exists = OnExists.FAIL
+    else:
+        # If it's already an enum, use it directly
+        on_exists = on_exists_str
 
     # If overwrite is specified,
     # it takes precedence over on_exists for backward compatibility
     if overwrite is not None:
-        on_exists = "overwrite" if overwrite else "fail"
+        on_exists = OnExists.OVERWRITE if overwrite else OnExists.FAIL
 
     # Call the appropriate function and return its result along with on_exists value.
     cmd_args = parse_fn(item)
 
     # Return both on_exists and overwrite for backward compatibility
-    # This allows existing tests to continue using overwrite key
-    # while new code can use the on_exists key
-    result = {"cmd_args": cmd_args, "on_exists": on_exists}
+    result = {"cmd_args": cmd_args, "on_exists": on_exists.name.lower()}
 
     # Set overwrite boolean for test compatibility
     # If on_exists is 'overwrite', set overwrite to True, otherwise False
-    result["overwrite"] = on_exists == "overwrite"
+    result["overwrite"] = on_exists == OnExists.OVERWRITE
 
     return result
 

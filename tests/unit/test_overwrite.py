@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch
 import json
 from seqerakit.overwrite import Overwrite
 from seqerakit.seqeraplatform import ResourceExistsError
+from seqerakit.on_exists import OnExists
 
 
 class TestOverwrite(unittest.TestCase):
@@ -43,7 +44,9 @@ class TestOverwrite(unittest.TestCase):
             {"name": "test-resource"}
         )
 
-        self.overwrite.handle_overwrite("credentials", args, overwrite=True)
+        self.overwrite.handle_overwrite(
+            "credentials", args, on_exists=OnExists.OVERWRITE
+        )
 
         self.mock_sp.credentials.assert_called_with(
             "delete", "--name", "test-resource", "--workspace", "test-workspace"
@@ -58,7 +61,9 @@ class TestOverwrite(unittest.TestCase):
         )
 
         with self.assertRaises(ResourceExistsError):
-            self.overwrite.handle_overwrite("credentials", args, overwrite=False)
+            self.overwrite.handle_overwrite(
+                "credentials", args, on_exists=OnExists.FAIL
+            )
 
     def test_team_deletion(self):
         args = {"name": "test-team", "organization": "test-org"}
@@ -92,7 +97,9 @@ class TestOverwrite(unittest.TestCase):
 
         self.mock_sp.__getattr__("-o json").return_value = self.sample_workspace_json
 
-        self.overwrite.handle_overwrite("workspaces", args, overwrite=True)
+        self.overwrite.handle_overwrite(
+            "workspaces", args, on_exists=OnExists.OVERWRITE
+        )
 
         self.mock_sp.workspaces.assert_called_with("delete", "--id", "456")
 
@@ -108,7 +115,7 @@ class TestOverwrite(unittest.TestCase):
 
         self.mock_sp.__getattr__("-o json").return_value = self.sample_labels_json
 
-        self.overwrite.handle_overwrite("labels", args, overwrite=True)
+        self.overwrite.handle_overwrite("labels", args, on_exists=OnExists.OVERWRITE)
 
         self.mock_sp.labels.assert_called_with(
             "delete", "--id", "789", "-w", "test-workspace"
@@ -128,7 +135,9 @@ class TestOverwrite(unittest.TestCase):
             {"teamName": "test-team"}
         )
 
-        self.overwrite.handle_overwrite("participants", team_args, overwrite=True)
+        self.overwrite.handle_overwrite(
+            "participants", team_args, on_exists=OnExists.OVERWRITE
+        )
 
         self.mock_sp.participants.assert_called_with(
             "delete",
@@ -159,7 +168,9 @@ class TestOverwrite(unittest.TestCase):
 
         self.mock_sp.configure_mock(**{"-o json": json_method_mock})
 
-        self.overwrite.handle_overwrite("organizations", args, overwrite=True)
+        self.overwrite.handle_overwrite(
+            "organizations", args, on_exists=OnExists.OVERWRITE
+        )
 
         mock_resolve_env_var.assert_any_call("${ORG_NAME}")
 

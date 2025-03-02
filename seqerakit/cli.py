@@ -32,13 +32,14 @@ from seqerakit.seqeraplatform import (
     CommandError,
 )
 from seqerakit import __version__
+from seqerakit.on_exists import OnExists
 
 logger = logging.getLogger(__name__)
 
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser(
-        description="Seqerakit: Python wrapper for the Seqera Platform CLI"
+        description="Build a Seqera Platform instance from a YAML configuration file."
     )
     # General options
     general = parser.add_argument_group("General Options")
@@ -111,7 +112,7 @@ def parse_args(args=None):
         dest="on_exists",
         type=str,
         help="Globally specifies the action to take if a resource already exists.",
-        choices=["fail", "ignore", "overwrite"],
+        choices=[e.name.lower() for e in OnExists],
     )
     yaml_processing.add_argument(
         "--overwrite",
@@ -157,7 +158,7 @@ class BlockParser:
         if destroy:
             logging.debug(" The '--delete' flag has been specified.\n")
             self.overwrite_method.handle_overwrite(
-                block, args["cmd_args"], on_exists="fail", destroy=True
+                block, args["cmd_args"], on_exists=OnExists.FAIL, destroy=True
             )
             return
 
@@ -173,7 +174,7 @@ class BlockParser:
         }
 
         # Get the on_exists option from args for backward compatibility
-        on_exists = args.get("on_exists", "fail")
+        on_exists = args.get("on_exists", OnExists.FAIL)
 
         # Global settings take precedence over block-level settings
         # First check the global --on-exists parameter
@@ -184,10 +185,12 @@ class BlockParser:
             on_exists = self.sp.global_on_exists
         # Then check for the deprecated global --overwrite flag
         elif getattr(self.sp, "overwrite", False):
-            on_exists = "overwrite"
+            on_exists = OnExists.OVERWRITE
 
         if not dryrun:
-            logging.debug(f" on_exists is set to '{on_exists}' for {block}\n")
+            logging.debug(
+                f" on_exists is set to '{on_exists.name.lower()}' for {block}\n"
+            )
             should_continue = self.overwrite_method.handle_overwrite(
                 block, args["cmd_args"], on_exists=on_exists
             )
@@ -273,7 +276,16 @@ def main(args=None):
     sp.overwrite = options.overwrite  # If global overwrite is set
 
     # Store the global on_exists parameter if provided
-    sp.global_on_exists = options.on_exists if options.on_exists else None
+    if options.on_exists:
+        try:
+            sp.global_on_exists = OnExists[options.on_exists.upper()]
+        except KeyError as err:
+            logging.error(f"Invalid on_exists option: {options.on_exists}")
+            raise err
+    else:
+        sp.global_on_exists = (
+            None  # Don't set a default, let the block-level or overwrite flag handle it
+        )
 
     # If the info flag is set, run 'tw info'
     try:

@@ -16,6 +16,7 @@ import json
 from seqerakit import utils
 from seqerakit.seqeraplatform import ResourceExistsError
 import logging
+from seqerakit.on_exists import OnExists
 
 
 class Overwrite:
@@ -37,8 +38,8 @@ class Overwrite:
         "studios",
     ]
 
-    # Define valid on_exists options
-    VALID_ON_EXISTS_OPTIONS = ["fail", "ignore", "overwrite"]
+    # Define valid on_exists options as enum values
+    VALID_ON_EXISTS_OPTIONS = [e.name.lower() for e in OnExists]
 
     def __init__(self, sp):
         """
@@ -48,10 +49,9 @@ class Overwrite:
         sp: A SeqeraPlatform class instance.
 
         Attributes:
-        sp: A SeqeraPlatform class instance used to execute CLI commands.
-        cached_jsondata: A cached placeholder for JSON data. Default value is None.
-        block_jsondata: A dictionary to store JSON data for each block.
-        Key is the block name, and value is the corresponding JSON data.
+        sp: A SeqeraPlatform class instance.
+        block_jsondata: A dictionary to cache JSON data for resources.
+        block_operations: A dictionary mapping resource types to their operations.
         """
         self.sp = sp
         self.cached_jsondata = None
@@ -99,7 +99,7 @@ class Overwrite:
         }
 
     def handle_overwrite(
-        self, block, args, on_exists="fail", destroy=False, overwrite=None
+        self, block, args, on_exists=OnExists.FAIL, destroy=False, overwrite=None
     ):
         """
         Handles resource existence behavior for Seqera Platform resources.
@@ -108,20 +108,31 @@ class Overwrite:
             block: The resource block type (e.g., "organizations", "teams")
             args: Command line arguments for the resource
             on_exists: How to handle existing resources. Options:
-                - "fail" (default): Raise an error if resource exists
-                - "ignore": Skip creation if resource exists
-                - "overwrite": Delete existing resource and create new one
+                - OnExists.FAIL (default): Raise an error if resource exists
+                - OnExists.IGNORE: Skip creation if resource exists
+                - OnExists.OVERWRITE: Delete existing resource and create new one
             destroy: Whether to delete the resource
             overwrite: Legacy parameter for backward compatibility
         """
+        # Convert string to enum if needed
+        if isinstance(on_exists, str):
+            on_exists_str = on_exists.upper()
+            try:
+                on_exists = OnExists[on_exists_str]
+            except KeyError:
+                raise ValueError(
+                    f"Invalid on_exists option: {on_exists}. "
+                    f"Valid options are: {', '.join(self.VALID_ON_EXISTS_OPTIONS)}"
+                )
+
         # For backward compatibility
         if overwrite is not None:
-            on_exists = "overwrite" if overwrite else "fail"
+            on_exists = OnExists.OVERWRITE if overwrite else OnExists.FAIL
 
-        # Validate on_exists parameter
-        if on_exists not in self.VALID_ON_EXISTS_OPTIONS:
+        # Validate on_exists parameter (should always be valid if it's an enum)
+        if on_exists.name.lower() not in self.VALID_ON_EXISTS_OPTIONS:
             raise ValueError(
-                f"Invalid on_exists option: {on_exists}. "
+                f"Invalid on_exists option: {on_exists_str}. "
                 f"Valid options are: {', '.join(self.VALID_ON_EXISTS_OPTIONS)}"
             )
 
@@ -150,13 +161,13 @@ class Overwrite:
 
             if self.check_resource_exists(operation["name_key"], sp_args):
                 # Handle based on on_exists parameter
-                if on_exists == "overwrite":
+                if on_exists == OnExists.OVERWRITE:
                     logging.info(
                         f" The attempted {block} resource already exists."
                         " Overwriting.\n"
                     )
                     self.delete_resource(block, operation, sp_args)
-                elif on_exists == "ignore":
+                elif on_exists == OnExists.IGNORE:
                     logging.info(
                         f" The {block} resource already exists." " Skipping creation.\n"
                     )
@@ -315,7 +326,6 @@ class Overwrite:
                 with self.sp.suppress_output():
                     self.cached_jsondata = json_method(block, "list")
 
-        self.block_jsondata[block] = self.cached_jsondata
         return self.cached_jsondata, sp_args
 
     def check_resource_exists(self, name_key, sp_args):
