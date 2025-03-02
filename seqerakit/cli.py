@@ -174,7 +174,12 @@ class BlockParser:
         }
 
         # Get the on_exists option from args for backward compatibility
-        on_exists = args.get("on_exists", OnExists.FAIL)
+        on_exists = args.get("on_exists", "fail")
+        if isinstance(on_exists, str):
+            try:
+                on_exists = OnExists[on_exists.upper()]
+            except KeyError:
+                on_exists = OnExists.FAIL
 
         # Global settings take precedence over block-level settings
         # First check the global --on-exists parameter
@@ -188,9 +193,11 @@ class BlockParser:
             on_exists = OnExists.OVERWRITE
 
         if not dryrun:
-            logging.debug(
-                f" on_exists is set to '{on_exists.name.lower()}' for {block}\n"
+            # Use on_exists.name.lower() only if it's an enum, otherwise use the string
+            on_exists_str = (
+                on_exists.name.lower() if hasattr(on_exists, "name") else on_exists
             )
+            logging.debug(f" on_exists is set to '{on_exists_str}' for {block}\n")
             should_continue = self.overwrite_method.handle_overwrite(
                 block, args["cmd_args"], on_exists=on_exists
             )
