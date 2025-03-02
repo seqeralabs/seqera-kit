@@ -15,8 +15,8 @@
 import json
 from seqerakit import utils
 from seqerakit.seqeraplatform import ResourceExistsError
-import logging
 from seqerakit.on_exists import OnExists
+import logging
 
 
 class Overwrite:
@@ -49,9 +49,10 @@ class Overwrite:
         sp: A SeqeraPlatform class instance.
 
         Attributes:
-        sp: A SeqeraPlatform class instance.
-        block_jsondata: A dictionary to cache JSON data for resources.
-        block_operations: A dictionary mapping resource types to their operations.
+        sp: A SeqeraPlatform class instance used to execute CLI commands.
+        cached_jsondata: A cached placeholder for JSON data. Default value is None.
+        block_jsondata: A dictionary to store JSON data for each block.
+        Key is the block name, and value is the corresponding JSON data.
         """
         self.sp = sp
         self.cached_jsondata = None
@@ -326,6 +327,7 @@ class Overwrite:
                 with self.sp.suppress_output():
                     self.cached_jsondata = json_method(block, "list")
 
+        self.block_jsondata[block] = self.cached_jsondata
         return self.cached_jsondata, sp_args
 
     def check_resource_exists(self, name_key, sp_args):

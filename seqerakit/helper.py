@@ -169,7 +169,7 @@ def parse_block(block_name, item):
     overwrite = item.pop("overwrite", None)
     on_exists_str = item.pop("on_exists", "fail")
 
-    # Convert string to enum
+    # Convert string to enum if needed
     if isinstance(on_exists_str, str):
         on_exists_str = on_exists_str.upper()
         try:
@@ -189,14 +189,8 @@ def parse_block(block_name, item):
     # Call the appropriate function and return its result along with on_exists value.
     cmd_args = parse_fn(item)
 
-    # Return both on_exists and overwrite for backward compatibility
-    result = {"cmd_args": cmd_args, "on_exists": on_exists.name.lower()}
-
-    # Set overwrite boolean for test compatibility
-    # If on_exists is 'overwrite', set overwrite to True, otherwise False
-    result["overwrite"] = on_exists == OnExists.OVERWRITE
-
-    return result
+    # Return only the string value of on_exists for test compatibility
+    return {"cmd_args": cmd_args, "on_exists": on_exists.name.lower()}
 
 
 # Parsers for certain blocks of yaml that require handling
