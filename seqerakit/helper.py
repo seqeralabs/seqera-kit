@@ -23,7 +23,7 @@ import sys
 import json
 
 
-def parse_yaml_block(yaml_data, block_name):
+def parse_yaml_block(yaml_data, block_name, sp=None):
     # Get the name of the specified block/resource.
     block = yaml_data.get(block_name)
 
@@ -40,7 +40,7 @@ def parse_yaml_block(yaml_data, block_name):
     # Iterate over each item in the block.
     # TODO: fix for resources that can be duplicate named in an org
     for item in block:
-        cmd_args = parse_block(block_name, item)
+        cmd_args = parse_block(block_name, item, sp)
         name = find_name(cmd_args)
         if name in name_values:
             raise ValueError(
@@ -55,7 +55,7 @@ def parse_yaml_block(yaml_data, block_name):
     return block_name, cmd_args_list
 
 
-def parse_all_yaml(file_paths, destroy=False, targets=None):
+def parse_all_yaml(file_paths, destroy=False, targets=None, sp=None):
     # If multiple yamls, merge them into one dictionary
     merged_data = {}
 
@@ -143,14 +143,14 @@ def parse_all_yaml(file_paths, destroy=False, targets=None):
     for block_name in resource_order:
         if block_name in block_names:
             # Parse the block and add its command line arguments to the dictionary.
-            block_name, cmd_args_list = parse_yaml_block(merged_data, block_name)
+            block_name, cmd_args_list = parse_yaml_block(merged_data, block_name, sp)
             cmd_args_dict[block_name] = cmd_args_list
 
     # Return the dictionary of command arguments.
     return cmd_args_dict
 
 
-def parse_block(block_name, item):
+def parse_block(block_name, item, sp=None):
     # Define the mapping from block names to functions.
     block_to_function = {
         "credentials": parse_type_block,
@@ -166,7 +166,7 @@ def parse_block(block_name, item):
     overwrite = item.pop("overwrite", False)
 
     # Call the appropriate function and return its result along with overwrite value.
-    cmd_args = parse_fn(item)
+    cmd_args = parse_fn(item, sp)
     return {"cmd_args": cmd_args, "overwrite": overwrite}
 
 
@@ -174,7 +174,7 @@ def parse_block(block_name, item):
 # for structuring command line arguments in a certain way
 
 
-def parse_generic_block(item):
+def parse_generic_block(item, sp=None):
     cmd_args = []
     for key, value in item.items():
         if isinstance(value, bool):
@@ -185,7 +185,7 @@ def parse_generic_block(item):
     return cmd_args
 
 
-def parse_type_block(item, priority_keys=["type", "config-mode", "file-path"]):
+def parse_type_block(item, priority_keys=["type", "config-mode", "file-path"], sp=None):
     cmd_args = []
 
     # Ensure at least one of 'type' or 'file-path' is present
@@ -212,7 +212,7 @@ def parse_type_block(item, priority_keys=["type", "config-mode", "file-path"]):
     return cmd_args
 
 
-def parse_teams_block(item):
+def parse_teams_block(item, sp=None):
     # Keys for each list
     cmd_keys = ["name", "organization", "description"]
     members_keys = ["name", "organization", "members"]
@@ -239,7 +239,7 @@ def parse_teams_block(item):
     return (cmd_args, members_cmd_args)
 
 
-def parse_datasets_block(item):
+def parse_datasets_block(item, sp=None):
     cmd_args = []
     for key, value in item.items():
         if key == "file-path":
@@ -258,20 +258,87 @@ def parse_datasets_block(item):
             cmd_args.append("--header")
     return cmd_args
 
+def resolve_dataset_reference(params_dict, workspace, sp):
+    """
+    Resolve dataset reference to URL in params dictionary.
+    
+    Args:
+        params_dict (dict): Parameters dictionary that might contain dataset reference
+        workspace (str): Workspace for the dataset
+        sp (SeqeraPlatform): Instance to make CLI calls
+        
+    Returns:
+        dict: Updated parameters dictionary with dataset URL
+        
+    Raises:
+        ValueError: If dataset doesn't exist in the workspace or URL cannot be retrieved
+    """
+    if not params_dict or "dataset" not in params_dict:
+        return params_dict
+        
+    processed_params = params_dict.copy()
+    dataset_name = processed_params["dataset"]
+    
+    try:
+        # retrieve dataset url
+        with sp.suppress_output():
+            sp.json = True # run in json mode
+            result = sp.datasets("url", "-n", dataset_name, "-w", workspace)
+        
+        if not result or "datasetUrl" not in result:
+            raise ValueError(f"No URL found for dataset '{dataset_name}'")
+        
+        processed_params["input"] = result["datasetUrl"]
+        del processed_params["dataset"]
+        
+    except Exception as e:
+        if "No dataset" in str(e):
+            raise ValueError(
+                f"Dataset '{dataset_name}' not found in workspace '{workspace}'. "
+                "Please check the dataset name and workspace."
+            )
+        raise ValueError(f"Failed to retrieve URL for dataset '{dataset_name}': {str(e)}")
+    
+    return processed_params
 
-def parse_pipelines_block(item):
+def process_params_dict(params_dict, workspace=None, sp=None, params_file_path=None):
+    """
+    Process parameters dictionary, resolving dataset references if needed.
+    
+    Args:
+        params_dict (dict): Parameters dictionary to process
+        workspace (str, optional): Workspace for resolving dataset references
+        sp (SeqeraPlatform, optional): Instance to make CLI calls
+        params_file_path (str, optional): Path to existing params file
+        
+    Returns:
+        list: Parameter arguments for command line
+    """
+    params_args = []
+    
+    if params_dict:
+        # Resolve dataset reference if sp and workspace provided
+        if sp is not None and workspace:
+            params_dict = resolve_dataset_reference(params_dict, workspace, sp)
+        
+        # Create temp file with resolved params
+        temp_file_name = utils.create_temp_yaml(params_dict, params_file=params_file_path)
+        params_args.extend(["--params-file", temp_file_name])
+    elif params_file_path:
+        params_args.extend(["--params-file", params_file_path])
+        
+    return params_args
+
+def parse_pipelines_block(item, sp=None):
+    """Parse pipeline block."""
     cmd_args = []
     repo_args = []
-    params_args = []
-    params_file_path = None
 
     for key, value in item.items():
         if key == "url":
             repo_args.extend([str(value)])
         elif key == "params":
-            params_dict = value
-        elif key == "params-file":
-            params_file_path = str(value)
+            continue  # Handle params after the loop
         elif key == "file-path":
             repo_args.extend([str(value)])
         elif isinstance(value, bool):
@@ -280,50 +347,40 @@ def parse_pipelines_block(item):
         else:
             cmd_args.extend([f"--{key}", str(value)])
 
-    # Create the temporary YAML file after processing all items
-    if "params" in item:
-        temp_file_name = utils.create_temp_yaml(
-            params_dict, params_file=params_file_path
-        )
-        params_args.extend(["--params-file", temp_file_name])
-
-    if params_file_path and "params" not in item:
-        params_args.extend(["--params-file", params_file_path])
+    params_args = process_params_dict(
+        item.get("params"),
+        workspace=item.get("workspace"),
+        sp=sp
+    )
 
     combined_args = cmd_args + repo_args + params_args
     return combined_args
 
-
-def parse_launch_block(item):
-    repo_args = []
+def parse_launch_block(item, sp=None):
+    """Parse launch block."""
     cmd_args = []
-    params_args = []
-    params_file_path = None
+    repo_args = []
 
     for key, value in item.items():
         if key == "pipeline" or key == "url":
             repo_args.extend([str(value)])
-        elif key == "params":
-            params_dict = value
-        elif key == "params-file":
-            params_file_path = str(value)
+        elif key in ["params", "params-file"]:
+            continue  # Handle params after the loop
         elif isinstance(value, bool):
             if value:
                 cmd_args.append(f"--{key}")
         else:
             cmd_args.extend([f"--{key}", str(value)])
 
-    if "params" in item:
-        temp_file_name = utils.create_temp_yaml(
-            params_dict, params_file=params_file_path
-        )
-        params_args.extend(["--params-file", temp_file_name])
+    params_args = process_params_dict(
+        item.get("params"),
+        workspace=item.get("workspace"),
+        sp=sp,
+        params_file_path=item.get("params-file")
+    )
 
-    if params_file_path and "params" not in item:
-        params_args.extend(["--params-file", params_file_path])
-
-    cmd_args = cmd_args + repo_args + params_args
-    return cmd_args
+    combined_args = cmd_args + repo_args + params_args
+    return combined_args
 
 
 # Handlers to call the actual sp method,based on the block name.
