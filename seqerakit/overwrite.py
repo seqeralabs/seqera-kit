@@ -117,9 +117,8 @@ class Overwrite:
         """
         # Convert string to enum if needed
         if isinstance(on_exists, str):
-            on_exists_str = on_exists.upper()
             try:
-                on_exists = OnExists[on_exists_str]
+                on_exists = OnExists[on_exists.upper()]
             except KeyError:
                 raise ValueError(
                     f"Invalid on_exists option: {on_exists}. "
@@ -129,13 +128,6 @@ class Overwrite:
         # For backward compatibility
         if overwrite is not None:
             on_exists = OnExists.OVERWRITE if overwrite else OnExists.FAIL
-
-        # Validate on_exists parameter (should always be valid if it's an enum)
-        if on_exists.name.lower() not in self.VALID_ON_EXISTS_OPTIONS:
-            raise ValueError(
-                f"Invalid on_exists option: {on_exists_str}. "
-                f"Valid options are: {', '.join(self.VALID_ON_EXISTS_OPTIONS)}"
-            )
 
         if block in Overwrite.generic_deletion:
             self.block_operations[block] = {

@@ -173,24 +173,31 @@ class BlockParser:
             ),
         }
 
-        # Get the on_exists option from args for backward compatibility
-        on_exists = args.get("on_exists", "fail")
-        if isinstance(on_exists, str):
-            try:
-                on_exists = OnExists[on_exists.upper()]
-            except KeyError:
-                on_exists = OnExists.FAIL
+        # Determine the on_exists behavior (default to FAIL)
+        on_exists = OnExists.FAIL
 
-        # Global settings take precedence over block-level settings
-        # First check the global --on-exists parameter
+        # Check for global settings (they override block-level settings)
         if (
             hasattr(self.sp, "global_on_exists")
             and self.sp.global_on_exists is not None
         ):
             on_exists = self.sp.global_on_exists
-        # Then check for the deprecated global --overwrite flag
         elif getattr(self.sp, "overwrite", False):
+            logging.warning(
+                "The '--overwrite' flag is deprecated. "
+                "Please use '--on-exists=overwrite' instead."
+            )
             on_exists = OnExists.OVERWRITE
+
+        # If no global setting, use block-level setting if provided
+        elif "on_exists" in args:
+            on_exists_value = args["on_exists"]
+            if isinstance(on_exists_value, str):
+                try:
+                    on_exists = OnExists[on_exists_value.upper()]
+                except KeyError as err:
+                    logging.error(f"Invalid on_exists option: {on_exists_value}")
+                    raise err
 
         if not dryrun:
             # Use on_exists.name.lower() only if it's an enum, otherwise use the string
@@ -282,17 +289,15 @@ def main(args=None):
     )
     sp.overwrite = options.overwrite  # If global overwrite is set
 
-    # Store the global on_exists parameter if provided
+    # Set global on_exists parameter if provided
     if options.on_exists:
         try:
             sp.global_on_exists = OnExists[options.on_exists.upper()]
-        except KeyError as err:
+        except KeyError:
             logging.error(f"Invalid on_exists option: {options.on_exists}")
-            raise err
+            raise
     else:
-        sp.global_on_exists = (
-            None  # Don't set a default, let the block-level or overwrite flag handle it
-        )
+        sp.global_on_exists = None
 
     # If the info flag is set, run 'tw info'
     try:
