@@ -10,7 +10,7 @@ actions:
     profile: 'test'                                       # optional
     params:                                               # optional
       outdir: 's3://my_bucket/my_results'
-    on_exists: overwrite                                       # optional
+    on_exists: overwrite                                   # optional
   - type: 'tower'                                         # required
     name: 'my_tower_action'                               # required
     pipeline: 'https://github.com/my_username/my_repo'    # required
