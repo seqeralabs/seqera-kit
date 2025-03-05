@@ -9,4 +9,4 @@ actions:
     profile: 'test'
     params:
       outdir: s3://seqeralabs-showcase/nf-core-rnaseq/action/'
-    overwrite: True
+    on_exists: overwrite

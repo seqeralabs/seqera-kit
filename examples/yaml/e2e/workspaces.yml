@@ -4,4 +4,4 @@ workspaces:
     organization: 'seqerakit-e2e'
     description: 'Workspace created E2E with seqerakit CLI scripting'
     visibility: 'PRIVATE'
-    overwrite: True
+    on_exists: overwrite

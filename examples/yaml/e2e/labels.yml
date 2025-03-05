@@ -2,4 +2,4 @@ labels:
   - name: 'seqerakit'
     value: 'test'
     workspace: 'seqerakit-e2e/showcase'
-    overwrite: True
+    on_exists: overwrite
