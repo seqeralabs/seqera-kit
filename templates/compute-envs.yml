@@ -9,7 +9,7 @@ compute-envs:
     credentials: 'my_aws_credentials'                               # required
     wait: 'AVAILABLE'                                               # optional
     file-path: './compute-envs/my_aws_compute_environment.json'     # required
-    on_exists: overwrite                                                 # optional
+    on_exists: overwrite                                             # optional
 
 # To create a compute environment with options specified through YAML (AWS Example)
   - type: aws-batch                                                 # required

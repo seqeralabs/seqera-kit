@@ -21,4 +21,4 @@ actions:
     profile: 'test'                                       # optional
     params:                                               # optional
       outdir: 's3://my_bucket/my_results'
-    on_exists: overwrite                                       # optional
+    on_exists: overwrite                                  # optional

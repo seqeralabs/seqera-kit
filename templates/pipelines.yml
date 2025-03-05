@@ -3,16 +3,16 @@
 ##   1. Explicitly in this file
 ##   2. Via a JSON file exported from SeqeraPlatform with the "tw pipelines export" command
 pipelines:
-  - name: 'my_first_pipeline'                          # required
+  - name: 'my_first_pipeline'                         # required
     workspace: 'my_organization/my_workspace'         # optional
     description: 'My test pipeline'                   # optional
     compute-env: 'my_aws_compute_environment'         # required
     work-dir: 's3://my_bucket'                        # optional
-    profile: 'test'                                    # optional
+    profile: 'test'                                   # optional
     revision: 'main'                                  # required
     params:                                           # optional
       outdir: 's3://my-bucket/my_results'
-    config: './pipelines/my_nextflow.config'             # optional
+    config: './pipelines/my_nextflow.config'          # optional
     pre-run: './pipelines/my_pre_run.txt'             # optional
     url: 'https://github.com/my_username/my_repo'     # required
                                        # optional
@@ -20,5 +20,5 @@ pipelines:
     workspace: 'my_organization/my_workspace'         # optional
     description: 'My test pipeline'                   # optional
     compute-env: 'my_aws_compute_environment'         # required
-    file-path: './pipelines/my_pipeline.json'          # required
+    file-path: './pipelines/my_pipeline.json'         # required
     on_exists: overwrite                              # optional
