@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser(
-        description="Build a Seqera Platform instance from a YAML configuration file."
+        description="Create resources on Seqera Platform using a YAML configuration file."
     )
     # General options
     general = parser.add_argument_group("General Options")
