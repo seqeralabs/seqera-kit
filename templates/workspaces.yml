@@ -5,4 +5,4 @@ workspaces:
     organization: 'my_organization'   # required
     description: 'My test workspace'  # optional
     visibility: 'PRIVATE'             # optional
-    overwrite: True                   # optional
+    on_exists: overwrite              # optional

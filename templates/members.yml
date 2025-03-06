@@ -2,4 +2,4 @@
 participants:
   - user: 'bob@myorg.io'                           # required
     organization: 'myorg'                          # required
-    overwrite: True                                # optional
+    on_exists: overwrite                           # optional

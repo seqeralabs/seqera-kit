@@ -8,7 +8,7 @@ data-links:
     provider: "aws"                                                   # required
     credentials: "my_aws_credentials"                                 # optional
     uri: "s3://my-bucket/my-results/"                                 # required
-    overwrite: False                                                  # optional
+    on_exists: ignore                                                 # optional
 
 # Creating a public data link
   - name: "1000-genomes"                                              # required
@@ -16,4 +16,4 @@ data-links:
     description: "Public data link to 1000 genomes public bucket"     # optional
     provider: "aws"                                                   # required
     uri: "s3://1000genomes"                                           # required
-    overwrite: False                                                  # optional
+    on_exists: ignore                                                 # optional

@@ -5,4 +5,4 @@ teams:
     description: 'My test team'     # optional
     members:                        # optional
       - 'my_team_member@gmail.com'
-    overwrite: True                 # optional
+    on_exists: 'overwrite'          # optional - values: 'fail' (default), 'ignore', 'overwrite'

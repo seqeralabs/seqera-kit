@@ -15,10 +15,10 @@ pipelines:
     config: './pipelines/my_nextflow.config'          # optional
     pre-run: './pipelines/my_pre_run.txt'             # optional
     url: 'https://github.com/my_username/my_repo'     # required
-    overwrite: True                                   # optional
+                                       # optional
   - name: 'my_second_pipeline'                        # required
     workspace: 'my_organization/my_workspace'         # optional
     description: 'My test pipeline'                   # optional
     compute-env: 'my_aws_compute_environment'         # required
     file-path: './pipelines/my_pipeline.json'         # required
-    overwrite: True                                   # optional
+    on_exists: overwrite                              # optional

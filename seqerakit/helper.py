@@ -17,10 +17,11 @@ This file contains helper functions for the library.
 Including handling methods for each block in the YAML file, and parsing
 methods for each block in the YAML file.
 """
-import yaml
+import yaml  # type: ignore
 from seqerakit import utils
 import sys
 import json
+from seqerakit.on_exists import OnExists
 
 
 def parse_yaml_block(yaml_data, block_name):
@@ -163,11 +164,31 @@ def parse_block(block_name, item):
     }
     # Use the generic block function as a default.
     parse_fn = block_to_function.get(block_name, parse_generic_block)
-    overwrite = item.pop("overwrite", False)
 
-    # Call the appropriate function and return its result along with overwrite value.
+    # Get on_exists setting with backward compatibility for overwrite
+    overwrite = item.pop("overwrite", None)
+    on_exists_str = item.pop("on_exists", "fail")
+
+    # Determine final on_exists value
+    if overwrite is not None:
+        # overwrite takes precedence for backward compatibility
+        on_exists = OnExists.OVERWRITE if overwrite else OnExists.FAIL
+    elif isinstance(on_exists_str, str):
+        try:
+            on_exists = OnExists[on_exists_str.upper()]
+        except KeyError:
+            raise ValueError(
+                f"Invalid on_exists option: '{on_exists_str}'. "
+                f"Valid options are: "
+                f"{', '.join(behaviour.name.lower() for behaviour in OnExists)}"
+            )
+    else:
+        # Use directly if already an enum
+        on_exists = on_exists_str
+
+    # Parse the block and return with on_exists value
     cmd_args = parse_fn(item)
-    return {"cmd_args": cmd_args, "overwrite": overwrite}
+    return {"cmd_args": cmd_args, "on_exists": on_exists.name.lower()}
 
 
 # Parsers for certain blocks of yaml that require handling
