@@ -258,76 +258,83 @@ def parse_datasets_block(item, sp=None):
             cmd_args.append("--header")
     return cmd_args
 
+
 def resolve_dataset_reference(params_dict, workspace, sp):
     """
     Resolve dataset reference to URL in params dictionary.
-    
+
     Args:
         params_dict (dict): Parameters dictionary that might contain dataset reference
         workspace (str): Workspace for the dataset
         sp (SeqeraPlatform): Instance to make CLI calls
-        
+
     Returns:
         dict: Updated parameters dictionary with dataset URL
-        
+
     Raises:
         ValueError: If dataset doesn't exist in the workspace or URL cannot be retrieved
     """
     if not params_dict or "dataset" not in params_dict:
         return params_dict
-        
+
     processed_params = params_dict.copy()
     dataset_name = processed_params["dataset"]
-    
+
     try:
         # retrieve dataset url
         with sp.suppress_output():
-            sp.json = True # run in json mode
+            sp.json = True  # run in json mode
             result = sp.datasets("url", "-n", dataset_name, "-w", workspace)
-        
+
         if not result or "datasetUrl" not in result:
             raise ValueError(f"No URL found for dataset '{dataset_name}'")
-        
+
         processed_params["input"] = result["datasetUrl"]
         del processed_params["dataset"]
-        
+
     except Exception as e:
         if "No dataset" in str(e):
             raise ValueError(
                 f"Dataset '{dataset_name}' not found in workspace '{workspace}'. "
                 "Please check the dataset name and workspace."
             )
-        raise ValueError(f"Failed to retrieve URL for dataset '{dataset_name}': {str(e)}")
-    
+        raise ValueError(
+            f"Failed to retrieve URL for dataset '{dataset_name}': {str(e)}"
+        )
+
     return processed_params
+
 
 def process_params_dict(params_dict, workspace=None, sp=None, params_file_path=None):
     """
     Process parameters dictionary, resolving dataset references if needed.
-    
+
     Args:
         params_dict (dict): Parameters dictionary to process
         workspace (str, optional): Workspace for resolving dataset references
         sp (SeqeraPlatform, optional): Instance to make CLI calls
         params_file_path (str, optional): Path to existing params file
-        
+
     Returns:
         list: Parameter arguments for command line
     """
     params_args = []
-    
+
     if params_dict:
         # Resolve dataset reference if sp and workspace provided
         if sp is not None and workspace:
             params_dict = resolve_dataset_reference(params_dict, workspace, sp)
-        
+
         # Create temp file with resolved params
-        temp_file_name = utils.create_temp_yaml(params_dict, params_file=params_file_path)
+        temp_file_name = utils.create_temp_yaml(
+            params_dict, params_file=params_file_path
+        )
         params_args.extend(["--params-file", temp_file_name])
     elif params_file_path:
         params_args.extend(["--params-file", params_file_path])
-        
+
     return params_args
+
 
 def parse_pipelines_block(item, sp=None):
     """Parse pipeline block."""
@@ -348,13 +355,12 @@ def parse_pipelines_block(item, sp=None):
             cmd_args.extend([f"--{key}", str(value)])
 
     params_args = process_params_dict(
-        item.get("params"),
-        workspace=item.get("workspace"),
-        sp=sp
+        item.get("params"), workspace=item.get("workspace"), sp=sp
     )
 
     combined_args = cmd_args + repo_args + params_args
     return combined_args
+
 
 def parse_launch_block(item, sp=None):
     """Parse launch block."""
@@ -376,7 +382,7 @@ def parse_launch_block(item, sp=None):
         item.get("params"),
         workspace=item.get("workspace"),
         sp=sp,
-        params_file_path=item.get("params-file")
+        params_file_path=item.get("params-file"),
     )
 
     combined_args = cmd_args + repo_args + params_args

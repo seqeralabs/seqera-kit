@@ -281,10 +281,7 @@ def main(args=None):
     # and get a dictionary of command line arguments
     try:
         cmd_args_dict = helper.parse_all_yaml(
-            yaml_files, 
-            destroy=options.delete, 
-            targets=options.targets,
-            sp=sp
+            yaml_files, destroy=options.delete, targets=options.targets, sp=sp
         )
         for block, args_list in cmd_args_dict.items():
             for args in args_list:
