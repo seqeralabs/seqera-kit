@@ -153,14 +153,15 @@ def parse_all_yaml(file_paths, destroy=False, targets=None, sp=None):
 def parse_block(block_name, item, sp=None):
     # Define the mapping from block names to functions.
     block_to_function = {
-        "credentials": parse_type_block,
-        "compute-envs": parse_type_block,
-        "actions": parse_type_block,
+        "credentials": lambda x, s: parse_type_block(x, sp=s),
+        "compute-envs": lambda x, s: parse_type_block(x, sp=s),
+        "actions": lambda x, s: parse_type_block(x, sp=s),
         "teams": parse_teams_block,
         "datasets": parse_datasets_block,
-        "pipelines": parse_pipelines_block,
+        "pipelines": lambda x, s: parse_pipelines_block(x, sp=s),
         "launch": parse_launch_block,
     }
+
     # Use the generic block function as a default.
     parse_fn = block_to_function.get(block_name, parse_generic_block)
     overwrite = item.pop("overwrite", False)
@@ -293,14 +294,7 @@ def resolve_dataset_reference(params_dict, workspace, sp):
         del processed_params["dataset"]
 
     except Exception as e:
-        if "No dataset" in str(e):
-            raise ValueError(
-                f"Dataset '{dataset_name}' not found in workspace '{workspace}'. "
-                "Please check the dataset name and workspace."
-            )
-        raise ValueError(
-            f"Failed to retrieve URL for dataset '{dataset_name}': {str(e)}"
-        )
+        raise ValueError(f"Failed to resolve dataset '{dataset_name}': {str(e)}")
 
     return processed_params
 
