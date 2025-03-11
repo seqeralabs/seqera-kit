@@ -224,7 +224,7 @@ def test_create_mock_computeevs_cli_yaml(mock_yaml_file):
     actual_args_set = set(actual_args)
 
     assert all(arg in actual_args_set for arg in expected_args)
-    assert result["compute-envs"][0]["overwrite"] == False
+    assert not result["compute-envs"][0]["overwrite"]
     assert len(actual_args) == len(expected_args)
 
 
