@@ -187,9 +187,9 @@ def parse_block(block_name, item, sp=None):
         # Use directly if already an enum
         on_exists = on_exists_str
 
-    # Parse the block and return with on_exists value
-    cmd_args = parse_fn(item)
-    return {"cmd_args": cmd_args, "on_exists": on_exists.name.lower()}
+    cmd_args = parse_fn(item, sp) if "lambda" in str(parse_fn) else parse_fn(item)
+
+    return {"cmd_args": cmd_args, "on_exists": on_exists}
 
 
 # Parsers for certain blocks of yaml that require handling
