@@ -1,5 +1,6 @@
 from unittest.mock import patch, mock_open
 from seqerakit import helper
+from seqerakit.on_exists import OnExists
 import yaml
 import pytest
 from io import StringIO
@@ -61,7 +62,7 @@ def test_create_mock_organization_yaml(mock_yaml_file):
                 "--url",
                 "https://example.com",
             ],
-            "on_exists": "overwrite",
+            "on_exists": OnExists.OVERWRITE,
         }
     ]
     file_path = mock_yaml_file(test_data)
@@ -99,7 +100,7 @@ def test_create_mock_workspace_yaml(mock_yaml_file):
                 "--visibility",
                 "PRIVATE",
             ],
-            "on_exists": "overwrite",
+            "on_exists": OnExists.OVERWRITE,
         }
     ]
 
@@ -135,7 +136,7 @@ def test_create_mock_dataset_yaml(mock_yaml_file):
                 "My test dataset 1",
                 "--header",
             ],
-            "on_exists": "overwrite",
+            "on_exists": OnExists.OVERWRITE,
         }
     ]
 
@@ -146,7 +147,7 @@ def test_create_mock_dataset_yaml(mock_yaml_file):
     assert result["datasets"] == expected_block_output
 
 
-def test_create_mock_computeevs_source_yaml(mock_yaml_file):
+def test_create_mock_computeevs_source_yaml(mock_yaml_file, mock_seqera_platform):
     test_data = {
         "compute-envs": [
             {
@@ -176,12 +177,12 @@ def test_create_mock_computeevs_source_yaml(mock_yaml_file):
                 "--workspace",
                 "my_organization/my_workspace",
             ],
-            "on_exists": "overwrite",
+            "on_exists": OnExists.OVERWRITE,
         }
     ]
 
     file_path = mock_yaml_file(test_data)
-    result = helper.parse_all_yaml([file_path])
+    result = helper.parse_all_yaml([file_path], sp=mock_seqera_platform)
 
     assert "compute-envs" in result
     assert result["compute-envs"] == expected_block_output
@@ -224,7 +225,7 @@ def test_create_mock_computeevs_cli_yaml(mock_yaml_file):
     actual_args_set = set(actual_args)
 
     assert all(arg in actual_args_set for arg in expected_args)
-    assert not result["compute-envs"][0]["overwrite"]
+    assert result["compute-envs"][0]["on_exists"] == OnExists.FAIL
     assert len(actual_args) == len(expected_args)
 
 
@@ -276,7 +277,7 @@ def test_create_mock_pipeline_add_yaml(mock_yaml_file):
         assert actual_args[key_index + 1] == value
 
     # Check overwrite flag
-    assert result["pipelines"][0]["overwrite"] is True
+    assert result["pipelines"][0]["on_exists"] == OnExists.OVERWRITE
 
 
 def test_create_mock_teams_yaml(mock_yaml_file):
@@ -314,7 +315,7 @@ def test_create_mock_teams_yaml(mock_yaml_file):
                     ]
                 ],
             ),
-            "on_exists": "overwrite",
+            "on_exists": OnExists.OVERWRITE,
         }
     ]
 
@@ -335,7 +336,7 @@ def test_create_mock_members_yaml(mock_yaml_file):
                 "--user",
                 "bob@myorg.io",
             ],
-            "on_exists": "fail",
+            "on_exists": OnExists.FAIL,
         }
     ]
     file_path = mock_yaml_file(test_data)
@@ -380,7 +381,7 @@ def test_create_mock_studios_yaml(mock_yaml_file):
                 "--workspace",
                 "my_organization/my_workspace",
             ],
-            "on_exists": "overwrite",
+            "on_exists": OnExists.OVERWRITE,
         }
     ]
 
@@ -418,7 +419,7 @@ def test_create_mock_data_links_yaml(mock_yaml_file):
                 "--workspace",
                 "my_organization/my_workspace",
             ],
-            "on_exists": "overwrite",
+            "on_exists": OnExists.OVERWRITE,
         }
     ]
     file_path = mock_yaml_file(test_data)
@@ -478,7 +479,7 @@ compute-envs:
                 "--wait",
                 "AVAILABLE",
             ],
-            "on_exists": "fail",
+            "on_exists": OnExists.FAIL,
         }
     ]
     assert "compute-envs" in result
@@ -561,7 +562,7 @@ pipelines:
     expected_organizations_output = [
         {
             "cmd_args": ["--name", "org1", "--description", "Organization 1"],
-            "on_exists": "fail",
+            "on_exists": OnExists.FAIL,
         }
     ]
     expected_workspaces_output = [
@@ -574,7 +575,7 @@ pipelines:
                 "--description",
                 "Workspace 1",
             ],
-            "on_exists": "fail",
+            "on_exists": OnExists.FAIL,
         }
     ]
     # Check that only 'organizations' and 'workspaces' are in the result
