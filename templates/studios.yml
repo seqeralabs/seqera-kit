@@ -18,7 +18,7 @@ studios:
     memory: 4096                                                              # optional
     autoStart: True                                                           # optional
     mount-data-resource-refs: 's3://my_bucket/my_data'                        # optional, comma separated list
-    overwrite: False                                                          # optional
+    on_exists: ignore                                                          # optional
 
 # Mounting with a custom template
   - name: 'rstudio_environment_custom_template'                                 # required
@@ -31,7 +31,7 @@ studios:
     memory: 4096                                                                # optional
     autoStart: True                                                             # optional
     mount-data-resource-refs: 's3://my_bucket/my_data'                          # optional, comma separated list
-    overwrite: False                                                            # optional
+    on_exists: ignore                                                            # optional
 
 # Mounting with a template image customized with conda packages
   - name: 'rstudio_environment_conda_packages'                                  # required
@@ -45,4 +45,4 @@ studios:
     memory: 4096                                                                # optional
     autoStart: True                                                             # optional
     mount-data-resource-refs: 's3://my_bucket/my_data'                          # optional, comma separated list
-    overwrite: False                                                            # optional
+    on_exists: ignore                                                            # optional

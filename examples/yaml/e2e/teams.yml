@@ -6,4 +6,4 @@ teams:
       - 'esha.joshi@seqera.io'
       - 'adam.talbot@seqera.io'
       - 'drpatelhh@gmail.com'
-    overwrite: True
+    on_exists: overwrite

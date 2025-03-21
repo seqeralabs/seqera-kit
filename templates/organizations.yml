@@ -5,4 +5,4 @@ organizations:
     description: 'My test organisation'   # optional
     location: 'Global'                    # optional
     website: 'https://my_organization/'   # optional
-    overwrite: True                       # optional
+    on_exists: overwrite                  # optional
