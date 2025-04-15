@@ -119,8 +119,7 @@ def parse_args(args=None):
         action="store_true",
         help="""
         Globally enable overwrite for all resources defined in YAML input(s).
-        "Deprecated: Please use '--on-exists=overwrite' instead.""",
-        deprecated=True,
+        Deprecated: Please use '--on-exists=overwrite' instead.""",
     )
     return parser.parse_args(args)
 
