@@ -52,9 +52,9 @@ jobs:
         run: |
           pip install -e .
 
-      - name: Install Tower CLI v0.9.1
+      - name: Install Tower CLI v0.11.0
         run: |
-          wget https://github.com/seqeralabs/tower-cli/releases/download/v0.9.1/tw-linux-x86_64 \
+          wget https://github.com/seqeralabs/tower-cli/releases/download/v0.11.0/tw-linux-x86_64 \
           && chmod +x tw-linux-x86_64 \
           && sudo mv tw-linux-x86_64 /usr/local/bin/tw
 
