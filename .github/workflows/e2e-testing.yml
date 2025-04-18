@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      TOWER_API_ENDPOINT: ${{ vars.TOWER_API_ENDPOINT }}
       TOWER_ACCESS_TOKEN: ${{ secrets.TOWER_ACCESS_TOKEN }}
       TOWER_GITHUB_PASSWORD: ${{ secrets.TOWER_GITHUB_PASSWORD }}
       DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
