@@ -4,4 +4,4 @@ organizations:
     description: 'Organization created E2E with seqerakit CLI scripting'
     location: 'Global'
     website: 'https://seqera.io/'
-    overwrite: True
+    on_exists: overwrite

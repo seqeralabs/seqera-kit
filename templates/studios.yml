@@ -3,8 +3,9 @@
 ##   1. With a provided template using `template:` option
 ##   2. With a custom template using `custom-template:` option
 ##   3. A template image customized with conda packages using `conda-env-yml:` option
-##   4. Mounting data resources using `mount-data-resource-refs:` option
-##   5. Mounting data using data link names using `mount-data:` option
+##   4. Mounting data-link URIs using `mount-data-uris:` option
+##   5. Mounting data-link names using `mount-data:` option
+##   6. Mounting data-link IDs using `mount-data-ids:` option
 
 # Mounting with a template image
 studios:
@@ -16,9 +17,12 @@ studios:
     gpu: 1                                                                    # optional
     cpu: 2                                                                    # optional
     memory: 4096                                                              # optional
-    autoStart: True                                                           # optional
-    mount-data-resource-refs: 's3://my_bucket/my_data'                        # optional, comma separated list
-    overwrite: False                                                          # optional
+    auto-start: False                                                         # optional
+    mount-data-uris: 's3://my_bucket/my_data'                                 # optional, comma separated list
+    on_exists: ignore                                                         # optional
+    lifespan: 8                                                               # optional, integer for hours
+    private: True                                                             # optional
+    labels: 'label=value,study=my_study'                                      # optional, comma separated list
 
 # Mounting with a custom template
   - name: 'rstudio_environment_custom_template'                                 # required
@@ -29,9 +33,9 @@ studios:
     gpu: 1                                                                      # optional
     cpu: 2                                                                      # optional
     memory: 4096                                                                # optional
-    autoStart: True                                                             # optional
-    mount-data-resource-refs: 's3://my_bucket/my_data'                          # optional, comma separated list
-    overwrite: False                                                            # optional
+    auto-start: True                                                            # optional
+    mount-data-uris: 's3://my_bucket/my_data'                                   # optional, comma separated list
+    on_exists: ignore                                                           # optional
 
 # Mounting with a template image customized with conda packages
   - name: 'rstudio_environment_conda_packages'                                  # required
@@ -43,6 +47,6 @@ studios:
     gpu: 1                                                                      # optional
     cpu: 2                                                                      # optional
     memory: 4096                                                                # optional
-    autoStart: True                                                             # optional
-    mount-data-resource-refs: 's3://my_bucket/my_data'                          # optional, comma separated list
-    overwrite: False                                                            # optional
+    auto-start: False                                                           # optional
+    mount-data-uris: 's3://my_bucket/my_data'                                   # optional, comma separated list
+    on_exists: ignore                                                           # optional

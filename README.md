@@ -301,14 +301,34 @@ params:
 
 **Note**: If duplicate parameters are provided, the parameters provided as key-value pairs inside the `params` nested dictionary of the YAML file will take precedence **over** values in the provided `params-file`.
 
-### 2. `overwrite` Functionality
+### 2. `on_exists` Functionality
 
-For every entity defined in your YAML file, you can specify `overwrite: True` to overwrite any existing entities in Seqera Platform of the same name.
+For every entity defined in your YAML file, you can specify how to handle cases where the entity already exists using the `on_exists` parameter with one of three options:
 
-`seqerakit` will first check to see if the name of the entity exists, if so, it will invoke a `tw <subcommand> delete` command before attempting to create it based on the options defined in the YAML file.
+- `fail` (default): Raise an error if the entity already exists
+- `ignore`: Skip creation if the entity already exists
+- `overwrite`: Delete the existing entity and create a new one based on the YAML configuration
+
+Example usage in YAML:
+
+```yaml
+workspaces:
+  - name: 'showcase'
+    organization: 'seqerakit_automation'
+    on_exists: 'overwrite'  # Will delete and recreate if exists
+```
+
+```yaml
+credentials:
+  - name: 'github_credentials'
+    workspace: 'seqerakit_automation/showcase'
+    on_exists: 'ignore'  # Will skip if already exists
+```
+
+When using the `overwrite` option, `seqerakit` will first check if the entity exists, and if so, it will invoke a `tw <subcommand> delete` command before attempting to create it based on the options defined in the YAML file:
 
 ```console
-DEBUG:root: Overwrite is set to 'True' for organizations
+DEBUG:root: on_exists is set to 'overwrite' for organizations
 
 DEBUG:root: Running command: tw -o json organizations list
 DEBUG:root: The attempted organizations resource already exists. Overwriting.
@@ -316,6 +336,8 @@ DEBUG:root: The attempted organizations resource already exists. Overwriting.
 DEBUG:root: Running command: tw organizations delete --name $SEQERA_ORGANIZATION_NAME
 DEBUG:root: Running command: tw organizations add --name $SEQERA_ORGANIZATION_NAME --full-name $SEQERA_ORGANIZATION_NAME --description 'Example of an organization'
 ```
+
+> **Note**: For backward compatibility, the `overwrite: True|False` parameter is still supported but deprecated. It will be mapped to `on_exists: 'overwrite'|'fail'` respectively.
 
 ### 3. Specifying JSON configuration files with `file-path`
 

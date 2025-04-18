@@ -14,16 +14,17 @@ compute-envs:
     no-ebs-auto-scale: True
     max-cpus: 500
     wait: AVAILABLE
-    overwrite: True
+    labels: "workspace=seqerakit-e2e"
+    on_exists: overwrite
   - name: 'seqera_azure_virginia'
     workspace: 'seqerakit-e2e/showcase'
     credentials: 'azure_credentials'
     wait: 'AVAILABLE'
     file-path: './examples/yaml/compute-envs/seqera_azure_virginia.json'
-    overwrite: True
+    on_exists: overwrite
   - name: 'seqera_gcp_finland'
     workspace: 'seqerakit-e2e/showcase'
     credentials: 'google_credentials'
     wait: 'AVAILABLE'
     file-path: './examples/yaml/compute-envs/seqera_gcp_finland.json'
-    overwrite: True
+    on_exists: overwrite

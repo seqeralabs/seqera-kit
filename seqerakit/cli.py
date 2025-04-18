@@ -21,7 +21,7 @@ import argparse
 import logging
 import sys
 import os
-import yaml
+import yaml  # type: ignore
 
 from pathlib import Path
 
@@ -32,13 +32,14 @@ from seqerakit.seqeraplatform import (
     CommandError,
 )
 from seqerakit import __version__
+from seqerakit.on_exists import OnExists
 
 logger = logging.getLogger(__name__)
 
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser(
-        description="Seqerakit: Python wrapper for the Seqera Platform CLI"
+        description="Create resources on Seqera Platform using a YAML configuration file."
     )
     # General options
     general = parser.add_argument_group("General Options")
@@ -107,9 +108,18 @@ def parse_args(args=None):
         help="Path to a YAML file containing environment variables for configuration.",
     )
     yaml_processing.add_argument(
+        "--on-exists",
+        dest="on_exists",
+        type=str,
+        help="Globally specifies the action to take if a resource already exists.",
+        choices=[e.name.lower() for e in OnExists],
+    )
+    yaml_processing.add_argument(
         "--overwrite",
         action="store_true",
-        help="Globally enable overwrite for all resources defined in YAML input(s).",
+        help="""
+        Globally enable overwrite for all resources defined in YAML input(s).
+        Deprecated: Please use '--on-exists=overwrite' instead.""",
     )
     return parser.parse_args(args)
 
@@ -147,7 +157,7 @@ class BlockParser:
         if destroy:
             logging.debug(" The '--delete' flag has been specified.\n")
             self.overwrite_method.handle_overwrite(
-                block, args["cmd_args"], overwrite=False, destroy=True
+                block, args["cmd_args"], on_exists=OnExists.FAIL, destroy=True
             )
             return
 
@@ -162,15 +172,45 @@ class BlockParser:
             ),
         }
 
-        # Check if overwrite is set to True or globally, and call overwrite handler
-        overwrite_option = args.get("overwrite", False) or getattr(
-            self.sp, "overwrite", False
-        )
-        if overwrite_option and not dryrun:
-            logging.debug(f" Overwrite is set to 'True' for {block}\n")
-            self.overwrite_method.handle_overwrite(
-                block, args["cmd_args"], overwrite_option
+        # Determine the on_exists behavior (default to FAIL)
+        on_exists = OnExists.FAIL
+
+        # Check for global settings (they override block-level settings)
+        if (
+            hasattr(self.sp, "global_on_exists")
+            and self.sp.global_on_exists is not None
+        ):
+            on_exists = self.sp.global_on_exists
+        elif getattr(self.sp, "overwrite", False):
+            logging.warning(
+                "The '--overwrite' flag is deprecated. "
+                "Please use '--on-exists=overwrite' instead."
             )
+            on_exists = OnExists.OVERWRITE
+
+        # If no global setting, use block-level setting if provided
+        elif "on_exists" in args:
+            on_exists_value = args["on_exists"]
+            if isinstance(on_exists_value, str):
+                try:
+                    on_exists = OnExists[on_exists_value.upper()]
+                except KeyError as err:
+                    logging.error(f"Invalid on_exists option: {on_exists_value}")
+                    raise err
+
+        if not dryrun:
+            # Use on_exists.name.lower() only if it's an enum, otherwise use the string
+            on_exists_str = (
+                on_exists.name.lower() if hasattr(on_exists, "name") else on_exists
+            )
+            logging.debug(f" on_exists is set to '{on_exists_str}' for {block}\n")
+            should_continue = self.overwrite_method.handle_overwrite(
+                block, args["cmd_args"], on_exists=on_exists
+            )
+
+            # If on_exists is "ignore" and resource exists, skip creation
+            if not should_continue:
+                return
 
         if block in self.list_for_add_method:
             helper.handle_generic_block(self.sp, block, args["cmd_args"])
@@ -248,6 +288,16 @@ def main(args=None):
     )
     sp.overwrite = options.overwrite  # If global overwrite is set
 
+    # Set global on_exists parameter if provided
+    if options.on_exists:
+        try:
+            sp.global_on_exists = OnExists[options.on_exists.upper()]
+        except KeyError:
+            logging.error(f"Invalid on_exists option: {options.on_exists}")
+            raise
+    else:
+        sp.global_on_exists = None
+
     # If the info flag is set, run 'tw info'
     try:
         if options.info:
@@ -281,7 +331,7 @@ def main(args=None):
     # and get a dictionary of command line arguments
     try:
         cmd_args_dict = helper.parse_all_yaml(
-            yaml_files, destroy=options.delete, targets=options.targets
+            yaml_files, destroy=options.delete, targets=options.targets, sp=sp
         )
         for block, args_list in cmd_args_dict.items():
             for args in args_list:

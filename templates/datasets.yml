@@ -5,4 +5,4 @@ datasets:
     header: true                              # optional
     workspace: 'my_organization/my_workspace' # optional
     file-path: './datasets/my_dataset.csv'    # required
-    overwrite: True                           # optional
+    on_exists: overwrite                      # optional

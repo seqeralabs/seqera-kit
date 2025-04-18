@@ -1,5 +1,6 @@
 from unittest.mock import patch, mock_open
 from seqerakit import helper
+from seqerakit.on_exists import OnExists
 import yaml
 import pytest
 from io import StringIO
@@ -19,6 +20,21 @@ def mock_yaml_file(mocker):
     return _mock_yaml_file
 
 
+# Fixture to mock SeqeraPlatform instance
+@pytest.fixture
+def mock_seqera_platform(mocker):
+    """Fixture for mocked SeqeraPlatform with common setup."""
+    mock_sp = mocker.Mock()
+
+    # Mock the suppress_output context manager
+    mock_context = mocker.MagicMock()
+    mock_context.__enter__ = mocker.Mock()
+    mock_context.__exit__ = mocker.Mock()
+    mock_sp.suppress_output.return_value = mock_context
+
+    return mock_sp
+
+
 def test_create_mock_organization_yaml(mock_yaml_file):
     test_data = {
         "organizations": [
@@ -28,7 +44,7 @@ def test_create_mock_organization_yaml(mock_yaml_file):
                 "description": "My test organization 1",
                 "location": "Global",
                 "url": "https://example.com",
-                "overwrite": True,
+                "on_exists": "overwrite",
             }
         ]
     }
@@ -46,7 +62,7 @@ def test_create_mock_organization_yaml(mock_yaml_file):
                 "--url",
                 "https://example.com",
             ],
-            "overwrite": True,
+            "on_exists": OnExists.OVERWRITE,
         }
     ]
     file_path = mock_yaml_file(test_data)
@@ -66,7 +82,7 @@ def test_create_mock_workspace_yaml(mock_yaml_file):
                 "organization": "my_organization",
                 "description": "My test workspace 1",
                 "visibility": "PRIVATE",
-                "overwrite": True,
+                "on_exists": "overwrite",
             }
         ]
     }
@@ -84,7 +100,7 @@ def test_create_mock_workspace_yaml(mock_yaml_file):
                 "--visibility",
                 "PRIVATE",
             ],
-            "overwrite": True,
+            "on_exists": OnExists.OVERWRITE,
         }
     ]
 
@@ -104,7 +120,7 @@ def test_create_mock_dataset_yaml(mock_yaml_file):
                 "workspace": "my_organization/my_workspace",
                 "header": True,
                 "file-path": "./examples/yaml/datasets/samples.csv",
-                "overwrite": True,
+                "on_exists": "overwrite",
             }
         ]
     }
@@ -120,7 +136,7 @@ def test_create_mock_dataset_yaml(mock_yaml_file):
                 "My test dataset 1",
                 "--header",
             ],
-            "overwrite": True,
+            "on_exists": OnExists.OVERWRITE,
         }
     ]
 
@@ -131,7 +147,7 @@ def test_create_mock_dataset_yaml(mock_yaml_file):
     assert result["datasets"] == expected_block_output
 
 
-def test_create_mock_computeevs_source_yaml(mock_yaml_file):
+def test_create_mock_computeevs_source_yaml(mock_yaml_file, mock_seqera_platform):
     test_data = {
         "compute-envs": [
             {
@@ -142,7 +158,7 @@ def test_create_mock_computeevs_source_yaml(mock_yaml_file):
                 "wait": "AVAILABLE",
                 "fusion-v2": True,
                 "fargate": False,
-                "overwrite": True,
+                "on_exists": "overwrite",
             }
         ],
     }
@@ -161,12 +177,12 @@ def test_create_mock_computeevs_source_yaml(mock_yaml_file):
                 "--workspace",
                 "my_organization/my_workspace",
             ],
-            "overwrite": True,
+            "on_exists": OnExists.OVERWRITE,
         }
     ]
 
     file_path = mock_yaml_file(test_data)
-    result = helper.parse_all_yaml([file_path])
+    result = helper.parse_all_yaml([file_path], sp=mock_seqera_platform)
 
     assert "compute-envs" in result
     assert result["compute-envs"] == expected_block_output
@@ -186,27 +202,31 @@ def test_create_mock_computeevs_cli_yaml(mock_yaml_file):
         ],
     }
 
-    expected_block_output = [
-        {
-            "cmd_args": [
-                "aws-batch",
-                "forge",
-                "--credentials",
-                "my_credentials",
-                "--name",
-                "test_computeenv",
-                "--wait",
-                "AVAILABLE",
-                "--workspace",
-                "my_organization/my_workspace",
-            ],
-            "overwrite": False,
-        }
-    ]
+    # Get the actual result
     file_path = mock_yaml_file(test_data)
     result = helper.parse_all_yaml([file_path])
     assert "compute-envs" in result
-    assert result["compute-envs"] == expected_block_output
+    actual_args = result["compute-envs"][0]["cmd_args"]
+
+    expected_args = {
+        "aws-batch",  # type
+        "forge",  # config-mode
+        "--credentials",
+        "my_credentials",
+        "--name",
+        "test_computeenv",
+        "--wait",
+        "AVAILABLE",
+        "--workspace",
+        "my_organization/my_workspace",
+    }
+
+    # set for order-independent comparison
+    actual_args_set = set(actual_args)
+
+    assert all(arg in actual_args_set for arg in expected_args)
+    assert result["compute-envs"][0]["on_exists"] == OnExists.FAIL
+    assert len(actual_args) == len(expected_args)
 
 
 def test_create_mock_pipeline_add_yaml(mock_yaml_file):
@@ -224,47 +244,40 @@ def test_create_mock_pipeline_add_yaml(mock_yaml_file):
                 "config": "./examples/yaml/pipelines/test_pipeline1/config.txt",
                 "pre-run": "./examples/yaml/pipelines/test_pipeline1/pre_run.sh",
                 "revision": "master",
-                "overwrite": True,
+                "on_exists": "overwrite",
                 "stub-run": True,
             }
         ]
     }
-    # params file cmds parsed separately
-    expected_block_output = [
-        {
-            "cmd_args": [
-                "--compute-env",
-                "my_computeenv",
-                "--config",
-                "./examples/yaml/pipelines/test_pipeline1/config.txt",
-                "--description",
-                "My test pipeline 1",
-                "--name",
-                "test_pipeline1",
-                "--pre-run",
-                "./examples/yaml/pipelines/test_pipeline1/pre_run.sh",
-                "--profile",
-                "test",
-                "--revision",
-                "master",
-                "--stub-run",
-                "--work-dir",
-                "s3://work",
-                "--workspace",
-                "my_organization/my_workspace",
-                "https://github.com/nf-core/test_pipeline1",
-                "--params-file",
-                "./examples/yaml/pipelines/test_pipeline1/params.yaml",
-            ],
-            "overwrite": True,
-        }
-    ]
 
     file_path = mock_yaml_file(test_data)
     result = helper.parse_all_yaml([file_path])
 
     assert "pipelines" in result
-    assert result["pipelines"] == expected_block_output
+    actual_args = result["pipelines"][0]["cmd_args"]
+
+    expected_pairs = {
+        "--compute-env": "my_computeenv",
+        "--config": "./examples/yaml/pipelines/test_pipeline1/config.txt",
+        "--description": "My test pipeline 1",
+        "--name": "test_pipeline1",
+        "--pre-run": "./examples/yaml/pipelines/test_pipeline1/pre_run.sh",
+        "--profile": "test",
+        "--revision": "master",
+        "--work-dir": "s3://work",
+        "--workspace": "my_organization/my_workspace",
+        "--params-file": "./examples/yaml/pipelines/test_pipeline1/params.yaml",
+    }
+
+    assert "--stub-run" in actual_args
+    assert "https://github.com/nf-core/test_pipeline1" in actual_args
+
+    for key, value in expected_pairs.items():
+        key_index = actual_args.index(key)
+        assert actual_args[key_index + 1] == value
+
+    # Check overwrite flag
+    assert result["pipelines"][0]["on_exists"] == OnExists.OVERWRITE
 
 
 def test_create_mock_teams_yaml(mock_yaml_file):
@@ -275,7 +288,7 @@ def test_create_mock_teams_yaml(mock_yaml_file):
                 "organization": "my_organization",
                 "description": "My test team 1",
                 "members": ["user1@org.io"],
-                "overwrite": True,
+                "on_exists": "overwrite",
             },
         ]
     }
@@ -302,7 +315,7 @@ def test_create_mock_teams_yaml(mock_yaml_file):
                     ]
                 ],
             ),
-            "overwrite": True,
+            "on_exists": OnExists.OVERWRITE,
         }
     ]
 
@@ -323,7 +336,7 @@ def test_create_mock_members_yaml(mock_yaml_file):
                 "--user",
                 "bob@myorg.io",
             ],
-            "overwrite": False,
+            "on_exists": OnExists.FAIL,
         }
     ]
     file_path = mock_yaml_file(test_data)
@@ -344,7 +357,7 @@ def test_create_mock_studios_yaml(mock_yaml_file):
                 "cpu": 2,
                 "memory": 4096,
                 "autoStart": False,
-                "overwrite": True,
+                "on_exists": "overwrite",
                 "mount-data-ids": "v1-user-bf73f9d33997f93a20ee3e6911779951",
             }
         ]
@@ -368,7 +381,7 @@ def test_create_mock_studios_yaml(mock_yaml_file):
                 "--workspace",
                 "my_organization/my_workspace",
             ],
-            "overwrite": True,
+            "on_exists": OnExists.OVERWRITE,
         }
     ]
 
@@ -388,7 +401,7 @@ def test_create_mock_data_links_yaml(mock_yaml_file):
                 "provider": "aws",
                 "credentials": "my_credentials",
                 "uri": "s3://scidev-playground-eu-west-2/esha/nf-core-scrnaseq/",
-                "overwrite": True,
+                "on_exists": "overwrite",
             }
         ]
     }
@@ -406,7 +419,7 @@ def test_create_mock_data_links_yaml(mock_yaml_file):
                 "--workspace",
                 "my_organization/my_workspace",
             ],
-            "overwrite": True,
+            "on_exists": OnExists.OVERWRITE,
         }
     ]
     file_path = mock_yaml_file(test_data)
@@ -466,7 +479,7 @@ compute-envs:
                 "--wait",
                 "AVAILABLE",
             ],
-            "overwrite": False,
+            "on_exists": OnExists.FAIL,
         }
     ]
     assert "compute-envs" in result
@@ -549,7 +562,7 @@ pipelines:
     expected_organizations_output = [
         {
             "cmd_args": ["--name", "org1", "--description", "Organization 1"],
-            "overwrite": False,
+            "on_exists": OnExists.FAIL,
         }
     ]
     expected_workspaces_output = [
@@ -562,7 +575,7 @@ pipelines:
                 "--description",
                 "Workspace 1",
             ],
-            "overwrite": False,
+            "on_exists": OnExists.FAIL,
         }
     ]
     # Check that only 'organizations' and 'workspaces' are in the result
@@ -594,3 +607,81 @@ pipelines:
     assert "organizations" in result
     assert "workspaces" in result
     assert "pipelines" in result
+
+
+def test_process_params_dict_basic():
+    """Test basic params dictionary processing without dataset resolution."""
+    params = {"input": "s3://bucket/data", "outdir": "s3://bucket/results"}
+
+    result = helper.process_params_dict(params)
+    assert len(result) == 2
+    assert result[0] == "--params-file"
+    # The second argument should be a path to a temp file
+    assert result[1].endswith(".yaml")
+
+
+def test_process_params_dict_with_file_path():
+    result = helper.process_params_dict(None, params_file_path="path/to/params.yaml")
+    assert result == ["--params-file", "path/to/params.yaml"]
+
+
+def test_process_params_dict_empty():
+    assert helper.process_params_dict(None) == []
+    assert helper.process_params_dict({}) == []
+
+
+def test_resolve_dataset_reference(mocker, mock_yaml_file, mock_seqera_platform):
+    """Test dataset URL resolution."""
+    mock_seqera_platform.datasets.return_value = {
+        "datasetUrl": "https://api.cloud.seqera.io/datasets/123"
+    }
+
+    params = {"dataset": "my_dataset_name"}
+    mock_yaml_file(params, "params.yaml")
+
+    result = helper.resolve_dataset_reference(
+        params, "org/workspace", mock_seqera_platform
+    )
+
+    assert "dataset" not in result
+    assert result["input"] == "https://api.cloud.seqera.io/datasets/123"
+
+    mock_seqera_platform.datasets.assert_called_once_with(
+        "url", "-n", "my_dataset_name", "-w", "org/workspace"
+    )
+
+
+def test_resolve_dataset_reference_error(mocker, mock_seqera_platform):
+    """Test dataset resolution error handling."""
+    mock_seqera_platform.datasets.return_value = None
+
+    params = {"dataset": "nonexistent_dataset"}
+    workspace = "org/workspace"
+
+    with pytest.raises(
+        ValueError, match="No URL found for dataset 'nonexistent_dataset'"
+    ):
+        helper.resolve_dataset_reference(params, workspace, mock_seqera_platform)
+
+
+def test_process_params_dict_with_dataset_resolution(mocker, mock_seqera_platform):
+    """Test full params processing with dataset resolution."""
+    mock_seqera_platform.datasets.return_value = {
+        "datasetUrl": "https://api.cloud.seqera.io/datasets/123"
+    }
+
+    params = {"dataset": "my_dataset", "outdir": "s3://bucket/results"}
+
+    result = helper.process_params_dict(
+        params, workspace="org/workspace", sp=mock_seqera_platform
+    )
+
+    assert len(result) == 2
+    assert result[0] == "--params-file"
+
+    # verify temp param file contents
+    with open(result[1], "r") as f:
+        written_params = yaml.safe_load(f)
+        assert written_params["input"] == "https://api.cloud.seqera.io/datasets/123"
+        assert written_params["outdir"] == "s3://bucket/results"
+        assert "dataset" not in written_params

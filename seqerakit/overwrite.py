@@ -15,6 +15,7 @@
 import json
 from seqerakit import utils
 from seqerakit.seqeraplatform import ResourceExistsError
+from seqerakit.on_exists import OnExists
 import logging
 
 
@@ -36,6 +37,9 @@ class Overwrite:
         "pipelines",
         "studios",
     ]
+
+    # Define valid on_exists options as enum values
+    VALID_ON_EXISTS_OPTIONS = [e.name.lower() for e in OnExists]
 
     def __init__(self, sp):
         """
@@ -95,11 +99,36 @@ class Overwrite:
             },
         }
 
-    def handle_overwrite(self, block, args, overwrite=False, destroy=False):
+    def handle_overwrite(
+        self, block, args, on_exists=OnExists.FAIL, destroy=False, overwrite=None
+    ):
         """
-        Handles overwrite functionality for Seqera Platform resources and
-        calling the 'tw delete' method with the correct args.
+        Handles resource existence behavior for Seqera Platform resources.
+
+        Args:
+            block: The resource block type (e.g., "organizations", "teams")
+            args: Command line arguments for the resource
+            on_exists: How to handle existing resources. Options:
+                - OnExists.FAIL (default): Raise an error if resource exists
+                - OnExists.IGNORE: Skip creation if resource exists
+                - OnExists.OVERWRITE: Delete existing resource and create new one
+            destroy: Whether to delete the resource
+            overwrite: Legacy parameter for backward compatibility
         """
+        # Convert string to enum if needed
+        if isinstance(on_exists, str):
+            try:
+                on_exists = OnExists[on_exists.upper()]
+            except KeyError:
+                raise ValueError(
+                    f"Invalid on_exists option: {on_exists}. "
+                    f"Valid options are: {', '.join(self.VALID_ON_EXISTS_OPTIONS)}"
+                )
+
+        # For backward compatibility
+        if overwrite is not None:
+            on_exists = OnExists.OVERWRITE if overwrite else OnExists.FAIL
+
         if block in Overwrite.generic_deletion:
             self.block_operations[block] = {
                 "keys": ["name", "workspace"],
@@ -122,23 +151,32 @@ class Overwrite:
             elif block == "members":
                 # Rename the user key to name to correctly index JSON data
                 sp_args["name"] = sp_args.pop("user")
+
             if self.check_resource_exists(operation["name_key"], sp_args):
-                # if resource exists and overwrite is true, delete
-                if overwrite:
+                # Handle based on on_exists parameter
+                if on_exists == OnExists.OVERWRITE:
                     logging.info(
                         f" The attempted {block} resource already exists."
                         " Overwriting.\n"
                     )
                     self.delete_resource(block, operation, sp_args)
+                elif on_exists == OnExists.IGNORE:
+                    logging.info(
+                        f" The {block} resource already exists." " Skipping creation.\n"
+                    )
+                    return False
                 elif destroy:
                     logging.info(f" Deleting the {block} resource.")
                     self.delete_resource(block, operation, sp_args)
-                else:  # return an error if resource exists, overwrite=False
+                else:  # fail
                     raise ResourceExistsError(
-                        f" The {block} resource already exists and"
-                        " will not be created. Please set 'overwrite: True'"
-                        " in your config file.\n"
+                        f"The {block} resource already exists and "
+                        "will not be created. Please set 'on_exists: overwrite' "
+                        "to replace the resource or set 'on_exists: ignore' to "
+                        "ignore this error.\n"
                     )
+            return True
+        return True
 
     def _get_organization_args(self, args):
         """
