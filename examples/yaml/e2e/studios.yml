@@ -7,6 +7,6 @@ studios:
     cpu: 2
     memory: 4096
     auto-start: False
-    mount-data-resource-uris: 's3://seqeralabs-showcase'
+    mount-data-uris: 's3://seqeralabs-showcase'
     lifespan: 1
     labels: 'project=seqerakit-e2e,organization=seqerakit-e2e,study=showcase'

@@ -14,6 +14,7 @@ compute-envs:
     no-ebs-auto-scale: True
     max-cpus: 500
     wait: AVAILABLE
+    labels: "workspace=seqerakit-e2e"
     on_exists: overwrite
   - name: 'seqera_azure_virginia'
     workspace: 'seqerakit-e2e/showcase'

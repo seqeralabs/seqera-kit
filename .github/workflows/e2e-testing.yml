@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      TOWER_API_ENDPOINT: ${{ vars.TOWER_API_ENDPOINT }}
       TOWER_ACCESS_TOKEN: ${{ secrets.TOWER_ACCESS_TOKEN }}
       TOWER_GITHUB_PASSWORD: ${{ secrets.TOWER_GITHUB_PASSWORD }}
       DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
@@ -52,9 +53,9 @@ jobs:
         run: |
           pip install -e .
 
-      - name: Install Tower CLI v0.9.1
+      - name: Install Tower CLI v0.11.3
         run: |
-          wget https://github.com/seqeralabs/tower-cli/releases/download/v0.9.1/tw-linux-x86_64 \
+          wget https://github.com/seqeralabs/tower-cli/releases/download/v0.11.3/tw-linux-x86_64 \
           && chmod +x tw-linux-x86_64 \
           && sudo mv tw-linux-x86_64 /usr/local/bin/tw
 
