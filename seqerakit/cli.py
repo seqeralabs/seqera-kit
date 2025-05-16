@@ -39,7 +39,9 @@ logger = logging.getLogger(__name__)
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser(
-        description="Create resources on Seqera Platform using a YAML configuration file."
+        description="""
+        Create resources on Seqera Platform using a YAML configuration file.
+        """
     )
     # General options
     general = parser.add_argument_group("General Options")
@@ -191,7 +193,9 @@ class BlockParser:
         # If no global setting, use block-level setting if provided
         elif "on_exists" in args:
             on_exists_value = args["on_exists"]
-            if isinstance(on_exists_value, str):
+            if isinstance(on_exists_value, OnExists):
+                on_exists = on_exists_value
+            elif isinstance(on_exists_value, str):
                 try:
                     on_exists = OnExists[on_exists_value.upper()]
                 except KeyError as err:
