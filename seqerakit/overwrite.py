@@ -296,7 +296,6 @@ class Overwrite:
             "labels",
             "data-links",
         }:
-            # TODO: this needs to include the organization or be based on workspace ID
             if sp_args.get("workspace"):
                 cache_key = f"{block}:{sp_args['workspace']}"
         elif block in {"members", "workspaces", "teams"}:
