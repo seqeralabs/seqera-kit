@@ -458,6 +458,9 @@ def handle_pipelines(sp, args):
             break
         elif ".json" in arg:
             method("import", *args)
+            break
+    else:  # No break occurred
+        method("add", *args)
 
 
 def find_name(cmd_args):
