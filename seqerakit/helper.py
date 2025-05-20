@@ -199,7 +199,10 @@ def parse_block(block_name, item, sp=None):
 def parse_generic_block(item, sp=None):
     cmd_args = []
     for key, value in item.items():
-        if isinstance(value, bool):
+        # Skip None values
+        if value is None:
+            continue
+        elif isinstance(value, bool):
             if value:
                 cmd_args.append(f"--{key}")
         else:
@@ -218,12 +221,15 @@ def parse_type_block(item, priority_keys=["type", "config-mode", "file-path"], s
 
     # Process priority keys first
     for key in priority_keys:
-        if key in item:
+        if key in item and item[key] is not None:
             cmd_args.append(str(item[key]))
             del item[key]  # Remove the key to avoid repeating in args
 
     for key, value in item.items():
-        if isinstance(value, bool):
+        # Skip None values
+        if value is None:
+            continue
+        elif isinstance(value, bool):
             if value:
                 cmd_args.append(f"--{key}")
         elif key == "params":
@@ -243,6 +249,9 @@ def parse_teams_block(item, sp=None):
     members_cmd_args = []
 
     for key, value in item.items():
+        # Skip None values
+        if value is None:
+            continue
         if key in cmd_keys:
             cmd_args.extend([f"--{key}", str(value)])
         elif key in members_keys and key == "members":
@@ -264,6 +273,9 @@ def parse_teams_block(item, sp=None):
 def parse_datasets_block(item, sp=None):
     cmd_args = []
     for key, value in item.items():
+        # Skip None values
+        if value is None:
+            continue
         if key == "file-path":
             cmd_args.extend(
                 [
@@ -340,7 +352,7 @@ def process_params_dict(params_dict, workspace=None, sp=None, params_file_path=N
         if sp is not None and workspace:
             params_dict = resolve_dataset_reference(params_dict, workspace, sp)
 
-        # Create temp file with resolved params
+        # Create temp file with params
         temp_file_name = utils.create_temp_yaml(
             params_dict, params_file=params_file_path
         )
@@ -357,6 +369,9 @@ def parse_pipelines_block(item, sp=None):
     repo_args = []
 
     for key, value in item.items():
+        # Skip None values
+        if value is None:
+            continue
         if key == "url":
             repo_args.extend([str(value)])
         elif key == "params":
@@ -383,6 +398,9 @@ def parse_launch_block(item, sp=None):
     repo_args = []
 
     for key, value in item.items():
+        # Skip None values
+        if value is None:
+            continue
         if key == "pipeline" or key == "url":
             repo_args.extend([str(value)])
         elif key in ["params", "params-file"]:
