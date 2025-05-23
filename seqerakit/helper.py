@@ -457,13 +457,19 @@ def handle_participants(sp, args):
 
 def handle_compute_envs(sp, args):
     json_file = any(".json" in arg for arg in args)
-
     method = getattr(sp, "compute_envs")
 
-    if json_file:
-        method("import", *args)
-    else:
-        method("add", *args)
+    # Check if primary flag is provided
+    set_primary = "--primary" in args
+    if set_primary:
+        name = args[args.index("--name") + 1]
+        workspace = args[args.index("--workspace") + 1]
+        args = [arg for arg in args if arg != "--primary"]
+
+    method("import" if json_file else "add", *args)
+
+    if set_primary:
+        method("primary", "set", "--name", name, "--workspace", workspace)
 
 
 def handle_pipelines(sp, args):
