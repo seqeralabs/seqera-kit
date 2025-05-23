@@ -481,6 +481,26 @@ def handle_pipelines(sp, args):
         method("add", *args)
 
 
+def handle_members(sp, args):
+    method = getattr(sp, "members")
+
+    # Check if role is specified in args
+    has_role = "--role" in args
+    role_value = None
+
+    if has_role:
+        role_index = args.index("--role")
+        role_value = args[role_index + 1]
+        args = [
+            arg for i, arg in enumerate(args) if i != role_index and i != role_index + 1
+        ]
+    method("add", *args)
+
+    # Then update with role if provided
+    if has_role and role_value:
+        method("update", *args, "--role", role_value)
+
+
 def find_name(cmd_args):
     """
     Find and return the value associated with --name in cmd_args, where cmd_args
