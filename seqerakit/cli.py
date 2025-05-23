@@ -166,6 +166,7 @@ class BlockParser:
         # Handles a block of commands by calling the appropriate function.
         block_handler_map = {
             "teams": (helper.handle_teams),
+            "members": (helper.handle_members),
             "participants": (helper.handle_participants),
             "compute-envs": (helper.handle_compute_envs),
             "pipelines": (helper.handle_pipelines),
@@ -321,7 +322,6 @@ def main(args=None):
             "organizations",  # all use method.add
             "workspaces",
             "labels",
-            "members",
             "credentials",
             "secrets",
             "actions",
