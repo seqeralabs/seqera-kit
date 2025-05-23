@@ -685,3 +685,59 @@ def test_process_params_dict_with_dataset_resolution(mocker, mock_seqera_platfor
         assert written_params["input"] == "https://api.cloud.seqera.io/datasets/123"
         assert written_params["outdir"] == "s3://bucket/results"
         assert "dataset" not in written_params
+
+
+def test_cli_overrides_workspace(mock_yaml_file):
+    test_data = {
+        "workspaces": [
+            {
+                "name": "test_workspace1",
+                "full-name": "My test workspace 1",
+                "organization": "original_organization",
+                "description": "My test workspace 1",
+                "visibility": "PRIVATE",
+                "on_exists": "overwrite",
+            }
+        ]
+    }
+
+    cli_overrides = {"organization": "overridden_organization"}
+
+    file_path = mock_yaml_file(test_data)
+    result = helper.parse_all_yaml([file_path], cli_overrides=cli_overrides)
+
+    assert "workspaces" in result
+    actual_args = result["workspaces"][0]["cmd_args"]
+
+    # Check that the organization was overridden
+    org_index = actual_args.index("--organization")
+    assert actual_args[org_index + 1] == "overridden_organization"
+
+    # Check that rest is unchanged
+    name_index = actual_args.index("--name")
+    assert actual_args[name_index + 1] == "test_workspace1"
+
+
+def test_parse_cli_overrides():
+    # Test valid overrides values
+    override_list = [
+        "workspace=scidev/testing",
+        "organization=myorg",
+        "key=value with spaces",
+    ]
+    result = helper.parse_cli_overrides(override_list)
+
+    expected = {
+        "workspace": "scidev/testing",
+        "organization": "myorg",
+        "key": "value with spaces",
+    }
+    assert result == expected
+    assert helper.parse_cli_overrides(None) == {}
+    assert helper.parse_cli_overrides([]) == {}
+
+    with pytest.raises(ValueError, match="Invalid override format"):
+        helper.parse_cli_overrides(["invalid_format"])
+
+    with pytest.raises(ValueError, match="Empty key in override"):
+        helper.parse_cli_overrides(["=value"])

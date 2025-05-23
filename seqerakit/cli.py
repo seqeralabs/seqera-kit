@@ -123,6 +123,15 @@ def parse_args(args=None):
         Globally enable overwrite for all resources defined in YAML input(s).
         Deprecated: Please use '--on-exists=overwrite' instead.""",
     )
+    yaml_processing.add_argument(
+        "--override",
+        dest="overrides",
+        type=str,
+        action="append",
+        help="Override YAML values using key=value format "
+        "(e.g. '--override workspace=scidev/testing'). "
+        "Can be specified multiple times for different keys.",
+    )
     return parser.parse_args(args)
 
 
@@ -313,6 +322,13 @@ def main(args=None):
         logging.error(e)
         sys.exit(1)
 
+    # Parse CLI overrides
+    try:
+        cli_overrides = helper.parse_cli_overrides(options.overrides)
+    except ValueError as e:
+        logging.error(f"Override parsing error: {e}")
+        sys.exit(1)
+
     yaml_files = find_yaml_files(options.yaml)
 
     block_manager = BlockParser(
@@ -335,7 +351,11 @@ def main(args=None):
     # and get a dictionary of command line arguments
     try:
         cmd_args_dict = helper.parse_all_yaml(
-            yaml_files, destroy=options.delete, targets=options.targets, sp=sp
+            yaml_files,
+            destroy=options.delete,
+            targets=options.targets,
+            sp=sp,
+            cli_overrides=cli_overrides,
         )
         for block, args_list in cmd_args_dict.items():
             for args in args_list:

@@ -24,7 +24,7 @@ import json
 from seqerakit.on_exists import OnExists
 
 
-def parse_yaml_block(yaml_data, block_name, sp=None):
+def parse_yaml_block(yaml_data, block_name, sp=None, cli_overrides=None):
     # Get the name of the specified block/resource.
     block = yaml_data.get(block_name)
 
@@ -39,8 +39,11 @@ def parse_yaml_block(yaml_data, block_name, sp=None):
     name_values = set()
 
     # Iterate over each item in the block.
-    # TODO: fix for resources that can be duplicate named in an org
     for item in block:
+        # Apply CLI overrides
+        if cli_overrides:
+            item = apply_cli_overrides(item, cli_overrides)
+
         cmd_args = parse_block(block_name, item, sp)
         name = find_name(cmd_args)
         if name in name_values:
@@ -56,7 +59,9 @@ def parse_yaml_block(yaml_data, block_name, sp=None):
     return block_name, cmd_args_list
 
 
-def parse_all_yaml(file_paths, destroy=False, targets=None, sp=None):
+def parse_all_yaml(
+    file_paths, destroy=False, targets=None, sp=None, cli_overrides=None
+):
     # If multiple yamls, merge them into one dictionary
     merged_data = {}
 
@@ -144,7 +149,9 @@ def parse_all_yaml(file_paths, destroy=False, targets=None, sp=None):
     for block_name in resource_order:
         if block_name in block_names:
             # Parse the block and add its command line arguments to the dictionary.
-            block_name, cmd_args_list = parse_yaml_block(merged_data, block_name, sp)
+            block_name, cmd_args_list = parse_yaml_block(
+                merged_data, block_name, sp, cli_overrides=cli_overrides
+            )
             cmd_args_dict[block_name] = cmd_args_list
 
     # Return the dictionary of command arguments.
@@ -509,3 +516,58 @@ def find_name(cmd_args):
         return None
 
     return search(cmd_args.get("cmd_args", []))
+
+
+def parse_cli_overrides(override_list):
+    """
+    Parse CLI override keys and values into a dictionary.
+
+    Args:
+        override_list (list): List of "key=value" strings from CLI
+
+    Returns:
+        dict: Dictionary of parsed overrides
+    """
+    overrides = {}
+
+    if not override_list:
+        return overrides
+
+    for override_str in override_list:
+        if "=" not in override_str:
+            raise ValueError(
+                f"Invalid override format: '{override_str}'. Expected 'key=value'."
+            )
+
+        key, value = override_str.split("=", 1)  # Split only on first =
+        key = key.strip()
+        value = value.strip()
+
+        if not key:
+            raise ValueError(f"Empty key in override: '{override_str}'")
+
+        overrides[key] = value
+
+    return overrides
+
+
+def apply_cli_overrides(item, overrides):
+    """
+    Apply CLI overrides to a YAML item.
+
+    Args:
+        item (dict): The parsed YAML item
+        overrides (dict): Dictionary of override values from CLI
+
+    Returns:
+        dict: Updated item with overrides applied
+    """
+    if not isinstance(item, dict) or not overrides:
+        return item
+
+    item_copy = item.copy()
+
+    for key, value in overrides.items():
+        item_copy[key] = value
+
+    return item_copy
