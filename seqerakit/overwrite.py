@@ -99,6 +99,14 @@ class Overwrite:
             },
         }
 
+        # Initialize the generic deletion handlers upfront
+        for block in self.generic_deletion:
+            self.block_operations[block] = {
+                "keys": ["name", "workspace"],
+                "method_args": self._get_generic_deletion_args,
+                "name_key": "name",
+            }
+
     def handle_overwrite(
         self, block, args, on_exists=OnExists.FAIL, destroy=False, overwrite=None
     ):
@@ -128,13 +136,6 @@ class Overwrite:
         # For backward compatibility
         if overwrite is not None:
             on_exists = OnExists.OVERWRITE if overwrite else OnExists.FAIL
-
-        if block in Overwrite.generic_deletion:
-            self.block_operations[block] = {
-                "keys": ["name", "workspace"],
-                "method_args": self._get_generic_deletion_args,
-                "name_key": "name",
-            }
 
         if block in self.block_operations:
             operation = self.block_operations[block]
